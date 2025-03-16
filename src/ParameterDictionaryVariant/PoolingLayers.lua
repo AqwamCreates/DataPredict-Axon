@@ -1329,11 +1329,13 @@ function PoolingLayers.MaximumPooling1D(parameterDictionary)
 
 end
 
-function PoolingLayers.MaximumPooling2D(tensor, kernelDimensionSizeArray, strideDimensionSizeArray)
+function PoolingLayers.MaximumPooling2D(parameterDictionary)
 
-	kernelDimensionSizeArray = kernelDimensionSizeArray or default2DKernelDimensionSizeArray
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	strideDimensionSizeArray = strideDimensionSizeArray or default2DStrideDimensionSizeArray
+	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
+
+	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
