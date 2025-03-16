@@ -30,8 +30,6 @@ local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
 local AHAAutomaticDifferentiationTensor = {}
 
---------------------------------------------------------------------------------------
-
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
