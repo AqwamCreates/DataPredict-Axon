@@ -670,7 +670,7 @@ function AHAAutomaticDifferentiationTensor:add(parameterDictionary)
 
 	local tensorArray = parameterDictionary.tensorArray or parameterDictionary[1]
 
-	table.insert(tensorArray, self, 1)
+	table.insert(tensorArray, 1, self)
 
 	local result = AqwamTensorLibrary:add(table.unpack(tensorArray))
 
@@ -700,7 +700,7 @@ function AHAAutomaticDifferentiationTensor:subtract(parameterDictionary)
 
 	local tensorArray = parameterDictionary.tensorArray or parameterDictionary[1]
 
-	table.insert(tensorArray, self, 1)
+	table.insert(tensorArray, 1, self)
 
 	local result = AqwamTensorLibrary:subtract(table.unpack(tensorArray))
 
@@ -730,7 +730,7 @@ function AHAAutomaticDifferentiationTensor:multiply(parameterDictionary)
 
 	local tensorArray = parameterDictionary.tensorArray or parameterDictionary[1]
 
-	table.insert(tensorArray, self, 1)
+	table.insert(tensorArray, 1, self)
 
 	local result = AqwamTensorLibrary:multiply(table.unpack(tensorArray))
 
@@ -770,7 +770,7 @@ function AHAAutomaticDifferentiationTensor:divide(parameterDictionary)
 
 	local tensorArray = parameterDictionary.tensorArray or parameterDictionary[1]
 
-	table.insert(tensorArray, self, 1)
+	table.insert(tensorArray, 1, self)
 
 	local result = AqwamTensorLibrary:divide(table.unpack(tensorArray))
 
