@@ -161,14 +161,16 @@ local unpooling3DMethodInverseFunctionList = {
 	end,
 
 }
-function PoolingLayers.MaximumUnpooling1D(tensor, kernelDimensionSize, strideDimensionSize, unpoolingMethod)
+function PoolingLayers.MaximumUnpooling1D(parameterDictionary)
 	
-	kernelDimensionSize = kernelDimensionSize or defaultKernelDimensionSize
-	
-	strideDimensionSize = strideDimensionSize or defaultStrideDimensionSize
-	
-	unpoolingMethod = unpoolingMethod or defaultUnpoolingMethod
-	
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
+
+	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
+
+	local unpoolingMethod = parameterDictionary.unpoolingMethod or parameterDictionary[4] or defaultUnpoolingMethod
+
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
@@ -186,11 +188,11 @@ function PoolingLayers.MaximumUnpooling1D(tensor, kernelDimensionSize, strideDim
 	local outputDimensionSize = (inputDimensionSize - 1) * strideDimensionSize + kernelDimensionSize
 
 	resultTensorDimensionSizeArray[3] = outputDimensionSize
-	
+
 	local tensorDimension1Size = tensorDimensionSizeArray[1]
-	
+
 	local tensorDimension2Size = tensorDimensionSizeArray[2]
-	
+
 	local tensorDimension3Size = tensorDimensionSizeArray[3]
 
 	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray, 0)
@@ -214,9 +216,9 @@ function PoolingLayers.MaximumUnpooling1D(tensor, kernelDimensionSize, strideDim
 		end
 
 	end
-	
+
 	local PartialDerivativeFunction = function(derivativeTensor)
-		
+
 		local unpoolingMethodInverseFunction = unpooling1DMethodInverseFunctionList[unpoolingMethod]
 
 		if (not unpoolingMethodInverseFunction) then error("Invalid unpooling method.") end
@@ -242,22 +244,24 @@ function PoolingLayers.MaximumUnpooling1D(tensor, kernelDimensionSize, strideDim
 			end
 
 		end
-		
+
 		tensor:differentiate(chainRuleFirstDerivativeTensor)
-		
+
 	end
 
-	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
-	
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+
 end
 
-function PoolingLayers.MaximumUnpooling2D(tensor, kernelDimensionSizeArray, strideDimensionSizeArray, unpoolingMethod)
+function PoolingLayers.MaximumUnpooling2D(parameterDictionary)
 	
-	kernelDimensionSizeArray = kernelDimensionSizeArray or default2DKernelDimensionSizeArray
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	strideDimensionSizeArray = strideDimensionSizeArray or default2DStrideDimensionSizeArray
-	
-	unpoolingMethod = unpoolingMethod or defaultUnpoolingMethod
+	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
+
+	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
+
+	local unpoolingMethod = parameterDictionary.unpoolingMethod or parameterDictionary[4] or defaultUnpoolingMethod
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
@@ -280,21 +284,21 @@ function PoolingLayers.MaximumUnpooling2D(tensor, kernelDimensionSizeArray, stri
 		resultTensorDimensionSizeArray[dimension + 2] = outputDimensionSize
 
 	end
-	
+
 	local tensorDimension1Size = tensorDimensionSizeArray[1]
 
 	local tensorDimension2Size = tensorDimensionSizeArray[2]
 
 	local tensorDimension3Size = tensorDimensionSizeArray[3]
-	
+
 	local tensorDimension4Size = tensorDimensionSizeArray[4]
-	
+
 	local kernelDimension1Size = kernelDimensionSizeArray[1]
-	
+
 	local kernelDimension2Size = kernelDimensionSizeArray[2]
-	
+
 	local strideDimension1Size = strideDimensionSizeArray[1]
-	
+
 	local strideDimension2Size = strideDimensionSizeArray[2]
 
 	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray, 0)
@@ -324,7 +328,7 @@ function PoolingLayers.MaximumUnpooling2D(tensor, kernelDimensionSizeArray, stri
 		end
 
 	end
-	
+
 	local PartialDerivativeFunction = function(derivativeTensor)
 
 		local unpoolingMethodInverseFunction = unpooling2DMethodInverseFunctionList[unpoolingMethod]
@@ -356,17 +360,17 @@ function PoolingLayers.MaximumUnpooling2D(tensor, kernelDimensionSizeArray, stri
 			end
 
 		end
-		
+
 		tensor:differentiate(chainRuleFirstDerivativeTensor)
-		
+
 	end
-	
-	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
-	
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+
 end
 
 function PoolingLayers.MaximumUnpooling3D(parameterDictionary)
-	
+
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default3DKernelDimensionSizeArray
@@ -404,19 +408,19 @@ function PoolingLayers.MaximumUnpooling3D(parameterDictionary)
 	local tensorDimension3Size = tensorDimensionSizeArray[3]
 
 	local tensorDimension4Size = tensorDimensionSizeArray[4]
-	
+
 	local tensorDimension5Size = tensorDimensionSizeArray[5]
 
 	local kernelDimension1Size = kernelDimensionSizeArray[1]
 
 	local kernelDimension2Size = kernelDimensionSizeArray[2]
-	
+
 	local kernelDimension3Size = kernelDimensionSizeArray[3]
 
 	local strideDimension1Size = strideDimensionSizeArray[1]
 
 	local strideDimension2Size = strideDimensionSizeArray[2]
-	
+
 	local strideDimension3Size = strideDimensionSizeArray[3]
 
 	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray, 0)
@@ -500,7 +504,7 @@ function PoolingLayers.MaximumUnpooling3D(parameterDictionary)
 end
 
 function PoolingLayers.AveragePooling1D(tensor, kernelDimensionSize, strideDimensionSize)
-	
+
 	kernelDimensionSize = kernelDimensionSize or defaultKernelDimensionSize
 
 	strideDimensionSize = strideDimensionSize or defaultStrideDimensionSize
@@ -518,11 +522,11 @@ function PoolingLayers.AveragePooling1D(tensor, kernelDimensionSize, strideDimen
 	local outputDimensionSize = ((inputDimensionSize - kernelDimensionSize) / strideDimensionSize) + 1
 
 	resultTensorDimensionSizeArray[3] = math.floor(outputDimensionSize)
-	
+
 	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
-	
+
 	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
-	
+
 	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
 
 	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
@@ -550,9 +554,9 @@ function PoolingLayers.AveragePooling1D(tensor, kernelDimensionSize, strideDimen
 		end
 
 	end
-	
+
 	local PartialDerivativeFunction = function(derivativeTensor)
-		
+
 		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
@@ -584,25 +588,25 @@ function PoolingLayers.AveragePooling1D(tensor, kernelDimensionSize, strideDimen
 		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, inputDimensionSize)
 
 		tensor:differentiate(chainRuleFirstDerivativeTensor)
-		
+
 	end
 
 	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
-	
+
 end
 
 function PoolingLayers.AveragePooling2D(tensor, kernelDimensionSizeArray, strideDimensionSizeArray)
-	
+
 	kernelDimensionSizeArray = kernelDimensionSizeArray or default2DKernelDimensionSizeArray
 
 	strideDimensionSizeArray = strideDimensionSizeArray or default2DStrideDimensionSizeArray
-	
+
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
 	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial average pooling function block. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
-	
+
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
 	for dimension = 1, 2, 1 do
@@ -614,15 +618,15 @@ function PoolingLayers.AveragePooling2D(tensor, kernelDimensionSizeArray, stride
 		resultTensorDimensionSizeArray[dimension + 2] = math.floor(outputDimensionSize)
 
 	end
-	
+
 	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
 
 	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
 
 	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
-	
+
 	local resultTensorDimension4Size = resultTensorDimensionSizeArray[4]
-	
+
 	local kernelDimension1Size = kernelDimensionSizeArray[1]
 
 	local kernelDimension2Size = kernelDimensionSizeArray[2]
@@ -660,9 +664,9 @@ function PoolingLayers.AveragePooling2D(tensor, kernelDimensionSizeArray, stride
 		end
 
 	end
-	
+
 	local PartialDerivativeFunction = function(derivativeTensor)
-		
+
 		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
 
 		local derivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(derivativeTensor)
@@ -704,17 +708,17 @@ function PoolingLayers.AveragePooling2D(tensor, kernelDimensionSizeArray, stride
 		end
 
 		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelArea)
-		
+
 		tensor:differentiate(chainRuleFirstDerivativeTensor)
-		
+
 	end
 
 	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
-	
+
 end
 
 function PoolingLayers.AveragePooling3D(tensor, kernelDimensionSizeArray, strideDimensionSizeArray)
-	
+
 	kernelDimensionSizeArray = kernelDimensionSizeArray or default3DKernelDimensionSizeArray
 
 	strideDimensionSizeArray = strideDimensionSizeArray or default3DStrideDimensionSizeArray
@@ -736,7 +740,7 @@ function PoolingLayers.AveragePooling3D(tensor, kernelDimensionSizeArray, stride
 		resultTensorDimensionSizeArray[dimension + 2] = math.floor(outputDimensionSize)
 
 	end
-	
+
 	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
 
 	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
@@ -744,9 +748,9 @@ function PoolingLayers.AveragePooling3D(tensor, kernelDimensionSizeArray, stride
 	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
 
 	local resultTensorDimension4Size = resultTensorDimensionSizeArray[4]
-	
+
 	local resultTensorDimension5Size = resultTensorDimensionSizeArray[5]
-	
+
 	local kernelDimension1Size = kernelDimensionSizeArray[1]
 
 	local kernelDimension2Size = kernelDimensionSizeArray[2]
@@ -768,7 +772,7 @@ function PoolingLayers.AveragePooling3D(tensor, kernelDimensionSizeArray, stride
 			for c = 1, resultTensorDimension3Size, 1 do
 
 				for d = 1, resultTensorDimension4Size, 1 do
-					
+
 					for e = 1, resultTensorDimension5Size, 1 do
 
 						local subTensor = tensor[a][b]
@@ -782,7 +786,7 @@ function PoolingLayers.AveragePooling3D(tensor, kernelDimensionSizeArray, stride
 						local averageValue = AqwamTensorLibrary:mean(extractedSubTensor)
 
 						resultTensor[a][b][c][d][e] = averageValue
-						
+
 					end
 
 				end
@@ -794,7 +798,7 @@ function PoolingLayers.AveragePooling3D(tensor, kernelDimensionSizeArray, stride
 	end
 
 	local PartialDerivativeFunction = function(derivativeTensor)
-		
+
 		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
@@ -852,7 +856,7 @@ function PoolingLayers.AveragePooling3D(tensor, kernelDimensionSizeArray, stride
 end
 
 function PoolingLayers.MinimumPooling1D(tensor, kernelDimensionSize, strideDimensionSize)
-	
+
 	kernelDimensionSize = kernelDimensionSize or defaultKernelDimensionSize
 
 	strideDimensionSize = strideDimensionSize or defaultStrideDimensionSize
@@ -904,7 +908,7 @@ function PoolingLayers.MinimumPooling1D(tensor, kernelDimensionSize, strideDimen
 	end
 
 	local PartialDerivativeFunction = function(derivativeTensor)
-		
+
 		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
@@ -942,7 +946,7 @@ function PoolingLayers.MinimumPooling1D(tensor, kernelDimensionSize, strideDimen
 end
 
 function PoolingLayers.MinimumPooling2D(tensor, kernelDimensionSizeArray, strideDimensionSizeArray)
-	
+
 	kernelDimensionSizeArray = kernelDimensionSizeArray or default2DKernelDimensionSizeArray
 
 	strideDimensionSizeArray = strideDimensionSizeArray or default2DStrideDimensionSizeArray
@@ -1012,7 +1016,7 @@ function PoolingLayers.MinimumPooling2D(tensor, kernelDimensionSizeArray, stride
 	end
 
 	local PartialDerivativeFunction = function(derivativeTensor)
-		
+
 		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
 
 		local derivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(derivativeTensor)
@@ -1060,7 +1064,7 @@ function PoolingLayers.MinimumPooling2D(tensor, kernelDimensionSizeArray, stride
 end
 
 function PoolingLayers.MinimumPooling3D(tensor, kernelDimensionSizeArray, strideDimensionSizeArray)
-	
+
 	kernelDimensionSizeArray = kernelDimensionSizeArray or default3DKernelDimensionSizeArray
 
 	strideDimensionSizeArray = strideDimensionSizeArray or default3DStrideDimensionSizeArray
@@ -1140,7 +1144,7 @@ function PoolingLayers.MinimumPooling3D(tensor, kernelDimensionSizeArray, stride
 	end
 
 	local PartialDerivativeFunction = function(derivativeTensor)
-		
+
 		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
@@ -1194,7 +1198,7 @@ function PoolingLayers.MinimumPooling3D(tensor, kernelDimensionSizeArray, stride
 end
 
 function PoolingLayers.MaximumPooling1D(tensor, kernelDimensionSize, strideDimensionSize)
-	
+
 	kernelDimensionSize = kernelDimensionSize or defaultKernelDimensionSize
 
 	strideDimensionSize = strideDimensionSize or defaultStrideDimensionSize
@@ -1284,7 +1288,7 @@ function PoolingLayers.MaximumPooling1D(tensor, kernelDimensionSize, strideDimen
 end
 
 function PoolingLayers.MaximumPooling2D(tensor, kernelDimensionSizeArray, strideDimensionSizeArray)
-	
+
 	kernelDimensionSizeArray = kernelDimensionSizeArray or default2DKernelDimensionSizeArray
 
 	strideDimensionSizeArray = strideDimensionSizeArray or default2DStrideDimensionSizeArray
@@ -1402,7 +1406,7 @@ function PoolingLayers.MaximumPooling2D(tensor, kernelDimensionSizeArray, stride
 end
 
 function PoolingLayers.MaximumPooling3D(tensor, kernelDimensionSizeArray, strideDimensionSizeArray)
-	
+
 	kernelDimensionSizeArray = kernelDimensionSizeArray or default3DKernelDimensionSizeArray
 
 	strideDimensionSizeArray = strideDimensionSizeArray or default3DStrideDimensionSizeArray
