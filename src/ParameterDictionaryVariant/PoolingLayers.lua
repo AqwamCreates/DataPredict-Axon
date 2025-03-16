@@ -977,7 +977,7 @@ function PoolingLayers.MinimumPooling1D(parameterDictionary)
 
 	end
 
-	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
 
 end
 
@@ -1097,7 +1097,7 @@ function PoolingLayers.MinimumPooling2D(parameterDictionary)
 
 	end
 
-	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
 
 end
 
@@ -1233,7 +1233,7 @@ function PoolingLayers.MinimumPooling3D(parameterDictionary)
 
 	end
 
-	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
 
 end
 
@@ -1443,7 +1443,7 @@ function PoolingLayers.MaximumPooling2D(tensor, kernelDimensionSizeArray, stride
 
 	end
 
-	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
 
 end
 
@@ -1579,7 +1579,7 @@ function PoolingLayers.MaximumPooling3D(parameterDictionary)
 
 	end
 
-	return AutomaticDifferentiationTensor.new(resultTensor, PartialDerivativeFunction, {tensor})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
 
 end
 
