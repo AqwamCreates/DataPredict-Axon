@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Aqwam's Deep Learning Library (DataPredict Neural)
+	Aqwam's Deep Learning Library (DataPredict Torch)
 
 	Author: Aqwam Harish Aiman
 	
