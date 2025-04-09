@@ -12,7 +12,7 @@ For information regarding potential license violations and eligibility for a bou
 
 DataPredict™ Axon is an advanced deep learning library for Roblox and Pure Lua.
 
-This project is created as a direct improvement to [DataPredict Neural](https://aqwamcreates.github.io/DataPredict-Neural/) library.
+This project is created as a direct upgrade to the [DataPredict Neural](https://aqwamcreates.github.io/DataPredict-Neural/) library.
 
 If there are any suggestions or issues for this library, don't be afraid to reach out to me at my [Discord](https://discord.gg/BAZsynkede) server, [DevForum](https://devforum.roblox.com/t/datapredict-neural-version-beta-zero-pytorch-like-deep-learning-library-meets-roblox/3010845) thread or my [LinkedIn](https://www.linkedin.com/in/aqwam-harish-aiman/).
 
