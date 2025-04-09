@@ -4,7 +4,7 @@ By using or possessing any copies of this library or its assets (including the i
 
 For information regarding potential license violations and eligibility for a bounty reward, please refer to the [Terms and Conditions Violation Bounty Reward Information](TermsAndConditionsViolationBountyRewardInformation.md).
 
-![DataPredictAxonIcon](https://github.com/user-attachments/assets/21f73108-8fe4-49e0-b552-3e63cf78064b)
+![DataPredictAxonIconSmall](https://github.com/user-attachments/assets/06f4816e-28c0-4202-a2cf-84420ddb3387)
 
 | Version | Current Version Number |
 |---------|------------------------|
