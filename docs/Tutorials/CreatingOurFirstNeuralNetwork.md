@@ -40,11 +40,11 @@ Below, it shows a code creating a layer block containing a weight tensor of spec
 
 local ADTensor = DataPredictNeural.AutomaticDifferentiationTensor
 
-local WeightADTensor = ADTensor.new{dimensionSizeArray = {1, 90, 4}} -- Pay attention to the fact we're using curly brackets and not the normal brackets when inputting out parameters.
+local weightADTensor = ADTensor.new{dimensionSizeArray = {1, 90, 4}} -- Pay attention to the fact we're using curly brackets and not the normal brackets when inputting out parameters.
 
 -- Alternatively, we can use the function parameters position to implicitly tell what type of value for that particular value.
 
-local WeightADTensor = ADTensor.new{{1, 90, 4}}
+local weightADTensor = ADTensor.new{{1, 90, 4}}
 
 ```
 
