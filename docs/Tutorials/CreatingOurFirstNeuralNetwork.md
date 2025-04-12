@@ -60,7 +60,7 @@ Below, we will show a commented code related to cost function.
 
 local CostFunction = DataPredictNeural.CostFunctions
 	
-local costValue = CostFunction.MeanSquaredError{generatedLabelTensor, labelTensor} -- This function is used to calculate the overall cost or error between the output and label tensors.
+local costValue = CostFunction.FastMeanSquaredError{generatedLabelTensor, labelTensor} -- This function is used to calculate the overall cost or error between the output and label tensors.
 
 ```
 
