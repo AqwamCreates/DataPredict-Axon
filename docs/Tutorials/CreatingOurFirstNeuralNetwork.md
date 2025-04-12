@@ -26,7 +26,7 @@ ADTensors are typically used by:
 
 * Activation Functions: Converts values into another.
 	
-* Weights: Holds the weights for our neural network.
+* Weights Tensors: Holds the weights for our neural network.
 
 * And many others!
 
@@ -82,17 +82,15 @@ local ADTensor = DataPredictAxon.AutomaticDifferentiationTensor
 
 local PaddingLayer = DataPredictAxon.PaddingLayers
 
-local tensor1 = ADTensor.createTensor{{1, 2}, 2}
+local inputTensor = ADTensor.createTensor{{1, 2}, 2}
 
-local tensor2 = ADTensor.createTensor{{2, 4}, 5}
+local weightTensor = ADTensor.createTensor{{2, 4}, 5}
 
-local targetTensor = ADTensor.createTensor{{5, 10}}
+local targetTensor = ADTensor.createTensor{{1, 4}}
 
 local WeightContainer = DataPredictAxon.WeightContainer.new{ -- This allows us to adjust the weights.
 
-	{tensor1, 1},
-	
-	{tensor2, 1}
+	{weightTensor, 1},
 
 }
 
@@ -102,7 +100,7 @@ In order for us to be able to calculate the loss tensor, we need to make sure th
 
 When initializing the weights, ensure that the 2nd dimension of the input tensor matches the 1st dimension of the weight tensor.
 
-When doing the dot product between the input tensor and weight tensor in "Linear" block, it will give a new tensor shape.
+When doing the dot product between the input tensor and weight tensor, it will give a new tensor shape.
 
 	* Input tensor: {a, b}
 	
@@ -110,15 +108,11 @@ When doing the dot product between the input tensor and weight tensor in "Linear
 	
 	* Output tensor: {a, c}
 
-Below, we will demonstrate how the tensor shape changes as we add blocks to our "Sequential" container.
-
 --]]
 
-local function model(tensor1Placeholder, tensor2Placeholder) -- Let's create ourselves a good old model.
+local function model(inputTensorPlaceHolder, weightTensorPlaceHolder) -- Let's create ourselves a good old model in a form of function.
 	
-	local tensor3 = tensor1Placeholder:dotProduct{tensor2Placeholder}
-
-	local tensor4 = DataPredictAxon.PaddingLayers.FastZeroPadding{tensor3, {2, 3}, {2, 3}}
+	local tensor3 = inputTensorPlaceHolder:dotProduct{WeightTensorPlaceHolder}
 
 	local finalTensor = DataPredictAxon.ActivationFunctionLayers.Sigmoid{tensor4}
 
@@ -132,15 +126,15 @@ for i = 1, 100000 do
 
 	local costValue = model(tensor1, tensor2)
 	
-	costValue:differentiate()
+	costValue:differentiate() -- Calling this will calculate the first derivative tensors for all our operations, including for out weight tensor.
 
-	print(tensor2)
+	print(weightTensor) -- Let's have a look at our tensor before adjusting the values.
 
-	WeightContainer:gradientDescent()
+	WeightContainer:gradientDescent() -- Calling the gradientDescent() allows you to adjust the weight tensor values.
 
 	print("\n")
 
-	print(tensor2)
+	print(weightTensor) -- Let's have a look at our tensor again. This time we see changes in our values.
 	
 	task.wait()
 	
