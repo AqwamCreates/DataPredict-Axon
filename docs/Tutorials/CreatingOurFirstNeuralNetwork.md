@@ -124,7 +124,7 @@ end
 
 for i = 1, 100000 do
 
-	local costValue = model(tensor1, tensor2)
+	local costValue = model(inputTensor, weightTensor)
 
 	print(costValue) -- Let's have a look at our cost everytime we update our neural netowrk.
 	
