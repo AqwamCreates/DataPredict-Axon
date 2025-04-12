@@ -88,39 +88,13 @@ local tensor2 = ADTensor.createTensor{{2, 4}, 5}
 
 local targetTensor = ADTensor.createTensor{{5, 10}}
 
-local WeightContainer = DataPredictAxon.WeightContainer.new{
+local WeightContainer = DataPredictAxon.WeightContainer.new{ -- This allows us to adjust the weights.
 
 	{tensor1, 1},
 	
 	{tensor2, 1}
 
 }
-
-local function model(tensor1Placeholder, tensor2Placeholder)
-	
-	local tensor3 = tensor1Placeholder:dotProduct{tensor2Placeholder}
-
-	local tensor4 = DataPredictAxon.PaddingLayers.FastZeroPadding{tensor3, {2, 3}, {2, 3}}
-
-	local finalTensor = DataPredictAxon.ActivationFunctionLayers.Sigmoid{tensor4}
-
-	local costValue = DataPredictAxon.CostFunctions.MeanSquaredError{finalTensor, targetTensor}
-	
-	return costValue
-	
-end
-
-local costValue = model(tensor1, tensor2)
-
-costValue:differentiate()
-
-print(tensor2)
-
-WeightContainer:gradientDescent()
-
-print("\n")
-
-print(tensor2)
 
 --[[
 
@@ -140,69 +114,33 @@ Below, we will demonstrate how the tensor shape changes as we add blocks to our 
 
 --]]
 
-SequentialNeuralNetwork:setMultipleFunctionBlocks( -- Input tensor starts with the size of {4, 9}.
+local function model(tensor1Placeholder, tensor2Placeholder) -- Let's create ourselves a good old model.
 	
-	WeightBlocks.Linear.new({dimensionSizeArray = {9, 7}}), -- {4, 9} * {9, 7} -> {4, 7}
+	local tensor3 = tensor1Placeholder:dotProduct{tensor2Placeholder}
 
-	WeightBlocks.Bias.new({dimensionSizeArray = {1, 7}}), -- We want to share the bias values to all data, so we need to set the first dimension size to 1.
+	local tensor4 = DataPredictAxon.PaddingLayers.FastZeroPadding{tensor3, {2, 3}, {2, 3}}
 
-	ActivationBlocks.LeakyReLU.new(),
-	
-	WeightBlocks.Linear.new({dimensionSizeArray = {7, 5}}), -- {4, 7} * {7, 5} -> {4, 5}
+	local finalTensor = DataPredictAxon.ActivationFunctionLayers.Sigmoid{tensor4}
 
-	WeightBlocks.Bias.new({dimensionSizeArray = {1, 5}}),  -- We want to share the bias values to all data, so we need to set the first dimension size to 1.
+	local costValue = DataPredictAxon.CostFunctions.MeanSquaredError{finalTensor, targetTensor}
 	
-	ActivationBlocks.LeakyReLU.new(),
-	
-	WeightBlocks.Linear.new({dimensionSizeArray = {5, 3}}), -- {4, 5} * {5, 3} -> {4, 3}
-
-	WeightBlocks.Bias.new({dimensionSizeArray = {1, 3}}),  -- We want to share the bias values to all data, so we need to set the first dimension size to 1.
-	
-	ActivationBlocks.LeakyReLU.new()
-	
-)
-
---[[
-
-Since we now have verified that the generated label tensor has the same shape as the label tensor, we can now perform the training.
-
---]]
-
-for i = 1, 100000 do
-	
-	local generatedLabelTensor = SequentialNeuralNetwork:forwardPropagate(inputTensor) -- Generate our label tensor first.
-
-	local lossTensor = CostFunction:calculateLossTensor(generatedLabelTensor, labelTensor) -- Calculate the loss tensor for backpropagation.
-	
-	local costValue = CostFunction:calculateCostValue(generatedLabelTensor, labelTensor)
-	
-	SequentialNeuralNetwork:backwardPropagate(lossTensor) -- Pass the loss tensor to backwardPropagate() function to update the weights.
-	
-	print(costValue)
-	
-	task.wait()
+	return costValue
 	
 end
 
-```
-
-Additionally, we can also do a backpropagation with the code below, but this allows us to do distributed training.
-
-```lua
-
 for i = 1, 100000 do
-	
-	local generatedLabelTensor = SequentialNeuralNetwork:forwardPropagate(inputTensor) -- Generate our label tensor first.
 
-	local lossTensor = CostFunction:calculateLossTensor(generatedLabelTensor, labelTensor) -- Calculate the loss tensor for backpropagation.
+	local costValue = model(tensor1, tensor2)
 	
-	local costValue = CostFunction:calculateCostValue(generatedLabelTensor, labelTensor)
-	
-	local weightLossTensorArray = SequentialNeuralNetwork:calculateWeightLossTensorArray(lossTensor) -- Calculate the weight loss tensors for our weights. This table can be sent to another neural network of the same architecture if you want to do distributed training.
-	
-	SequentialNeuralNetwork:gradientDescent(weightLossTensorArray) -- Pass the weight loss array to the gradientDescent() function to update the weights.
-	
-	print(costValue)
+	costValue:differentiate()
+
+	print(tensor2)
+
+	WeightContainer:gradientDescent()
+
+	print("\n")
+
+	print(tensor2)
 	
 	task.wait()
 	
