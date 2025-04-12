@@ -18,7 +18,15 @@ If there are any suggestions or issues for this library, don't be afraid to reac
 
 In addition, if you are interested in Roblox tutorials and future projects by me, then you can subscribe to me in [YouTube](https://www.youtube.com/channel/UCUrwoxv5dufEmbGsxyEUPZw).
 
+### Tutorials
+
+### Installation
+
+[Installation For Roblox](Tutorials/InstallationForRoblox.md)
+
 ### Repository
+
+[DataPredict Axon Library](https://github.com/AqwamCreates/DataPredict-Axon)
 
 [DataPredict Neural Library](https://github.com/AqwamCreates/DataPredict-Neural)
 
