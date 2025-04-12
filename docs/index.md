@@ -18,7 +18,7 @@ If there are any suggestions or issues for this library, don't be afraid to reac
 
 In addition, if you are interested in Roblox tutorials and future projects by me, then you can subscribe to me in [YouTube](https://www.youtube.com/channel/UCUrwoxv5dufEmbGsxyEUPZw).
 
-### Tutorials
+## Tutorials
 
 ### Installation
 
@@ -29,6 +29,10 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 [Creating Our First Neural Network](Tutorials/CreatingOurFirstNeuralNetwork.md)
 
 [Saving And Loading Model Weights](Tutorials/SavingAndLoadingModelWeights.md)
+
+## API Reference
+
+[API Reference](API.md)
 
 ### Repository
 
