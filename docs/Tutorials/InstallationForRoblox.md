@@ -32,7 +32,7 @@ Then drag the files into Roblox Studio from a file explorer of your choice.
 
 Once you put those two libraries into your game, make sure you link the Deep Learning Library with the Tensor Library. This can be done via setting the “AqwamTensorLibraryLinker” value (under the Deep Learning library) to the Tensor Library.
 
-![Screenshot 2024-06-08 071322](https://github.com/AqwamCreates/DataPredict-Neural/assets/67371914/c4ccb9b9-4c02-4708-bffd-5959e73d99f0)
+![Screenshot 2025-04-13 035519](https://github.com/user-attachments/assets/a9e48d14-608f-42bd-9eed-d2e6ea1d8b33)
 
 Next, we will use require() function to our deep learning library:
 
