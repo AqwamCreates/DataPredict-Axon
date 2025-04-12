@@ -24,6 +24,10 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 
 [Installation For Roblox](Tutorials/InstallationForRoblox.md)
 
+### The Model Basics
+
+[Creating Our First Neural Network](Tutorials/CreatingOurFirstNeuralNetwork.md)
+
 ### Repository
 
 [DataPredict Axon Library](https://github.com/AqwamCreates/DataPredict-Axon)
