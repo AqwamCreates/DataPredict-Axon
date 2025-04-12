@@ -28,6 +28,8 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 
 [Creating Our First Neural Network](Tutorials/CreatingOurFirstNeuralNetwork.md)
 
+[Saving And Loading Model Weights](Tutorials/SavingAndLoadingModelWeights.md)
+
 ### Repository
 
 [DataPredict Axon Library](https://github.com/AqwamCreates/DataPredict-Axon)
