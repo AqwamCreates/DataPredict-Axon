@@ -114,9 +114,9 @@ local function model(inputTensorPlaceHolder, weightTensorPlaceHolder) -- Let's c
 	
 	local tensor3 = inputTensorPlaceHolder:dotProduct{WeightTensorPlaceHolder}
 
-	local finalTensor = DataPredictAxon.ActivationFunctionLayers.Sigmoid{tensor4}
+	local finalTensor = DataPredictAxon.ActivationFunctionLayers.LeakyRectifiedLinearUnit{tensor4}
 
-	local costValue = DataPredictAxon.CostFunctions.MeanSquaredError{finalTensor, targetTensor}
+	local costValue = DataPredictAxon.CostFunctions.FastMeanSquaredError{finalTensor, targetTensor}
 	
 	return costValue
 	
@@ -125,16 +125,12 @@ end
 for i = 1, 100000 do
 
 	local costValue = model(tensor1, tensor2)
+
+	print(costValue) -- Let's have a look at our cost everytime we update our neural netowrk.
 	
 	costValue:differentiate() -- Calling this will calculate the first derivative tensors for all our operations, including for out weight tensor.
 
-	print(weightTensor) -- Let's have a look at our tensor before adjusting the values.
-
 	WeightContainer:gradientDescent() -- Calling the gradientDescent() allows you to adjust the weight tensor values.
-
-	print("\n")
-
-	print(weightTensor) -- Let's have a look at our tensor again. This time we see changes in our values.
 	
 	task.wait()
 	
