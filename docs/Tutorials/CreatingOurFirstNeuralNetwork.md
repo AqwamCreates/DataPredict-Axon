@@ -74,7 +74,7 @@ Below, we will show you a block of code and describe what each line of code are 
 
 local ServerScriptService = game.ServerScriptService
 
-local TensorL = require(ServerScriptService.TensorL_Table_Nested_Efficient_Version_2)
+local TensorL = require(ServerScriptService.TensorL)
 
 local DataPredictAxon = require(ServerScriptService.DataPredictAxon)
 
