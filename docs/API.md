@@ -4,7 +4,7 @@
 
 [CostFunctions](API/CostFunctions.md)
 
-[ActivationFunctions](API/ActivationFunctions.md)
+[ActivationLayers](API/ActivationLayers.md)
 
 [ConvolutionLayers](API/ConvolutionLayers.md)
 
