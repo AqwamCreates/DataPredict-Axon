@@ -470,6 +470,80 @@ function Optimizer.RootMeanSquarePropagation(parameterDictionary)
 
 end
 
+function Optimizer.LearningRateStepDecay(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
+	
+	local timeStepToDecay = parameterDictionary.timeStepToDecay or parameterDictionary[1] or 100
+	
+	local decayRate = parameterDictionary.decayRate or parameterDictionary[2] or 0.5
+
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
+
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[4] or {}
+
+	local CalculateFunction = function(learningRate, tensor)
+
+		local currentLearningRate = optimizerInternalParameterArray[1] or learningRate
+
+		local currentTimeStep = optimizerInternalParameterArray[2] or 0
+
+		currentTimeStep = currentTimeStep + 1
+
+		if ((currentTimeStep % timeStepToDecay) == 0) then
+
+			currentLearningRate = currentLearningRate * decayRate
+
+		end
+
+		tensor = AqwamTensorLibrary:multiply(currentLearningRate, tensor)
+
+		optimizerInternalParameterArray[1] = currentLearningRate
+		
+		optimizerInternalParameterArray[2] = currentTimeStep
+
+		return tensor
+
+	end
+
+	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	
+end
+
+function Optimizer.LearningRateTimeDecay(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local decayRate = parameterDictionary.decayRate or parameterDictionary[1] or 0.5
+
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[2]
+
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[3] or {}
+
+	local CalculateFunction = function(learningRate, tensor)
+
+		local currentLearningRate = optimizerInternalParameterArray[1] or learningRate
+
+		local currentTimeStep = optimizerInternalParameterArray[2] or 0
+
+		currentTimeStep = currentTimeStep + 1
+
+		currentLearningRate = currentLearningRate / (decayRate * currentTimeStep)
+
+		tensor = AqwamTensorLibrary:multiply(currentLearningRate, tensor)
+
+		optimizerInternalParameterArray[1] = currentLearningRate
+			
+		optimizerInternalParameterArray[2] = currentTimeStep
+
+		return tensor
+
+	end
+
+	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+
+end
+
 function Optimizer:calculate(parameterDictionary)
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
