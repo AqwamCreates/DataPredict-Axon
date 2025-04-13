@@ -4,7 +4,7 @@
 
 [ActivationFunctions](API/ActivationFunctions.md)
 
-[ConvolutionLayers](API/ConvolutionLayers.md) -- No documentation yet.
+[ConvolutionLayers](API/ConvolutionLayers.md)
 
 [PoolingLayers](API/PoolingLayers.md) -- No documentation yet.
 
