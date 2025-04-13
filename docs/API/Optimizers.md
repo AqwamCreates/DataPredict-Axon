@@ -208,7 +208,7 @@ Optimizer.LearningRateStepDecay{timeStepToDecay: number, decayRate: number, Lear
 
 #### Parameters:
 
-* timeStepToDecay: The number of time steps to decay the learning rate.
+* timeStepToDecay: The number of time steps to decay the learning rate. [Default: 100]
 
 * decayRate: The value that controls the rate of decay. [Default: 0.5]
 
