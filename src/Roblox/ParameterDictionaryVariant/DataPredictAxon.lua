@@ -46,4 +46,6 @@ DataPredictAxon.EncodingLayers = require(script.EncodingLayers)
 
 DataPredictAxon.WeightContainer = require(script.WeightContainer)
 
+DataPredictAxon.Optimizers = require(script.Optimizers)
+
 return DataPredictAxon
