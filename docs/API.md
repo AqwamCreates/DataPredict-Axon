@@ -16,4 +16,6 @@
 
 [DropoutLayers](API/DropoutLayers.md)
 
+[Optimizers](API/Optimizers.md) -- No documentation yet.
+
 [AttentionBlocks](API/AttentionBlocks.md) -- No documentation yet.
