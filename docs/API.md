@@ -1,5 +1,7 @@
 # API Reference
 
+[AutomaticDifferentiationTensor](API/AutomaticDifferentiationTensor.md) -- No documentation yet.
+
 [CostFunctions](API/CostFunctions.md)
 
 [ActivationFunctions](API/ActivationFunctions.md)
