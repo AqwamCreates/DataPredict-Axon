@@ -8,7 +8,7 @@
 
 [PoolingLayers](API/PoolingLayers.md) -- No documentation yet.
 
-[PaddingLayers](API/PaddingLayers.md) -- No documentation yet.
+[PaddingLayers](API/PaddingLayers.md)
 
 [EncodingLayers](API/EncodingLayers.md) -- No documentation yet.
 
