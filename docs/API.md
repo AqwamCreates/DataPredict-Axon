@@ -12,6 +12,7 @@
 
 [EncodingLayers](API/EncodingLayers.md)
 
+[DropoutLayers](API/DropoutLayers.md)
+
 [AttentionBlocks](API/AttentionBlocks.md)
 
-[DropoutLayers](API/DropoutLayers.md) -- Not implemented yet.
