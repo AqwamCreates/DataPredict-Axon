@@ -128,9 +128,11 @@ for i = 1, 100000 do
 
 	print(costValue) -- Let's have a look at our cost everytime we update our neural netowrk.
 	
-	costValue:differentiate() -- Calling this will calculate the first derivative tensors for all our operations, including for out weight tensor.
+	costValue:differentiate{} -- Calling this will calculate the first derivative tensors for all our operations, including for out weight tensor.
 
-	WeightContainer:gradientDescent() -- Calling the gradientDescent() allows you to adjust the weight tensor values.
+	WeightContainer:gradientDescent{} -- Calling the gradientDescent{} allows you to adjust the weight tensor values.
+
+	costValue:destroy{true} -- Calling this function allows you to avoid wasting the computer's memory.
 	
 	task.wait()
 	
