@@ -10,11 +10,11 @@ ActivationFunctions.FastSigmoid{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -26,11 +26,11 @@ ActivationFunctions.FastBinaryStep{tensor: tensor}: AutomaticDifferentiationTens
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -42,11 +42,11 @@ ActivationFunctions.FastRectifiedLinearUnit{tensor: tensor}: AutomaticDifferenti
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -58,13 +58,13 @@ ActivationFunctions.FastLeakyRectifiedLinearUnit{tensor: tensor, negativeSlopeFa
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
 * negativeSlopeFactor: The value to be multiplied with negative input values. [Default: 0.01]
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -76,13 +76,13 @@ ActivationFunctions.FastExponentLinearUnit{tensor: tensor, negativeSlopeFactor: 
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
 * negativeSlopeFactor: The value to be multiplied with negative input values. [Default: 0.01]
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -94,11 +94,11 @@ ActivationFunctions.FastSigmoidLinearUnit{tensor: tensor}: AutomaticDifferentiat
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -110,11 +110,11 @@ ActivationFunctions.FastGaussian{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -126,11 +126,11 @@ ActivationFunctions.FastMish{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -142,11 +142,11 @@ ActivationFunctions.FastTanh{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -158,12 +158,12 @@ ActivationFunctions.FastSoftmax{tensor: tensor, dimension: number}: AutomaticDif
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be transformed.
 
 * dimension: The dimension at which the exponent values are summed. [Default: 1]
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.

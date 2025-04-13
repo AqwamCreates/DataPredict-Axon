@@ -10,13 +10,13 @@ DropoutLayer.Dropout{tensor: tensor, dropoutRate: number}: AutomaticDifferentiat
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be used to drop values.
 
 * dropoutRate: The rate at which the input values are converted to zero. [Default: 0.5]
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -28,13 +28,13 @@ DropoutLayer.Dropout1D{tensor: tensor, dropoutRate: number}: AutomaticDifferenti
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be used to drop values.
 
 * dropoutRate: The rate at which the input values are converted to zero. [Default: 0.5]
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -46,13 +46,13 @@ DropoutLayer.Dropout2D{tensor: tensor, dropoutRate: number}: AutomaticDifferenti
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be used to drop values.
 
 * dropoutRate: The rate at which the input values are converted to zero. [Default: 0.5]
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -64,13 +64,13 @@ DropoutLayer.Dropout3D{tensor: tensor, dropoutRate: number}: AutomaticDifferenti
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be used to drop values.
 
 * dropoutRate: The rate at which the input values are converted to zero. [Default: 0.5]
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
@@ -82,12 +82,12 @@ DropoutLayer.DropoutND{tensor: tensor, dropoutRate: number}: AutomaticDifferenti
 
 ```
 
-#### Parameters
+#### Parameters:
 
 * tensor: The tensor that will be used to drop values.
 
 * dropoutRate: The rate at which the input values are converted to zero. [Default: 0.5]
 
-#### Returns
+#### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
