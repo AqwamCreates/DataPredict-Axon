@@ -10,7 +10,7 @@
 
 [PaddingLayers](API/PaddingLayers.md)
 
-[EncodingLayers](API/EncodingLayers.md) -- No documentation yet.
+[EncodingLayers](API/EncodingLayers.md)
 
 [DropoutLayers](API/DropoutLayers.md)
 
