@@ -6,7 +6,7 @@
 
 ```
 
-Optimizer.new{CalculateFunction: function, optimizerInternalParameterArray: {}, LearningRateValueScheduler: LearningRateValueScheduler}: Optimizer
+Optimizer.new{CalculateFunction: function, LearningRateValueScheduler: LearningRateValueScheduler, optimizerInternalParameterArray: {}}: Optimizer
 
 ```
 

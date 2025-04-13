@@ -19,3 +19,5 @@
 [WeightContainer](API/WeightContainer.md)
 
 [Optimizers](API/Optimizers.md)
+
+[ValueSchedulers](API/ValueSchedulers.md)
