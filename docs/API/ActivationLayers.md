@@ -1,4 +1,4 @@
-# [API Reference](../API.md) - ActivationFunctions
+# [API Reference](../API.md) - ActivationLayers
 
 ## Functions
 
@@ -6,7 +6,7 @@
 
 ```
 
-ActivationFunctions.FastSigmoid{tensor: tensor}: AutomaticDifferentiationTensor
+ActivationLayers.FastSigmoid{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -22,7 +22,7 @@ ActivationFunctions.FastSigmoid{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-ActivationFunctions.FastBinaryStep{tensor: tensor}: AutomaticDifferentiationTensor
+ActivationLayers.FastBinaryStep{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -38,7 +38,7 @@ ActivationFunctions.FastBinaryStep{tensor: tensor}: AutomaticDifferentiationTens
 
 ```
 
-ActivationFunctions.FastRectifiedLinearUnit{tensor: tensor}: AutomaticDifferentiationTensor
+ActivationLayers.FastRectifiedLinearUnit{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -54,7 +54,7 @@ ActivationFunctions.FastRectifiedLinearUnit{tensor: tensor}: AutomaticDifferenti
 
 ```
 
-ActivationFunctions.FastLeakyRectifiedLinearUnit{tensor: tensor, negativeSlopeFactor: number}: AutomaticDifferentiationTensor
+ActivationLayers.FastLeakyRectifiedLinearUnit{tensor: tensor, negativeSlopeFactor: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -72,7 +72,7 @@ ActivationFunctions.FastLeakyRectifiedLinearUnit{tensor: tensor, negativeSlopeFa
 
 ```
 
-ActivationFunctions.FastExponentLinearUnit{tensor: tensor, negativeSlopeFactor: number}: AutomaticDifferentiationTensor
+ActivationLayers.FastExponentLinearUnit{tensor: tensor, negativeSlopeFactor: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -90,7 +90,7 @@ ActivationFunctions.FastExponentLinearUnit{tensor: tensor, negativeSlopeFactor: 
 
 ```
 
-ActivationFunctions.FastSigmoidLinearUnit{tensor: tensor}: AutomaticDifferentiationTensor
+ActivationLayers.FastSigmoidLinearUnit{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -106,7 +106,7 @@ ActivationFunctions.FastSigmoidLinearUnit{tensor: tensor}: AutomaticDifferentiat
 
 ```
 
-ActivationFunctions.FastGaussian{tensor: tensor}: AutomaticDifferentiationTensor
+ActivationLayers.FastGaussian{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -122,7 +122,7 @@ ActivationFunctions.FastGaussian{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-ActivationFunctions.FastMish{tensor: tensor}: AutomaticDifferentiationTensor
+ActivationLayers.FastMish{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -138,7 +138,7 @@ ActivationFunctions.FastMish{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-ActivationFunctions.FastTanh{tensor: tensor}: AutomaticDifferentiationTensor
+ActivationLayers.FastTanh{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -154,7 +154,7 @@ ActivationFunctions.FastTanh{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-ActivationFunctions.FastSoftmax{tensor: tensor, dimension: number}: AutomaticDifferentiationTensor
+ActivationLayers.FastSoftmax{tensor: tensor, dimension: number}: AutomaticDifferentiationTensor
 
 ```
 
