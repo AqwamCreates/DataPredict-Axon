@@ -16,7 +16,7 @@ ConvolutionLayers.FastConvolution1D{tensor: tensor, weightTensor: tensor, stride
 
 * weightTensor: The tensor that will be used as the weights.
 
-* strideDimensionSize: The dimension size for the stride.
+* strideDimensionSize: The dimension size for the stride. [Default: 1]
 
 #### Returns:
 
@@ -36,7 +36,7 @@ ConvolutionLayers.FastConvolution2D{tensor: tensor, weightTensor: tensor, stride
 
 * weightTensor: The tensor that will be used as the weights.
 
-* strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. 
+* strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1}]
 
 #### Returns:
 
@@ -56,7 +56,7 @@ ConvolutionLayers.FastConvolution3D{tensor: tensor, weightTensor: tensor, stride
 
 * weightTensor: The tensor that will be used as the weights.
 
-* strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. 
+* strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1, 1}]
 
 #### Returns:
 
