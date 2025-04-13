@@ -198,6 +198,48 @@ Optimizer.RootMeanSquarePropagation{beta: number, epsilon: number, LearningRateV
 
 * Optimizer: The generated optimizer object.
 
+### LearningRateStepDecay()
+
+```
+
+Optimizer.LearningRateStepDecay{timeStepToDecay: number, decayRate: number, LearningRateValueScheduler: LearningRateValueScheduler, optimizerInternalParameterArray: {}}: Optimizer
+
+```
+
+#### Parameters:
+
+* timeStepToDecay: The number of time steps to decay the learning rate.
+
+* decayRate: The value that controls the rate of decay. [Default: 0.5]
+
+* LearningRateValueScheduler: The value scheduler object to be used by the learning rate.
+
+* optimizerInternalParameterArray: The optimizer internal parameters that is used by the optimizer.
+
+#### Returns:
+
+* Optimizer: The generated optimizer object.
+
+### LearningRateTimeDecay()
+
+```
+
+Optimizer.LearningRateTimeDecay{decayRate: number, LearningRateValueScheduler: LearningRateValueScheduler, optimizerInternalParameterArray: {}}: Optimizer
+
+```
+
+#### Parameters:
+
+* decayRate: The value that controls the rate of decay. [Default: 0.5]
+
+* LearningRateValueScheduler: The value scheduler object to be used by the learning rate.
+
+* optimizerInternalParameterArray: The optimizer internal parameters that is used by the optimizer.
+
+#### Returns:
+
+* Optimizer: The generated optimizer object.
+
 ## Functions
 
 ### calculate()
