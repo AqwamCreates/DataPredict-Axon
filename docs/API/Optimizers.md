@@ -18,6 +18,10 @@ Optimizer.new{CalculateFunction: function, optimizerInternalParameterArray: {}, 
 
 * optimizerInternalParameterArray: The optimizer internal parameters that is used by the optimizer.
 
+#### Returns:
+
+* Optimizer: The generated optimizer object.
+
 ### AdaptiveGradient()
 
 ```
@@ -31,6 +35,10 @@ Optimizer.AdaptiveGradient{LearningRateValueScheduler: LearningRateValueSchedule
 * optimizerInternalParameterArray: The optimizer internal parameters that is used by the optimizer.
 
 * LearningRateValueScheduler: The value scheduler object to be used by the learning rate.
+
+#### Returns:
+
+* Optimizer: The generated optimizer object.
 
 ### AdaptiveGradientDelta()
 
