@@ -4,13 +4,13 @@
 
 [ActivationFunctions](API/ActivationFunctions.md)
 
-[ConvolutionLayers](API/ConvolutionLayers.md)
+[ConvolutionLayers](API/ConvolutionLayers.md) -- No documentation yet.
 
-[PoolingLayers](API/PoolingLayers.md)
+[PoolingLayers](API/PoolingLayers.md) -- No documentation yet.
 
-[PaddingLayers](API/PaddingLayers.md)
+[PaddingLayers](API/PaddingLayers.md) -- No documentation yet.
 
-[EncodingLayers](API/EncodingLayers.md)
+[EncodingLayers](API/EncodingLayers.md) -- No documentation yet.
 
 [DropoutLayers](API/DropoutLayers.md)
 
