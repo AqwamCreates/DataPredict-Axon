@@ -6,13 +6,15 @@
 
 ```
 
-PoolingLayers.FastAveragePooling1D{tensor: tensor, strideDimensionSize: number}: AutomaticDifferentiationTensor
+PoolingLayers.FastAveragePooling1D{tensor: tensor, kernelDimensionSize: number, strideDimensionSize: number}: AutomaticDifferentiationTensor
 
 ```
 
 #### Parameters:
 
 * tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSize: The dimension size for the kernel. [Default: 2]
 
 * strideDimensionSize: The dimension size for the stride. [Default: 1]
 
@@ -24,13 +26,15 @@ PoolingLayers.FastAveragePooling1D{tensor: tensor, strideDimensionSize: number}:
 
 ```
 
-PoolingLayers.FastAveragePooling2D{tensor: tensor, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+PoolingLayers.FastAveragePooling2D{tensor: tensor,  kernelDimensionSize: {number}, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
 #### Parameters:
 
 * tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {2, 2}]
 
 * strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1}]
 
@@ -42,13 +46,15 @@ PoolingLayers.FastAveragePooling2D{tensor: tensor, strideDimensionSizeArray: {nu
 
 ```
 
-PoolingLayers.FastAveragePooling3D{tensor: tensor, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+PoolingLayers.FastAveragePooling3D{tensor: tensor,  kernelDimensionSizeArray: {number}, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
 #### Parameters:
 
 * tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {2, 2, 2}]
 
 * strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1, 1}]
 
@@ -60,13 +66,15 @@ PoolingLayers.FastAveragePooling3D{tensor: tensor, strideDimensionSizeArray: {nu
 
 ```
 
-PoolingLayers.FastMaximumPooling1D{tensor: tensor, strideDimensionSize: number}: AutomaticDifferentiationTensor
+PoolingLayers.FastMaximumPooling1D{tensor: tensor, kernelDimensionSize: number, strideDimensionSize: number}: AutomaticDifferentiationTensor
 
 ```
 
 #### Parameters:
 
 * tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSize: The dimension size for the kernel. [Default: 2]
 
 * strideDimensionSize: The dimension size for the stride. [Default: 1]
 
@@ -78,13 +86,15 @@ PoolingLayers.FastMaximumPooling1D{tensor: tensor, strideDimensionSize: number}:
 
 ```
 
-PoolingLayers.FastMaximumPooling2D{tensor: tensor, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+PoolingLayers.FastMaximumPooling2D{tensor: tensor,  kernelDimensionSize: {number}, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
 #### Parameters:
 
 * tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {2, 2}]
 
 * strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1}]
 
@@ -96,13 +106,15 @@ PoolingLayers.FastMaximumPooling2D{tensor: tensor, strideDimensionSizeArray: {nu
 
 ```
 
-PoolingLayers.FastMaximumPooling3D{tensor: tensor, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+PoolingLayers.FastMaximumPooling3D{tensor: tensor,  kernelDimensionSizeArray: {number}, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
 #### Parameters:
 
 * tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {2, 2, 2}]
 
 * strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1, 1}]
 
@@ -114,13 +126,15 @@ PoolingLayers.FastMaximumPooling3D{tensor: tensor, strideDimensionSizeArray: {nu
 
 ```
 
-PoolingLayers.FastMinimumPooling1D{tensor: tensor, strideDimensionSize: number}: AutomaticDifferentiationTensor
+PoolingLayers.FastMinimumPooling1D{tensor: tensor, kernelDimensionSize: number, strideDimensionSize: number}: AutomaticDifferentiationTensor
 
 ```
 
 #### Parameters:
 
 * tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSize: The dimension size for the kernel. [Default: 2]
 
 * strideDimensionSize: The dimension size for the stride. [Default: 1]
 
@@ -132,13 +146,15 @@ PoolingLayers.FastMinimumPooling1D{tensor: tensor, strideDimensionSize: number}:
 
 ```
 
-PoolingLayers.FastMinimumPooling2D{tensor: tensor, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+PoolingLayers.FastMinimumPooling2D{tensor: tensor,  kernelDimensionSize: {number}, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
 #### Parameters:
 
 * tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {2, 2}]
 
 * strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1}]
 
@@ -150,7 +166,7 @@ PoolingLayers.FastMinimumPooling2D{tensor: tensor, strideDimensionSizeArray: {nu
 
 ```
 
-PoolingLayers.FastMinimumPooling3D{tensor: tensor, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+PoolingLayers.FastMinimumPooling3D{tensor: tensor,  kernelDimensionSizeArray: {number}, strideDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
@@ -158,7 +174,87 @@ PoolingLayers.FastMinimumPooling3D{tensor: tensor, strideDimensionSizeArray: {nu
 
 * tensor: The tensor that will be used as inputs.
 
+* kernelDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {2, 2, 2}]
+
 * strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1, 1}]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### FastMaximumUnpoolingPooling1D
+
+```
+
+PoolingLayers.FastMaximumUnpoolingPooling1D{tensor: tensor, kernelDimensionSize: number, strideDimensionSize: number, unpoolingMethod: string}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSize: The dimension size for the kernel. [Default: 2]
+
+* strideDimensionSize: The dimension size for the stride. [Default: 1]
+
+* unpoolingMethod: The unpooling method that determines how the transformed tensor is generated. Available options are:
+
+	* NearestNeighbour (Default)
+
+	* BedOfNails
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### FastMaximumUnpoolingPooling2D
+
+```
+
+PoolingLayers.FastMaximumUnpoolingPooling2D{tensor: tensor,  kernelDimensionSize: {number}, strideDimensionSizeArray: {number}: unpoolingMethod: string}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {2, 2}]
+
+* strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1}]
+
+* unpoolingMethod: The unpooling method that determines how the transformed tensor is generated. Available options are:
+
+	* NearestNeighbour (Default)
+
+	* BedOfNails
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### FastMaximumUnpoolingPooling3D
+
+```
+
+PoolingLayers.FastMaximumUnpoolingPooling3D{tensor: tensor,  kernelDimensionSizeArray: {number}, strideDimensionSizeArray: {number}, unpoolingMethod: string}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be used as inputs.
+
+* kernelDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {2, 2, 2}]
+
+* strideDimensionSizeArray: The dimension size for the stride. The index of the array represents the dimension and the value represents the size for that particular dimension. [Default: {1, 1, 1}]
+
+* unpoolingMethod: The unpooling method that determines how the transformed tensor is generated. Available options are:
+
+	* NearestNeighbour (Default)
+
+	* BedOfNails
 
 #### Returns:
 

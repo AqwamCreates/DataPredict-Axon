@@ -8,7 +8,7 @@
 
 [ConvolutionLayers](API/ConvolutionLayers.md)
 
-[PoolingLayers](API/PoolingLayers.md) -- No documentation yet.
+[PoolingLayers](API/PoolingLayers.md)
 
 [PaddingLayers](API/PaddingLayers.md)
 
