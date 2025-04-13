@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Aqwam's Deep Learning Library (DataPredict Torch)
+	Aqwam's Deep Learning Library (DataPredict Axon)
 
 	Author: Aqwam Harish Aiman
 	
@@ -16,7 +16,7 @@
 		
 	By using this library, you agree to comply with our Terms and Conditions in the link below:
 	
-	https://github.com/AqwamCreates/DataPredict-Neural/blob/main/docs/TermsAndConditions.md
+	https://github.com/AqwamCreates/DataPredict-Axon/blob/main/docs/TermsAndConditions.md
 	
 	--------------------------------------------------------------------
 	
@@ -189,8 +189,10 @@ local unpooling3DMethodInverseFunctionList = {
 	end,
 
 }
-function PoolingLayers.MaximumUnpooling1D(parameterDictionary)
-	
+function PoolingLayers.FastMaximumUnpooling1D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
@@ -198,12 +200,14 @@ function PoolingLayers.MaximumUnpooling1D(parameterDictionary)
 	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
 
 	local unpoolingMethod = parameterDictionary.unpoolingMethod or parameterDictionary[4] or defaultUnpoolingMethod
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial maximum unpooling function block. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial maximum unpooling function. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local unpoolingMethodFunction = unpooling1DMethodFunctionList[unpoolingMethod]
 
@@ -245,13 +249,17 @@ function PoolingLayers.MaximumUnpooling1D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
+		
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
 		local unpoolingMethodInverseFunction = unpooling1DMethodInverseFunctionList[unpoolingMethod]
 
 		if (not unpoolingMethodInverseFunction) then error("Invalid unpooling method.") end
 
-		local derivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(derivativeTensor)
+		local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -265,7 +273,7 @@ function PoolingLayers.MaximumUnpooling1D(parameterDictionary)
 
 					local endC = startC + kernelDimensionSize - 1
 
-					unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, derivativeTensor, a, b, c, startC, endC)
+					unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, startC, endC)
 
 				end
 
@@ -273,16 +281,18 @@ function PoolingLayers.MaximumUnpooling1D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.MaximumUnpooling2D(parameterDictionary)
-	
+function PoolingLayers.FastMaximumUnpooling2D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
@@ -290,12 +300,14 @@ function PoolingLayers.MaximumUnpooling2D(parameterDictionary)
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
 
 	local unpoolingMethod = parameterDictionary.unpoolingMethod or parameterDictionary[4] or defaultUnpoolingMethod
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial maximum unpooling function block. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial maximum unpooling function. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local unpoolingMethodFunction = unpooling2DMethodFunctionList[unpoolingMethod]
 
@@ -357,7 +369,11 @@ function PoolingLayers.MaximumUnpooling2D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
+		
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
 		local unpoolingMethodInverseFunction = unpooling2DMethodInverseFunctionList[unpoolingMethod]
 
@@ -379,7 +395,7 @@ function PoolingLayers.MaximumUnpooling2D(parameterDictionary)
 						local endC = startC + kernelDimension1Size - 1
 						local endD = startD + kernelDimension2Size - 1
 
-						unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, derivativeTensor, a, b, c, d, startC, startD, endC, endD)
+						unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, d, startC, startD, endC, endD)
 
 					end
 
@@ -389,15 +405,17 @@ function PoolingLayers.MaximumUnpooling2D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.MaximumUnpooling3D(parameterDictionary)
+function PoolingLayers.FastMaximumUnpooling3D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
@@ -406,12 +424,14 @@ function PoolingLayers.MaximumUnpooling3D(parameterDictionary)
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
 
 	local unpoolingMethod = parameterDictionary.unpoolingMethod  or parameterDictionary[4] or defaultUnpoolingMethod
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial maximum unpooling function block. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial maximum unpooling function. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local unpoolingMethodFunction = unpooling3DMethodFunctionList[unpoolingMethod]
 
@@ -485,7 +505,11 @@ function PoolingLayers.MaximumUnpooling3D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
+		
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
 		local unpoolingMethodInverseFunction = unpooling3DMethodInverseFunctionList[unpoolingMethod]
 
@@ -511,7 +535,7 @@ function PoolingLayers.MaximumUnpooling3D(parameterDictionary)
 							local endD = startD + kernelDimension2Size - 1
 							local endE = startE + kernelDimension3Size - 1
 
-							unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, derivativeTensor, a, b, c, d, e, startC, startD, startE, endC, endD, endE)
+							unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, d, e, startC, startD, startE, endC, endD, endE)
 
 						end
 
@@ -523,27 +547,31 @@ function PoolingLayers.MaximumUnpooling3D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.AveragePooling1D(parameterDictionary)
-	
+function PoolingLayers.FastAveragePooling1D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
 
 	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial average pooling function block. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial average pooling function. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -585,9 +613,11 @@ function PoolingLayers.AveragePooling1D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -597,7 +627,7 @@ function PoolingLayers.AveragePooling1D(parameterDictionary)
 
 				for c = 1, resultTensorDimension3Size, 1 do
 
-					local derivativeValue = derivativeTensor[a][b][c]
+					local derivativeValue = firstDerivativeTensor[a][b][c]
 
 					local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
 
@@ -615,29 +645,33 @@ function PoolingLayers.AveragePooling1D(parameterDictionary)
 
 		end
 
-		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, inputDimensionSize)
+		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelDimensionSize)
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.AveragePooling2D(parameterDictionary)
+function PoolingLayers.FastAveragePooling2D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial average pooling function block. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial average pooling function. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -697,11 +731,13 @@ function PoolingLayers.AveragePooling2D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		local derivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(derivativeTensor)
+		local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -715,7 +751,7 @@ function PoolingLayers.AveragePooling2D(parameterDictionary)
 
 					for d = 1, resultTensorDimension4Size, 1 do
 
-						local derivativeValue = derivativeTensor[a][b][c][d]
+						local derivativeValue = firstDerivativeTensor[a][b][c][d]
 
 						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
 
@@ -741,27 +777,31 @@ function PoolingLayers.AveragePooling2D(parameterDictionary)
 
 		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelArea)
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.AveragePooling3D(parameterDictionary)
+function PoolingLayers.FastAveragePooling3D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default3DKernelDimensionSizeArray
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial average pooling function block. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial average pooling function. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -831,9 +871,11 @@ function PoolingLayers.AveragePooling3D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -849,7 +891,7 @@ function PoolingLayers.AveragePooling3D(parameterDictionary)
 
 						for e = 1, resultTensorDimension5Size, 1 do
 
-							local derivativeValue = derivativeTensor[a][b][c][d][e]
+							local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
 
 							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
@@ -881,27 +923,31 @@ function PoolingLayers.AveragePooling3D(parameterDictionary)
 
 		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelVolume)
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.MinimumPooling1D(parameterDictionary)
+function PoolingLayers.FastMinimumPooling1D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
 
 	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial minimum pooling function block. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial minimum pooling function. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -943,9 +989,11 @@ function PoolingLayers.MinimumPooling1D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -955,7 +1003,7 @@ function PoolingLayers.MinimumPooling1D(parameterDictionary)
 
 				for c = 1, resultTensorDimension3Size, 1 do
 
-					local derivativeValue = derivativeTensor[a][b][c]
+					local derivativeValue = firstDerivativeTensor[a][b][c]
 
 					local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
 
@@ -973,27 +1021,31 @@ function PoolingLayers.MinimumPooling1D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.MinimumPooling2D(parameterDictionary)
+function PoolingLayers.FastMinimumPooling2D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial minimum pooling function block. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial minimum pooling function. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -1053,11 +1105,13 @@ function PoolingLayers.MinimumPooling2D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		local derivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(derivativeTensor)
+		local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1069,7 +1123,7 @@ function PoolingLayers.MinimumPooling2D(parameterDictionary)
 
 					for d = 1, resultTensorDimension4Size, 1 do
 
-						local derivativeValue = derivativeTensor[a][b][c][d]
+						local derivativeValue = firstDerivativeTensor[a][b][c][d]
 
 						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
 
@@ -1093,27 +1147,31 @@ function PoolingLayers.MinimumPooling2D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.MinimumPooling3D(parameterDictionary)
+function PoolingLayers.FastMinimumPooling3D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default3DKernelDimensionSizeArray
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial minimum pooling function block. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial minimum pooling function. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -1183,9 +1241,11 @@ function PoolingLayers.MinimumPooling3D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1199,7 +1259,7 @@ function PoolingLayers.MinimumPooling3D(parameterDictionary)
 
 						for e = 1, resultTensorDimension5Size, 1 do
 
-							local derivativeValue = derivativeTensor[a][b][c][d][e]
+							local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
 
 							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
@@ -1229,27 +1289,31 @@ function PoolingLayers.MinimumPooling3D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.MaximumPooling1D(parameterDictionary)
+function PoolingLayers.FastMaximumPooling1D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
 
 	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial maximum pooling function block. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial maximum pooling function. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -1291,9 +1355,11 @@ function PoolingLayers.MaximumPooling1D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1303,7 +1369,7 @@ function PoolingLayers.MaximumPooling1D(parameterDictionary)
 
 				for c = 1, resultTensorDimension3Size, 1 do
 
-					local derivativeValue = derivativeTensor[a][b][c]
+					local derivativeValue = firstDerivativeTensor[a][b][c]
 
 					local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
 
@@ -1321,27 +1387,31 @@ function PoolingLayers.MaximumPooling1D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.MaximumPooling2D(parameterDictionary)
+function PoolingLayers.FastMaximumPooling2D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial maximum pooling function block. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial maximum pooling function. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -1401,11 +1471,11 @@ function PoolingLayers.MaximumPooling2D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		local derivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(derivativeTensor)
+		local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1417,7 +1487,7 @@ function PoolingLayers.MaximumPooling2D(parameterDictionary)
 
 					for d = 1, resultTensorDimension4Size, 1 do
 
-						local derivativeValue = derivativeTensor[a][b][c][d]
+						local derivativeValue = firstDerivativeTensor[a][b][c][d]
 
 						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
 
@@ -1441,27 +1511,31 @@ function PoolingLayers.MaximumPooling2D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 end
 
-function PoolingLayers.MaximumPooling3D(parameterDictionary)
+function PoolingLayers.FastMaximumPooling3D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default3DKernelDimensionSizeArray
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
+	
+	local inputTensorArray = {tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
-	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial maximum pooling function block. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial maximum pooling function. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
 
 	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
 
@@ -1531,9 +1605,11 @@ function PoolingLayers.MaximumPooling3D(parameterDictionary)
 
 	end
 
-	local PartialDerivativeFunction = function(derivativeTensor)
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1547,7 +1623,7 @@ function PoolingLayers.MaximumPooling3D(parameterDictionary)
 
 						for e = 1, resultTensorDimension5Size, 1 do
 
-							local derivativeValue = derivativeTensor[a][b][c][d][e]
+							local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
 
 							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
@@ -1577,11 +1653,911 @@ function PoolingLayers.MaximumPooling3D(parameterDictionary)
 
 		end
 
-		tensor:differentiate(chainRuleFirstDerivativeTensor)
+		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
+function PoolingLayers.AveragePooling1D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
+
+	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial average pooling function. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	local inputDimensionSize = tensorDimensionSizeArray[3]
+
+	local outputDimensionSize = ((inputDimensionSize - kernelDimensionSize) / strideDimensionSize) + 1
+
+	resultTensorDimensionSizeArray[3] = math.floor(outputDimensionSize)
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				local originDimensionIndexArray = {a, b, (c - 1) * strideDimensionSize + 1}
+
+				local targetDimensionIndexArray = {a, b, (c - 1) * strideDimensionSize + kernelDimensionSize}
+
+				local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+				local averageValue = extractedSubTensor:mean()
+
+				resultTensor[a][b][c] = averageValue
+
+				print(averageValue)
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					local averageValue = resultTensor[a][b][c]
+
+					averageValue:differentiate{firstDerivativeTensor[a][b][c]}
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
+function PoolingLayers.AveragePooling2D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
+
+	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial average pooling function. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	for dimension = 1, 2, 1 do
+
+		local inputDimensionSize = tensorDimensionSizeArray[dimension + 2]
+
+		local outputDimensionSize = ((inputDimensionSize - kernelDimensionSizeArray[dimension]) / strideDimensionSizeArray[dimension]) + 1
+
+		resultTensorDimensionSizeArray[dimension + 2] = math.floor(outputDimensionSize)
+
+	end
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensorDimension4Size = resultTensorDimensionSizeArray[4]
+
+	local kernelDimension1Size = kernelDimensionSizeArray[1]
+
+	local kernelDimension2Size = kernelDimensionSizeArray[2]
+
+	local strideDimension1Size = strideDimensionSizeArray[1]
+
+	local strideDimension2Size = strideDimensionSizeArray[2]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				for d = 1, resultTensorDimension4Size, 1 do
+
+					local originDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
+
+					local targetDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+
+					local extractedSubTensor = tensor:extract(originDimensionIndexArray, targetDimensionIndexArray)
+
+					local averageValue = extractedSubTensor:mean()
+
+					resultTensor[a][b][c][d] = averageValue
+
+				end
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					for d = 1, resultTensorDimension4Size, 1 do
+
+						local averageValue = resultTensor[a][b][c][d]
+
+						averageValue:differentiate{firstDerivativeTensor[a][b][c][d]}
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
+function PoolingLayers.AveragePooling3D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default3DKernelDimensionSizeArray
+
+	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial average pooling function. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	for dimension = 1, 3, 1 do
+
+		local inputDimensionSize = tensorDimensionSizeArray[dimension + 2]
+
+		local outputDimensionSize = ((inputDimensionSize - kernelDimensionSizeArray[dimension]) / strideDimensionSizeArray[dimension]) + 1
+
+		resultTensorDimensionSizeArray[dimension + 2] = math.floor(outputDimensionSize)
+
+	end
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensorDimension4Size = resultTensorDimensionSizeArray[4]
+
+	local resultTensorDimension5Size = resultTensorDimensionSizeArray[5]
+
+	local kernelDimension1Size = kernelDimensionSizeArray[1]
+
+	local kernelDimension2Size = kernelDimensionSizeArray[2]
+
+	local kernelDimension3Size = kernelDimensionSizeArray[3]
+
+	local strideDimension1Size = strideDimensionSizeArray[1]
+
+	local strideDimension2Size = strideDimensionSizeArray[2]
+
+	local strideDimension3Size = strideDimensionSizeArray[3]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				for d = 1, resultTensorDimension4Size, 1 do
+
+					for e = 1, resultTensorDimension5Size, 1 do
+
+						local originDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
+
+						local targetDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+
+						local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+						local averageValue = extractedSubTensor:mean()
+
+						resultTensor[a][b][c][d][e] = averageValue
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					for d = 1, resultTensorDimension4Size, 1 do
+
+						for e = 1, resultTensorDimension5Size, 1 do
+
+							local averageValue = resultTensor[a][b][c][d][e]
+
+							averageValue:differentiate{firstDerivativeTensor[a][b][c][d][e]}
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
+function PoolingLayers.MinimumPooling1D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
+
+	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial minimum pooling function. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	local inputDimensionSize = tensorDimensionSizeArray[3]
+
+	local outputDimensionSize = ((inputDimensionSize - kernelDimensionSize) / strideDimensionSize) + 1
+
+	resultTensorDimensionSizeArray[3] = math.floor(outputDimensionSize)
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				local originDimensionIndexArray = {a, b, (c - 1) * strideDimensionSize + 1}
+
+				local targetDimensionIndexArray = {a, b, (c - 1) * strideDimensionSize + kernelDimensionSize}
+
+				local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+				local minimumValue = extractedSubTensor:findMinimumValue()
+
+				resultTensor[a][b][c] = minimumValue
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					local minimumValue = resultTensor[a][b][c]
+
+					minimumValue:differentiate{firstDerivativeTensor[a][b][c]}
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
+function PoolingLayers.MinimumPooling2D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
+
+	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial minimum pooling function. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	for dimension = 1, 2, 1 do
+
+		local inputDimensionSize = tensorDimensionSizeArray[dimension + 2]
+
+		local outputDimensionSize = ((inputDimensionSize - kernelDimensionSizeArray[dimension]) / strideDimensionSizeArray[dimension]) + 1
+
+		resultTensorDimensionSizeArray[dimension + 2] = math.floor(outputDimensionSize)
+
+	end
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensorDimension4Size = resultTensorDimensionSizeArray[4]
+
+	local kernelDimension1Size = kernelDimensionSizeArray[1]
+
+	local kernelDimension2Size = kernelDimensionSizeArray[2]
+
+	local strideDimension1Size = strideDimensionSizeArray[1]
+
+	local strideDimension2Size = strideDimensionSizeArray[2]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				for d = 1, resultTensorDimension4Size, 1 do
+
+					local originDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
+
+					local targetDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+
+					local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+					local minimumValue = extractedSubTensor:findMinimumValue()
+
+					resultTensor[a][b][c][d] = minimumValue
+
+				end
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					for d = 1, resultTensorDimension4Size, 1 do
+
+						local minimumValue = resultTensor[a][b][c][d]
+
+						minimumValue:differentiate{firstDerivativeTensor[a][b][c][d]}
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
+function PoolingLayers.MinimumPooling3D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default3DKernelDimensionSizeArray
+
+	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial minimum pooling function. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	for dimension = 1, 3, 1 do
+
+		local inputDimensionSize = tensorDimensionSizeArray[dimension + 2]
+
+		local outputDimensionSize = ((inputDimensionSize - kernelDimensionSizeArray[dimension]) / strideDimensionSizeArray[dimension]) + 1
+
+		resultTensorDimensionSizeArray[dimension + 2] = math.floor(outputDimensionSize)
+
+	end
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensorDimension4Size = resultTensorDimensionSizeArray[4]
+
+	local resultTensorDimension5Size = resultTensorDimensionSizeArray[5]
+
+	local kernelDimension1Size = kernelDimensionSizeArray[1]
+
+	local kernelDimension2Size = kernelDimensionSizeArray[2]
+
+	local kernelDimension3Size = kernelDimensionSizeArray[3]
+
+	local strideDimension1Size = strideDimensionSizeArray[1]
+
+	local strideDimension2Size = strideDimensionSizeArray[2]
+
+	local strideDimension3Size = strideDimensionSizeArray[3]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				for d = 1, resultTensorDimension4Size, 1 do
+
+					for e = 1, resultTensorDimension5Size, 1 do
+
+						local originDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
+
+						local targetDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+
+						local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+						local minimumValue = extractedSubTensor:findMinimumValue()
+
+						resultTensor[a][b][c][d][e] = minimumValue
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					for d = 1, resultTensorDimension4Size, 1 do
+
+						for e = 1, resultTensorDimension5Size, 1 do
+
+							local minimumValue = resultTensor[a][b][c][d][e]
+
+							minimumValue:differentiate{firstDerivativeTensor[a][b][c][d][e]}
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
+function PoolingLayers.MaximumPooling1D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
+
+	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial maximum pooling function. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	local inputDimensionSize = tensorDimensionSizeArray[3]
+
+	local outputDimensionSize = ((inputDimensionSize - kernelDimensionSize) / strideDimensionSize) + 1
+
+	resultTensorDimensionSizeArray[3] = math.floor(outputDimensionSize)
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				local originDimensionIndexArray = {a, b, (c - 1) * strideDimensionSize + 1}
+
+				local targetDimensionIndexArray = {a, b, (c - 1) * strideDimensionSize + kernelDimensionSize}
+
+				local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+				local maximumValue = extractedSubTensor:findMaximumValue()
+
+				resultTensor[a][b][c] = maximumValue
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					local maximumValue = resultTensor[a][b][c]
+
+					maximumValue:differentiate{firstDerivativeTensor[a][b][c]}
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
+function PoolingLayers.MaximumPooling2D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default2DKernelDimensionSizeArray
+
+	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 4) then error("Unable to pass the input tensor to the 2D spatial maximum pooling function. The number of dimensions of the input tensor does not equal to 4. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	for dimension = 1, 2, 1 do
+
+		local inputDimensionSize = tensorDimensionSizeArray[dimension + 2]
+
+		local outputDimensionSize = ((inputDimensionSize - kernelDimensionSizeArray[dimension]) / strideDimensionSizeArray[dimension]) + 1
+
+		resultTensorDimensionSizeArray[dimension + 2] = math.floor(outputDimensionSize)
+
+	end
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensorDimension4Size = resultTensorDimensionSizeArray[4]
+
+	local kernelDimension1Size = kernelDimensionSizeArray[1]
+
+	local kernelDimension2Size = kernelDimensionSizeArray[2]
+
+	local strideDimension1Size = strideDimensionSizeArray[1]
+
+	local strideDimension2Size = strideDimensionSizeArray[2]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				for d = 1, resultTensorDimension4Size, 1 do
+
+					local subTensor = tensor[a][b]
+
+					local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
+
+					local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+
+					local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+					local maximumValue = extractedSubTensor:findMaximumValue()
+
+					resultTensor[a][b][c][d] = maximumValue
+
+				end
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					for d = 1, resultTensorDimension4Size, 1 do
+
+						local maximumValue = resultTensor[a][b][c][d]
+
+						maximumValue:differentiate{firstDerivativeTensor[a][b][c][d]}
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
+function PoolingLayers.MaximumPooling3D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local kernelDimensionSizeArray = parameterDictionary.kernelDimensionSizeArray or parameterDictionary[2] or default3DKernelDimensionSizeArray
+
+	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensions = #tensorDimensionSizeArray
+
+	if (numberOfDimensions ~= 5) then error("Unable to pass the input tensor to the 3D spatial maximum pooling function. The number of dimensions of the input tensor does not equal to 5. The input tensor have " .. numberOfDimensions .. " dimensions.") end
+
+	local resultTensorDimensionSizeArray = table.clone(tensorDimensionSizeArray)
+
+	for dimension = 1, 3, 1 do
+
+		local inputDimensionSize = tensorDimensionSizeArray[dimension + 2]
+
+		local outputDimensionSize = ((inputDimensionSize - kernelDimensionSizeArray[dimension]) / strideDimensionSizeArray[dimension]) + 1
+
+		resultTensorDimensionSizeArray[dimension + 2] = math.floor(outputDimensionSize)
+
+	end
+
+	local resultTensorDimension1Size = resultTensorDimensionSizeArray[1]
+
+	local resultTensorDimension2Size = resultTensorDimensionSizeArray[2]
+
+	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
+
+	local resultTensorDimension4Size = resultTensorDimensionSizeArray[4]
+
+	local resultTensorDimension5Size = resultTensorDimensionSizeArray[5]
+
+	local kernelDimension1Size = kernelDimensionSizeArray[1]
+
+	local kernelDimension2Size = kernelDimensionSizeArray[2]
+
+	local kernelDimension3Size = kernelDimensionSizeArray[3]
+
+	local strideDimension1Size = strideDimensionSizeArray[1]
+
+	local strideDimension2Size = strideDimensionSizeArray[2]
+
+	local strideDimension3Size = strideDimensionSizeArray[3]
+
+	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+
+	for a = 1, resultTensorDimension1Size, 1 do
+
+		for b = 1, resultTensorDimension2Size, 1 do
+
+			for c = 1, resultTensorDimension3Size, 1 do
+
+				for d = 1, resultTensorDimension4Size, 1 do
+
+					for e = 1, resultTensorDimension5Size, 1 do
+
+						local subTensor = tensor[a][b]
+
+						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
+
+						local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+
+						local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+						local maximumValue = extractedSubTensor:findMaximumValue()
+
+						resultTensor[a][b][c][d][e] = maximumValue
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+
+		for a = 1, resultTensorDimension1Size, 1 do
+
+			for b = 1, resultTensorDimension2Size, 1 do
+
+				for c = 1, resultTensorDimension3Size, 1 do
+
+					for d = 1, resultTensorDimension4Size, 1 do
+
+						for e = 1, resultTensorDimension5Size, 1 do
+
+							local maximumValue = resultTensor[a][b][c][d][e]
+
+							maximumValue:differentiate{firstDerivativeTensor[a][b][c][d][e]}
+
+						end
+
+					end
+
+				end
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
 end
 
