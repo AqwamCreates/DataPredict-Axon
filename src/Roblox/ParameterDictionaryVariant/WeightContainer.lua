@@ -40,7 +40,7 @@ function WeightContainer.new(parameterDictionary)
 
 	setmetatable(NewWeightContainer, WeightContainer)
 	
-	NewWeightContainer.WeightTensorAndOptimizerArrayArray = parameterDictionary
+	NewWeightContainer.TensorAndOptimizerArrayArray = parameterDictionary
 	
 	return NewWeightContainer
 	
@@ -48,29 +48,29 @@ end
 
 function WeightContainer:gradientDescent()
 	
-	for i, WeightTensorAndOptimizerArray in ipairs(self.WeightTensorAndOptimizerArrayArray) do
+	for i, TensorAndOptimizerArray in ipairs(self.TensorAndOptimizerArrayArray) do
 		
-		local automaticDifferentiationTensor = WeightTensorAndOptimizerArray.automaticDifferentiationTensor or WeightTensorAndOptimizerArray[1]
+		local automaticDifferentiationTensor = TensorAndOptimizerArray.automaticDifferentiationTensor or TensorAndOptimizerArray[1]
 		
-		local learningRate =  WeightTensorAndOptimizerArray.learningRate or WeightTensorAndOptimizerArray[2] or defaultLearningRate
+		local learningRate =  TensorAndOptimizerArray.learningRate or TensorAndOptimizerArray[2] or defaultLearningRate
 		
-		local Optimizer = WeightTensorAndOptimizerArray.Optimizer or WeightTensorAndOptimizerArray[3]
+		local Optimizer = TensorAndOptimizerArray.Optimizer or TensorAndOptimizerArray[3]
 		
-		local tensorFirstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor()
+		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor()
 		
 		local tensor = automaticDifferentiationTensor:getTensor()
 		
 		local optimizedFirstDerivativeTensor
 		
-		if (not tensorFirstDerivativeTensor) then error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
+		if (not firstDerivativeTensor) then error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
 		
 		if (Optimizer) then
 			
-			optimizedFirstDerivativeTensor = Optimizer:calculate(learningRate, tensorFirstDerivativeTensor)
+			optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
 			
 		else
 			
-			optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, tensorFirstDerivativeTensor)
+			optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
 			
 		end
 		
@@ -86,13 +86,13 @@ end
 
 function WeightContainer:gradientAscent()
 	
-	for i, WeightTensorAndOptimizerArray in ipairs(self.WeightTensorAndOptimizerArrayArray) do
+	for i, TensorAndOptimizerArray in ipairs(self.TensorAndOptimizerArrayArray) do
 
-		local automaticDifferentiationTensor = WeightTensorAndOptimizerArray[1]
+		local automaticDifferentiationTensor = TensorAndOptimizerArray[1]
 
-		local learningRate = WeightTensorAndOptimizerArray[2]
+		local learningRate = TensorAndOptimizerArray[2]
 
-		local Optimizer = WeightTensorAndOptimizerArray[3]
+		local Optimizer = TensorAndOptimizerArray[3]
 
 		local tensorFirstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor()
 
@@ -122,35 +122,35 @@ function WeightContainer:gradientAscent()
 	
 end
 
-function WeightContainer:getWeightTensorArray(parameterDictionary)
+function WeightContainer:getTensorArray(parameterDictionary)
 	
 	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[1]
 	
-	local weightTensorArray = {}
+	local tensorArray = {}
 	
-	for i, WeightTensorAndOptimizerArray in ipairs(self.WeightTensorAndOptimizerArrayArray) do
+	for i, TensorAndOptimizerArray in ipairs(self.TensorAndOptimizerArrayArray) do
 
-		local automaticDifferentiationTensor = WeightTensorAndOptimizerArray[1]
+		local automaticDifferentiationTensor = TensorAndOptimizerArray[1]
 		
-		weightTensorArray[i] = automaticDifferentiationTensor:getTensor(doNotDeepCopy)
+		tensorArray[i] = automaticDifferentiationTensor:getTensor(doNotDeepCopy)
 		
 	end
 	
-	return weightTensorArray
+	return tensorArray
 	
 end
 
-function WeightContainer:setWeightTensorArray(parameterDictionary)
+function WeightContainer:setTensorArray(parameterDictionary)
 	
-	local weightTensorArray = parameterDictionary.weightTensorArray or parameterDictionary[1]
+	local tensorArray = parameterDictionary.tensorArray or parameterDictionary[1]
 	
 	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[2]
 
-	for i, WeightTensorAndOptimizerArray in ipairs(self.WeightTensorAndOptimizerArrayArray) do
+	for i, TensorAndOptimizerArray in ipairs(self.TensorAndOptimizerArrayArray) do
 
-		local automaticDifferentiationTensor = WeightTensorAndOptimizerArray[1]
+		local automaticDifferentiationTensor = TensorAndOptimizerArray[1]
 
-		automaticDifferentiationTensor:getTensor(weightTensorArray[i], doNotDeepCopy)
+		automaticDifferentiationTensor:getTensor(tensorArray[i], doNotDeepCopy)
 
 	end
 
