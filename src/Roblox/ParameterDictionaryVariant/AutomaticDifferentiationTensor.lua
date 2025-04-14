@@ -30,7 +30,7 @@ local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
 local AHAAutomaticDifferentiationTensor = {}
 
-local function showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(showError)
+local function showFunctionErrorDueToNonObjectCondition(showError)
 
 	if (showError) then error("This function can only be called if it is an object.") end
 
@@ -558,7 +558,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:findMaximumValue()
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	local inputTensorArray = {self}
 
@@ -584,7 +584,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:findMinimumValue()
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	local inputTensorArray = {self}
 
@@ -964,7 +964,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:sum(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1002,7 +1002,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:unaryMinus()
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	local inputTensorArray = {self}
 
@@ -1022,7 +1022,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:power(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1078,7 +1078,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:dotProduct(parameterDictionary) -- Refer to this article. It was a fucking headache to do this. https://medium.com/@hunter-j-phillips/a-simple-introduction-to-tensors-c4a8321efffc
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1134,7 +1134,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:extract(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1286,7 +1286,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:transpose(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1310,7 +1310,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:flatten(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1340,7 +1340,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:reshape(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1370,7 +1370,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:permute(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1402,7 +1402,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:mean(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1432,7 +1432,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:standardDeviation(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1464,7 +1464,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:zScoreNormalization(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1494,7 +1494,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:absolute()
 	
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	local functionToApply = function (value) return (((value >= 0) and value) or -value) end
 
@@ -1524,7 +1524,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:expandDimensionSizes(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local targetDimensionSizeArray = parameterDictionary.targetDimensionSizeArray or parameterDictionary[1]
 	
@@ -1562,7 +1562,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:expandNumberOfDimensions(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local dimensionSizeToAddArray = parameterDictionary.dimensionSizeToAddArray or parameterDictionary[1]
 	
@@ -1648,7 +1648,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1720,7 +1720,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:copy()
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	return deepCopyTable(self)
 
@@ -1728,13 +1728,13 @@ end
 
 function AHAAutomaticDifferentiationTensor:getTensor(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	parameterDictionary = parameterDictionary or {}
 
-	local doNotDeepCopyTable = parameterDictionary.doNotDeepCopyTable or parameterDictionary[1]
+	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[1]
 
-	if (doNotDeepCopyTable) then
+	if (doNotDeepCopy) then
 
 		return self.tensor
 
@@ -1748,13 +1748,13 @@ end
 
 function AHAAutomaticDifferentiationTensor:setTensor(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local doNotDeepCopyTable = parameterDictionary.doNotDeepCopyTable or parameterDictionary[2]
+	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[2]
 
-	if (doNotDeepCopyTable) then
+	if (doNotDeepCopy) then
 
 		self.tensor = tensor
 
@@ -1768,7 +1768,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:getTotalFirstDerivativeTensor(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1788,7 +1788,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:setTotalFirstDerivativeTensor(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1812,7 +1812,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:__tostring()
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local tensor = self.tensor
 
@@ -1876,11 +1876,13 @@ end
 
 function AHAAutomaticDifferentiationTensor:destroy(parameterDictionary)
 
-	showErrorIfFunctionCannotBeCalledDueToNonObjectCondition(not self.isAnObject)
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
 	local areDescendantsDestroyed = parameterDictionary.areDescendantsDestroyed or parameterDictionary[1]
+	
+	local destroyFirstInputTensor = parameterDictionary.destroyFirstInputTensor or parameterDictionary[2]
 
 	local inputTensorArray = self.inputTensorArray
 
@@ -1888,7 +1890,15 @@ function AHAAutomaticDifferentiationTensor:destroy(parameterDictionary)
 
 		for _, tensor in ipairs(inputTensorArray) do
 
-			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then tensor:destroy(true) end
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
+				
+				if (tensor.inputTensorArray) or (destroyFirstInputTensor) then
+					
+					tensor:destroy{areDescendantsDestroyed, destroyFirstInputTensor}
+					
+				end
+				
+			end
 
 		end
 
