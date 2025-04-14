@@ -1290,17 +1290,17 @@ function AHAAutomaticDifferentiationTensor:transpose(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
-	local dimensionIndexArray = parameterDictionary.dimensionIndexArray or parameterDictionary[1]
+	local dimensionArray = parameterDictionary.dimensionArray or parameterDictionary[1]
 	
 	local inputTensorArray = {self}
 
-	local resultTensor = AqwamTensorLibrary:transpose(self, dimensionIndexArray)
+	local resultTensor = AqwamTensorLibrary:transpose(self, dimensionArray)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
 		local tensor = inputTensorArray[1]
 
-		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then tensor:differentiate(AqwamTensorLibrary:transpose(firstDerivativeTensor, dimensionIndexArray)) end
+		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then tensor:differentiate(AqwamTensorLibrary:transpose(firstDerivativeTensor, dimensionArray)) end
 
 	end
 

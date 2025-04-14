@@ -358,7 +358,7 @@ AutomaticDifferentiationTensors:sum{dimension: number}: AutomaticDifferentiation
 
 ### Parameters:
 
-* dimension: The dimension of summing axis. Can be empty. [Default: None]
+* dimension: The dimension of calculating the sum along an axis. Can be empty. [Default: None]
 
 #### Returns:
 
@@ -369,6 +369,18 @@ AutomaticDifferentiationTensors:sum{dimension: number}: AutomaticDifferentiation
 ```
 
 AutomaticDifferentiationTensors:unaryMinus{}: AutomaticDifferentiationTensor
+
+```
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### absolute()
+
+```
+
+AutomaticDifferentiationTensors:absolute{}: AutomaticDifferentiationTensor
 
 ```
 
@@ -418,7 +430,135 @@ AutomaticDifferentiationTensors:transpose{dimensionArray: {number}}: AutomaticDi
 
 ### Parameters:
 
-* dimensionArray: An array containing the dimension index to transpose the automatic differentiation tensor.
+* dimensionArray: An array containing the dimensions to transpose the automatic differentiation tensor.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### flatten()
+
+```
+
+AutomaticDifferentiationTensors:flatten{dimensionArray: {number}}: AutomaticDifferentiationTensor
+
+```
+
+### Parameters:
+
+* dimensionArray: An array containing the dimensions to flatten the automatic differentiation tensor.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### reshape()
+
+```
+
+AutomaticDifferentiationTensors:reshape{dimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+
+```
+
+### Parameters:
+
+* dimensionSizeArray: An array containing the dimension sizes to reshape the automatic differentiation tensor.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### permute()
+
+```
+
+AutomaticDifferentiationTensors:permute{dimensionArray: {number}}: AutomaticDifferentiationTensor
+
+```
+
+### Parameters:
+
+* dimensionArray: An array containing the dimensions to permute the automatic differentiation tensor.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### mean()
+
+```
+
+AutomaticDifferentiationTensors:mean{dimension: number}: AutomaticDifferentiationTensor
+
+```
+
+### Parameters:
+
+* dimension: The dimension of calculating the mean along an axis. Can be empty. [Default: None]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### standardDeviation()
+
+```
+
+AutomaticDifferentiationTensors:standardDeviation{dimension: number}: AutomaticDifferentiationTensor
+
+```
+
+### Parameters:
+
+* dimension: The dimension of calculating the standard deviation along an axis. Can be empty. [Default: None]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### zScoreNormalization()
+
+```
+
+AutomaticDifferentiationTensors:zScoreNormalization{dimension: number}: AutomaticDifferentiationTensor
+
+```
+
+### Parameters:
+
+* dimension: The dimension of calculating the z-score normalization along an axis. Can be empty. [Default: None]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### expandDimensionSizes()
+
+```
+
+AutomaticDifferentiationTensors:expandDimensionSizes{targetDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+
+```
+
+### Parameters:
+
+* targetDimensionSizeArray: The target dimension sizes to add to the automatic differentiation tensor.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### expandNumberOfDimensions()
+
+```
+
+AutomaticDifferentiationTensors:expandNumberOfDimensions{dimensionSizeToAddArray: {number}}: AutomaticDifferentiationTensor
+
+```
+
+### Parameters:
+
+* dimensionSizeToAddArray: The dimension size to add to the automatic differentiation tensor.
 
 #### Returns:
 
