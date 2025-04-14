@@ -34,7 +34,7 @@ ADTensors are typically used by:
 
 In order for our neural network to learn, we need to store the weight values for our neural network. These are typically stored in the weight ADTensors. In order to create them, we first need to set the dimension sizes of the weights. 
 
-Below, it shows a code creating a layer block containing a weight tensor of specific size. It is also setting up learning rate value when the neural network performs a gradient descent.
+Below, it shows a code creating a weight tensor of specific size. It is also setting up learning rate value when the neural network performs a gradient descent.
 
 ```lua
 
