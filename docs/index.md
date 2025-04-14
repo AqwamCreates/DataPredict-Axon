@@ -20,7 +20,7 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 
 ## Currently Known Bugs
 
-* The non-fast versions of the pooling layers, convolution layers and the cost functions have an issue where the first derivative tensor cannot be calculated properly. This is due to the automatic differentiation tensor does not handle stored scalar values properly.
+* The non-fast versions of the pooling layers, convolution layers and cost functions have an issue where the first derivative tensor cannot be calculated properly. This is due to the automatic differentiation tensor does not handle stored scalar values properly.
 
 ## Tutorials
 
