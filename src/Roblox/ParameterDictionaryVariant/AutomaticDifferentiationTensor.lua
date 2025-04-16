@@ -36,6 +36,14 @@ local function showFunctionErrorDueToNonObjectCondition(showError)
 
 end
 
+local function fetchValue(automaticDifferentiationTensor)
+	
+	if (type(automaticDifferentiationTensor) ~= "table") then return automaticDifferentiationTensor end
+	
+	return automaticDifferentiationTensor.tensor or automaticDifferentiationTensor
+	
+end
+
 local function deepCopyTable(original, copies)
 
 	copies = copies or {}
@@ -618,7 +626,11 @@ function AHAAutomaticDifferentiationTensor:__add(otherTensor)
 	
 	local inputTensorArray = {self, otherTensor}
 
-	local resultTensor = AqwamTensorLibrary:add(self.tensor, otherTensor)
+	local selfTensorValue = fetchValue(self)
+
+	local otherTensorValue = fetchValue(otherTensor)
+
+	local resultTensor = AqwamTensorLibrary:add(selfTensorValue, otherTensorValue)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
@@ -656,7 +668,11 @@ function AHAAutomaticDifferentiationTensor:__sub(otherTensor)
 	
 	local inputTensorArray = {self, otherTensor}
 
-	local resultTensor = AqwamTensorLibrary:subtract(self.tensor, otherTensor)
+	local selfTensorValue = fetchValue(self)
+
+	local otherTensorValue = fetchValue(otherTensor)
+
+	local resultTensor = AqwamTensorLibrary:subtract(selfTensorValue, otherTensorValue)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
@@ -693,8 +709,12 @@ end
 function AHAAutomaticDifferentiationTensor:__mul(otherTensor)
 	
 	local inputTensorArray = {self, otherTensor}
+	
+	local selfTensorValue = fetchValue(self)
+	
+	local otherTensorValue = fetchValue(otherTensor)
 
-	local resultTensor = AqwamTensorLibrary:multiply(self.tensor, otherTensor)
+	local resultTensor = AqwamTensorLibrary:multiply(selfTensorValue, otherTensorValue)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
@@ -736,7 +756,11 @@ function AHAAutomaticDifferentiationTensor:__div(otherTensor)
 	
 	local inputTensorArray = {self, otherTensor}
 
-	local resultTensor = AqwamTensorLibrary:divide(self.tensor, otherTensor)
+	local selfTensorValue = fetchValue(self)
+
+	local otherTensorValue = fetchValue(otherTensor)
+
+	local resultTensor = AqwamTensorLibrary:divide(selfTensorValue, otherTensorValue)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
