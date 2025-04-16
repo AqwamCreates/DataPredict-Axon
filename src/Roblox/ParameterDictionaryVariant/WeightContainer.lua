@@ -48,36 +48,42 @@ end
 
 function WeightContainer:gradientDescent()
 	
-	for i, TensorAndOptimizerArray in ipairs(self.TensorAndOptimizerArrayArray) do
+	local TensorAndOptimizerArrayArray = self.TensorAndOptimizerArrayArray
+	
+	local numberOfElements = #TensorAndOptimizerArrayArray
+	
+	for i = numberOfElements, 1, -1 do
+		
+		local TensorAndOptimizerArray = TensorAndOptimizerArrayArray[i]
 		
 		local automaticDifferentiationTensor = TensorAndOptimizerArray.automaticDifferentiationTensor or TensorAndOptimizerArray[1]
-		
+
 		local learningRate =  TensorAndOptimizerArray.learningRate or TensorAndOptimizerArray[2] or defaultLearningRate
-		
+
 		local Optimizer = TensorAndOptimizerArray.Optimizer or TensorAndOptimizerArray[3]
-		
+
 		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor()
-		
+
 		local tensor = automaticDifferentiationTensor:getTensor()
-		
+
 		local optimizedFirstDerivativeTensor
-		
+
 		if (not firstDerivativeTensor) then error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
-		
+
 		if (Optimizer) then
-			
+
 			optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
-			
+
 		else
-			
+
 			optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
-			
+
 		end
-		
+
 		tensor = AqwamTensorLibrary:subtract(tensor, optimizedFirstDerivativeTensor)
-		
+
 		automaticDifferentiationTensor:setTotalFirstDerivativeTensor{nil, true}
-		
+
 		automaticDifferentiationTensor:setTensor{tensor, true}
 		
 	end
@@ -86,34 +92,40 @@ end
 
 function WeightContainer:gradientAscent()
 	
-	for i, TensorAndOptimizerArray in ipairs(self.TensorAndOptimizerArrayArray) do
+	local TensorAndOptimizerArrayArray = self.TensorAndOptimizerArrayArray
 
-		local automaticDifferentiationTensor = TensorAndOptimizerArray[1]
+	local numberOfElements = #TensorAndOptimizerArrayArray
 
-		local learningRate = TensorAndOptimizerArray[2]
+	for i = numberOfElements, 1, -1 do
 
-		local Optimizer = TensorAndOptimizerArray[3]
+		local TensorAndOptimizerArray = TensorAndOptimizerArrayArray[i]
 
-		local tensorFirstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor()
+		local automaticDifferentiationTensor = TensorAndOptimizerArray.automaticDifferentiationTensor or TensorAndOptimizerArray[1]
+
+		local learningRate =  TensorAndOptimizerArray.learningRate or TensorAndOptimizerArray[2] or defaultLearningRate
+
+		local Optimizer = TensorAndOptimizerArray.Optimizer or TensorAndOptimizerArray[3]
+
+		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor()
 
 		local tensor = automaticDifferentiationTensor:getTensor()
 
 		local optimizedFirstDerivativeTensor
-		
-		if (not tensorFirstDerivativeTensor) then error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
+
+		if (not firstDerivativeTensor) then error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
 
 		if (Optimizer) then
 
-			optimizedFirstDerivativeTensor = Optimizer:calculate(learningRate, tensorFirstDerivativeTensor)
+			optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
 
 		else
 
-			optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, tensorFirstDerivativeTensor)
+			optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
 
 		end
 
 		tensor = AqwamTensorLibrary:add(tensor, optimizedFirstDerivativeTensor)
-		
+
 		automaticDifferentiationTensor:setTotalFirstDerivativeTensor{nil, true}
 
 		automaticDifferentiationTensor:setTensor{tensor, true}
