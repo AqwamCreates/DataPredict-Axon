@@ -19,10 +19,6 @@ If there are any suggestions or issues for this library, don't be afraid to reac
 
 In addition, if you are interested in Roblox tutorials and future projects by me, then you can subscribe to me in [YouTube](https://www.youtube.com/channel/UCUrwoxv5dufEmbGsxyEUPZw).
 
-## Currently Known Bugs
-
-* The non-fast versions of the pooling layers, convolution layers and cost functions have an issue where the first derivative tensor cannot be calculated properly. This is due to the automatic differentiation tensor does not handle stored scalar values properly.
-
 ## Tutorials
 
 ### Installation
