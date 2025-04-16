@@ -30,7 +30,7 @@ local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
 local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferentiationTensor)
 
-local ActivationFunctions = {}
+local ActivationLayer = {}
 
 local function sumToChainRuleFirstDerivativeTensorWhenSameDimensionIndex(tensor, dimensionSizeArray, numberOfDimensions, currentDimension, targetTensor)
 
@@ -120,7 +120,7 @@ local function calculateChainRuleFirstDerivativeTensor(tensor, dimensionSizeArra
 
 end
 
-function ActivationFunctions.FastSigmoid(parameterDictionary)
+function ActivationLayer.FastSigmoid(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -128,11 +128,11 @@ function ActivationFunctions.FastSigmoid(parameterDictionary)
 
 	local functionToApply = function(z) return 1/(1 + math.exp(-1 * z)) end
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(tensor)
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local functionToApply = function (a) return (a * (1 - a)) end
 
@@ -146,7 +146,7 @@ function ActivationFunctions.FastSigmoid(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastBinaryStep(parameterDictionary)
+function ActivationLayer.FastBinaryStep(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -158,7 +158,7 @@ function ActivationFunctions.FastBinaryStep(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		tensor:differentiate(AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0))
 
@@ -168,7 +168,7 @@ function ActivationFunctions.FastBinaryStep(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastRectifiedLinearUnit(parameterDictionary)
+function ActivationLayer.FastRectifiedLinearUnit(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -180,7 +180,7 @@ function ActivationFunctions.FastRectifiedLinearUnit(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local derivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return 0 end end
 
@@ -194,7 +194,7 @@ function ActivationFunctions.FastRectifiedLinearUnit(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastLeakyRectifiedLinearUnit(parameterDictionary)
+function ActivationLayer.FastLeakyRectifiedLinearUnit(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -208,7 +208,7 @@ function ActivationFunctions.FastLeakyRectifiedLinearUnit(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local partialDerivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return negativeSlopeFactor end end
 
@@ -222,7 +222,7 @@ function ActivationFunctions.FastLeakyRectifiedLinearUnit(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastExponentLinearUnit(parameterDictionary)
+function ActivationLayer.FastExponentLinearUnit(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -236,7 +236,7 @@ function ActivationFunctions.FastExponentLinearUnit(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local partialDerivativeFunctionToApply = function (z) if (z > 0) then return 1 else return (negativeSlopeFactor * math.exp(z)) end end
 
@@ -250,7 +250,7 @@ function ActivationFunctions.FastExponentLinearUnit(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastSigmoidLinearUnit(parameterDictionary)
+function ActivationLayer.FastSigmoidLinearUnit(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -262,7 +262,7 @@ function ActivationFunctions.FastSigmoidLinearUnit(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local partialDerivativeFunctionToApply = function (z) return (1 + math.exp(-z) + (z * math.exp(-z))) / (1 + math.exp(-z))^2 end
 
@@ -276,7 +276,7 @@ function ActivationFunctions.FastSigmoidLinearUnit(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastGaussian(parameterDictionary)
+function ActivationLayer.FastGaussian(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -288,7 +288,7 @@ function ActivationFunctions.FastGaussian(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local partialDerivativeFunctionToApply = function (z) return -2 * z * math.exp(-math.pow(z, 2)) end
 
@@ -302,7 +302,7 @@ function ActivationFunctions.FastGaussian(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastMish(parameterDictionary)
+function ActivationLayer.FastMish(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -314,7 +314,7 @@ function ActivationFunctions.FastMish(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local partialDerivativeFunctionToApply = function (z) return (math.exp(z) * (math.exp(3 * z) + 4 * math.exp(2 * z) + (6 + 4 * z) * math.exp(z) + 4 * (1 + z)) / math.pow((1 + math.pow((math.exp(z) + 1), 2)), 2)) end
 
@@ -328,7 +328,7 @@ function ActivationFunctions.FastMish(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastTanh(parameterDictionary)
+function ActivationLayer.FastTanh(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -338,7 +338,7 @@ function ActivationFunctions.FastTanh(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local partialDerivativeFunctionToApply = function (a) return (1 - math.pow(a, 2)) end
 
@@ -352,7 +352,7 @@ function ActivationFunctions.FastTanh(parameterDictionary)
 
 end
 
-function ActivationFunctions.FastSoftmax(parameterDictionary)
+function ActivationLayer.FastSoftmax(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -368,9 +368,7 @@ function ActivationFunctions.FastSoftmax(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		print(not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor))
-
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
@@ -386,7 +384,7 @@ function ActivationFunctions.FastSoftmax(parameterDictionary)
 
 end
 
-function ActivationFunctions.Sigmoid(parameterDictionary)
+function ActivationLayer.Sigmoid(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -398,7 +396,7 @@ function ActivationFunctions.Sigmoid(parameterDictionary)
 
 end
 
-function ActivationFunctions.BinaryStep(parameterDictionary)
+function ActivationLayer.BinaryStep(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
@@ -408,7 +406,7 @@ function ActivationFunctions.BinaryStep(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor(tensor)) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
 		tensor:differentiate(AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0))
 
@@ -418,7 +416,7 @@ function ActivationFunctions.BinaryStep(parameterDictionary)
 
 end
 
-function ActivationFunctions.RectifiedLinearUnit(parameterDictionary)
+function ActivationLayer.RectifiedLinearUnit(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -428,7 +426,7 @@ function ActivationFunctions.RectifiedLinearUnit(parameterDictionary)
 
 end
 
-function ActivationFunctions.LeakyRectifiedLinearUnit(parameterDictionary)
+function ActivationLayer.LeakyRectifiedLinearUnit(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -440,7 +438,7 @@ function ActivationFunctions.LeakyRectifiedLinearUnit(parameterDictionary)
 
 end
 
-function ActivationFunctions.ExponentLinearUnit(parameterDictionary)
+function ActivationLayer.ExponentLinearUnit(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -452,7 +450,7 @@ function ActivationFunctions.ExponentLinearUnit(parameterDictionary)
 
 end
 
-function ActivationFunctions.SigmoidLinearUnit(parameterDictionary)
+function ActivationLayer.SigmoidLinearUnit(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -462,7 +460,7 @@ function ActivationFunctions.SigmoidLinearUnit(parameterDictionary)
 
 end
 
-function ActivationFunctions.Gaussian(parameterDictionary)
+function ActivationLayer.Gaussian(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -472,7 +470,7 @@ function ActivationFunctions.Gaussian(parameterDictionary)
 
 end
 
-function ActivationFunctions.Mish(parameterDictionary)
+function ActivationLayer.Mish(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -482,7 +480,7 @@ function ActivationFunctions.Mish(parameterDictionary)
 
 end
 
-function ActivationFunctions.Tanh(parameterDictionary)
+function ActivationLayer.Tanh(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -492,7 +490,7 @@ function ActivationFunctions.Tanh(parameterDictionary)
 
 end
 
-function ActivationFunctions.Softmax(parameterDictionary)
+function ActivationLayer.Softmax(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
@@ -508,4 +506,4 @@ function ActivationFunctions.Softmax(parameterDictionary)
 
 end
 
-return ActivationFunctions
+return ActivationLayer
