@@ -6,17 +6,17 @@ To start, we must first link our deep learning library with our tensor library. 
 
 ### Deep Learning Library
 
-| Name                                        | Beta Version                                                                                            | Release Version                                                                                          |
-|---------------------------------------------|---------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| Deep Learning Library (DataPredict Axon)    | [0.0.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredictAxon.rbxm) |[1.0.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredictAxon.rbxm)   |
+| Name             | Beta Version                                                                                            | Release Version                                                                                          |
+|------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| DataPredict Axon | [0.0.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredictAxon.rbxm) |[1.0.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredict%20Axon%20-%20Release%201.0.rbxm) |
 
 ### Tensor Library
 
-| Name                                                                          | Version
-|-------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| Tensor Library (TensorL Nested)                                               | [0.9.0](https://github.com/AqwamCreates/TensorL/blob/main/TensorL_Table_Nested.lua)                            |
-| Tensor Library - Efficient (TensorL Nested Efficient)                         | [0.9.0](https://github.com/AqwamCreates/TensorL/blob/main/TensorL_Table_Nested_Efficient.lua)                  |
-| Tensor Library - Efficient (TensorL Nested Efficient Version 2)               | [0.9.0](https://github.com/AqwamCreates/TensorL/blob/main/TensorL_Table_Nested_Efficient_Version_2.lua)        |
+| Name                                 | Version
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| TensorL - Nested                     | [0.9.0](https://github.com/AqwamCreates/TensorL/blob/main/TensorL_Table_Nested.lua)                            |
+| TensorL - Nested Efficient           | [0.9.0](https://github.com/AqwamCreates/TensorL/blob/main/TensorL_Table_Nested_Efficient.lua)                  |
+| TensorL - Nested Efficient Version 2 | [0.9.0](https://github.com/AqwamCreates/TensorL/blob/main/TensorL_Table_Nested_Efficient_Version_2.lua)        |
 
 Note: Tensor Library - Efficient Version 2 has the most consistent high performance for all tensor operations. So choose the last one if you prefer speed over code readability.
 
