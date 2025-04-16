@@ -1,6 +1,16 @@
 # Welcome to Aqwam's DataPredict™ Axon Library!
 
-By using or possessing any copies of this library or its assets (including the icons), you agree to our [Terms and Conditions](TermsAndConditions.md).
+By using or possessing any copies of this library or its assets (including the icons), you agree to our [Terms and Conditions](TermsAndConditions.md). In short:
+
+* Public attribution is required when using this library.
+
+* A separate agreement is needed for commercial use (both internally and externally). This applies to companies (or individuals, if none) whose combined revenue (including from subsidiaries or related entities) exceeds $3,000 within 365 days (not per 365 days) or those engaged in business-to-business activities.
+
+* If you or your company is applicable to the above statement and do not want a separate agreement, then you are required to follow the "Commercial Use Conditions" in Terms And Conditions.
+
+* Plus some more stuff...
+
+Once you pass the commercial use threshold and want to license it, expect to pay for 0.5% to 2% of your project's generated revenue, provided that it uses this library.
 
 For information regarding potential license violations and eligibility for a bounty reward, please refer to the [Terms and Conditions Violation Bounty Reward Information](TermsAndConditionsViolationBountyRewardInformation.md).
 
