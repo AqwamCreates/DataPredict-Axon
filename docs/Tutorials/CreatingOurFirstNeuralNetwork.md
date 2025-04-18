@@ -126,7 +126,7 @@ for i = 1, 100000 do
 
 	local costValue = model(inputTensor, weightTensor)
 
-	print(costValue) -- Let's have a look at our cost everytime we update our neural netowrk.
+	print(costValue) -- Let's have a look at our cost everytime we update our neural network.
 	
 	costValue:differentiate{} -- Calling this will calculate the first derivative tensors for all our operations, including for out weight tensor.
 
