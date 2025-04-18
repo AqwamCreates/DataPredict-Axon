@@ -167,3 +167,169 @@ ActivationLayers.FastSoftmax{tensor: tensor, dimension: number}: AutomaticDiffer
 #### Returns:
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### Sigmoid
+
+```
+
+ActivationLayers.Sigmoid{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### BinaryStep
+
+```
+
+ActivationLayers.BinaryStep{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### RectifiedLinearUnit
+
+```
+
+ActivationLayers.RectifiedLinearUnit{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### LeakyRectifiedLinearUnit
+
+```
+
+ActivationLayers.LeakyRectifiedLinearUnit{tensor: tensor, negativeSlopeFactor: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+* negativeSlopeFactor: The value to be multiplied with negative input values. [Default: 0.01]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### ExponentLinearUnit
+
+```
+
+ActivationLayers.ExponentLinearUnit{tensor: tensor, negativeSlopeFactor: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+* negativeSlopeFactor: The value to be multiplied with negative input values. [Default: 0.01]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### SigmoidLinearUnit
+
+```
+
+ActivationLayers.SigmoidLinearUnit{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### Gaussian
+
+```
+
+ActivationLayers.Gaussian{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### Mish
+
+```
+
+ActivationLayers.Mish{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### Tanh
+
+```
+
+ActivationLayers.Tanh{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### Softmax
+
+```
+
+ActivationLayers.Softmax{tensor: tensor, dimension: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+* dimension: The dimension at which the exponent values are summed. [Default: 1]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
