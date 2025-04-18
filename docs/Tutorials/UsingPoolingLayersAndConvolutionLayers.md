@@ -18,8 +18,6 @@ We will first create our input tensor as shown below for the purpose of this tut
 
 local inputTensor = TensorL.createRandomNormalTensor{{20, 3, 10, 10}} -- Creating a 4D tensor with the size of 20 x 3 x 10 x 10.
 
-
-
 ```
 
 In here, we can see that we have created a 4D tensor. This is because:
