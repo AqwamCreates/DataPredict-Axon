@@ -6,13 +6,15 @@
 
 ```
 
-WeightContainer.new{TensorAndOptimizerArray: {tensor, number, Optimizer}}: WeightContainer
+WeightContainer.new{TensorAndOptimizerArray: {tensor, number, Optimizer}, updateWeightTensorInPlace: boolean}: WeightContainer
 
 ```
 
 #### Parameters:
 
 * TensorAndOptimizerArray: An array containing the ADTensor, the learningRate and the optimizer.
+
+* updateWeightTensorInPlace: Set whether or not to update the weight tensor in place. If true, updates the weight tensor directly for better performance by avoiding new table creation and reducing memory usage. Not supported for scalar values. [Default: true]
 
 #### Returns:
 
