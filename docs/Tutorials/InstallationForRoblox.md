@@ -8,7 +8,7 @@ To start, we must first link our deep learning library with our tensor library. 
 
 | Name             | Beta Version                                                                                            | Release Version                                                                                          |
 |------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| DataPredict Axon | [0.0.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredictAxon.rbxm) |[1.0.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredict%20Axon%20-%20Release%201.0.rbxm) |
+| DataPredict Axon | [0.1.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredictAxon.rbxm) |[1.1](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredict%20Axon%20-%20Release%201.1.rbxm) |
 
 ### Tensor Library
 
