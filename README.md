@@ -10,6 +10,7 @@
 
 | Version    | Current Version Number |
 |------------|------------------------|
+| Release    | 1.0                    |
 | Beta       | 0.0.0                  |
 
 --------------------------------------------------------------------
@@ -28,6 +29,6 @@ YouTube: https://www.youtube.com/channel/UCUrwoxv5dufEmbGsxyEUPZw
 
 View the documentation here: https://aqwamcreates.github.io/DataPredict-Axon/
 
-By using or possessing any copies of this library or its assets (including the icons), you agree to our [Terms and Conditions](docs/TermsAndConditions.md).
+By using or possessing any copies of this library or its assets (including the icons), you agree to our [Terms And Conditions](docs/TermsAndConditions.md).
 
-For information regarding potential license violations and eligibility for a bounty reward, please refer to the [Terms and Conditions Violation Bounty Reward Information](docs/TermsAndConditionsViolationBountyRewardInformation.md).
+For information regarding potential license violations and eligibility for a bounty reward, please refer to the [Terms And Conditions Violation Bounty Reward Information](docs/TermsAndConditionsViolationBountyRewardInformation.md).
