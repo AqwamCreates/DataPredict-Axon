@@ -90,7 +90,7 @@ local targetTensor = ADTensor.createRandomNormalTensor{{10, 4}}
 
 local WeightContainer = DataPredictAxon.WeightContainer.new{ -- This allows us to adjust the weights.
 
-	{weightTensor, 1}, -- The first one is the tensor that we want to train, the second is the learning rate for adjusting our tensor value.
+	{weightTensor, 0.01}, -- The first one is the tensor that we want to train, the second is the learning rate for adjusting our tensor value.
 
 }
 
