@@ -74,7 +74,7 @@ Below, we will show you a block of code and describe what each line of code are 
 
 local ServerScriptService = game.ServerScriptService
 
-local TensorL = require(ServerScriptService.TensorL)
+local TensorL = require(ServerScriptService.TensorL_Table_Nested_Efficient_Version_2)
 
 local DataPredictAxon = require(ServerScriptService.DataPredictAxon)
 
@@ -111,15 +111,15 @@ When doing the dot product between the input tensor and weight tensor, it will g
 --]]
 
 local function model(inputTensorPlaceHolder, weightTensorPlaceHolder) -- Let's create ourselves a good old model in a form of function.
-	
-	local tensor3 = inputTensorPlaceHolder:dotProduct{WeightTensorPlaceHolder}
 
-	local finalTensor = DataPredictAxon.ActivationFunctionLayers.LeakyRectifiedLinearUnit{tensor4}
+	local tensor3 = inputTensorPlaceHolder:dotProduct{weightTensorPlaceHolder}
+
+	local finalTensor = DataPredictAxon.ActivationLayers.LeakyRectifiedLinearUnit{tensor3}
 
 	local costValue = DataPredictAxon.CostFunctions.FastMeanSquaredError{finalTensor, targetTensor}
-	
+
 	return costValue
-	
+
 end
 
 for i = 1, 100000 do
@@ -127,15 +127,15 @@ for i = 1, 100000 do
 	local costValue = model(inputTensor, weightTensor)
 
 	print(costValue) -- Let's have a look at our cost everytime we update our neural network.
-	
+
 	costValue:differentiate{} -- Calling this will calculate the first derivative tensors for all our operations, including for out weight tensor.
 
 	WeightContainer:gradientDescent{} -- Calling the gradientDescent{} allows you to adjust the weight tensor values.
 
 	costValue:destroy{true} -- Calling this function allows you to avoid wasting the computer's memory.
-	
+
 	task.wait()
-	
+
 end
 
 ```
