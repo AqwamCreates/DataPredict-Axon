@@ -74,7 +74,7 @@ Below, we will show you a block of code and describe what each line of code are 
 
 local ServerScriptService = game.ServerScriptService
 
-local TensorL = require(ServerScriptService.TensorL)
+local TensorL = require(TensorL)
 
 local DataPredictAxon = require(ServerScriptService.DataPredictAxon)
 
@@ -86,11 +86,15 @@ local inputTensor = ADTensor.createRandomNormalTensor{{10, 2}}
 
 local weightTensor = ADTensor.createRandomNormalTensor{{2, 4}}
 
+local biasTensor = ADTensor.createRandomNormalTensor{{1, 1}}
+
 local targetTensor = ADTensor.createRandomNormalTensor{{10, 4}}
 
 local WeightContainer = DataPredictAxon.WeightContainer.new{ -- This allows us to adjust the weights.
 
-	{weightTensor, 0.01}, -- The first one is the tensor that we want to train, the second is the learning rate for adjusting our tensor value.
+	{weightTensor, 0.001}, -- The first one is the tensor that we want to train, the second is the learning rate for adjusting our tensor value.
+
+	{biasTensor, 0.001}
 
 }
 
@@ -113,8 +117,10 @@ When doing the dot product between the input tensor and weight tensor, it will g
 local function model(inputTensorPlaceHolder, weightTensorPlaceHolder) -- Let's create ourselves a good old model in a form of function.
 
 	local tensor3 = inputTensorPlaceHolder:dotProduct{weightTensorPlaceHolder}
+	
+	local tensor4 = tensor3 + biasTensor
 
-	local finalTensor = DataPredictAxon.ActivationLayers.LeakyRectifiedLinearUnit{tensor3}
+	local finalTensor = DataPredictAxon.ActivationLayers.LeakyRectifiedLinearUnit{tensor4}
 
 	local costValue = DataPredictAxon.CostFunctions.FastMeanSquaredError{finalTensor, targetTensor}
 
