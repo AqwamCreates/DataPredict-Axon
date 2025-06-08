@@ -12,6 +12,8 @@ By using or possessing any copies of this library or its assets (including the i
 
 Once you pass the commercial use threshold and want to license it, expect to pay for 2% of your project's generated revenue, provided that it uses this library.
 
+It requires near PhD-level knowledge to build and test all the models in this library. To all indie devs who just starting their business, feel free to use it without burning away your money!
+
 For information regarding potential license violations and eligibility for a bounty reward, please refer to the [Terms And Conditions Violation Bounty Reward Information](TermsAndConditionsViolationBountyRewardInformation.md).
 
 ![DataPredictAxonIconSmall](https://github.com/user-attachments/assets/06f4816e-28c0-4202-a2cf-84420ddb3387)
