@@ -1,6 +1,6 @@
 # [API Reference](../API.md) - PoolingLayers
 
-## Functions
+## Constructors
 
 ### FastAveragePooling1D
 
