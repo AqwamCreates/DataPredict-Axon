@@ -1,6 +1,6 @@
 # [API Reference](../API.md) - ConvolutionLayers
 
-## Functions
+## Constructors
 
 ### FastConvolution1D
 
