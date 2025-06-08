@@ -2,7 +2,7 @@
 
 ## Functions
 
-### Dropout
+### Constructors
 
 ```
 
