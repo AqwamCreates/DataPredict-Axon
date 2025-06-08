@@ -82,13 +82,21 @@ local ADTensor = DataPredictAxon.AutomaticDifferentiationTensor
 
 local PaddingLayer = DataPredictAxon.PaddingLayers
 
-local inputTensor = ADTensor.createRandomNormalTensor{{10, 2}}
+local inputTensorDimensionSizeArray = {10, 2}
 
-local weightTensor = ADTensor.createRandomNormalTensor{{2, 4}}
+local waightTensorDimensionSizeArray = {2, 4}
 
-local biasTensor = ADTensor.createRandomNormalTensor{{1, 1}}
+local biasTensorDimensionSizeArray = {1, 1}
 
-local targetTensor = ADTensor.createRandomNormalTensor{{10, 4}}
+local targetTensorDimensionSizeArray = {10, 4}
+
+local inputTensor = ADTensor.createRandomNormalTensor{inputTensorDimensionSizeArray}
+
+local weightTensor = ADTensor.createRandomNormalTensor{waightTensorDimensionSizeArray}
+
+local biasTensor = ADTensor.createRandomNormalTensor{biasTensorDimensionSizeArray}
+
+local targetTensor = ADTensor.createRandomNormalTensor{targetTensorDimensionSizeArray}
 
 local WeightContainer = DataPredictAxon.WeightContainer.new{ -- This allows us to adjust the weights.
 
