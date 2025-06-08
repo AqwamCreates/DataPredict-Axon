@@ -28,7 +28,6 @@ EncodingLayers.OneHotEncoding{tensor: tensor, finalDimensionSize: number, oneHot
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
-
 ### LabelEncoding
 
 ```
