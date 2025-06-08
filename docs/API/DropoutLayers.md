@@ -1,8 +1,8 @@
 # [API Reference](../API.md) - DropoutLayers
 
-## Functions
+## Constructors
 
-### Constructors
+### Dropout
 
 ```
 
