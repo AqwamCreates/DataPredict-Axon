@@ -1,8 +1,8 @@
 # [API Reference](../API.md) - PaddingLayers
 
-## Functions
+## Constructors
 
-### Constructors
+### FastZeroPadding
 
 ```
 
