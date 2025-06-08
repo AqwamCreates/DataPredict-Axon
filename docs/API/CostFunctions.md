@@ -1,6 +1,6 @@
 # [API Reference](../API.md) - CostFunctions
 
-## Functions
+## Constructors
 
 ### FastBinaryCrossEntropy
 
