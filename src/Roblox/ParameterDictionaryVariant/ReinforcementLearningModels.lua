@@ -74,13 +74,13 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 		
 		local lastValue = previousQValueTensor[1][actionIndex]
 		
-		local loss = CostFunctions.FastMeanSquaredError{targetValue, previousQValueTensor}
+		local cost = CostFunctions.FastMeanSquaredError{targetValue, previousQValueTensor}
 		
-		loss:differentiate()
+		cost:differentiate()
 
 		WeightContainer:gradientAscent()
 		
-		return loss
+		return cost
 		
 	end
 	
@@ -108,13 +108,13 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 		local lastValue = previousQValueTensor[1][actionIndex]
 
-		local lossTensor = CostFunctions.FastMeanSquaredError{currentQValueTensor, previousQValueTensor}
+		local costTensor = CostFunctions.FastMeanSquaredError{currentQValueTensor, previousQValueTensor}
 
-		lossTensor:differentiate()
+		costTensor:differentiate()
 
 		WeightContainer:gradientAscent()
 		
-		return lossTensor
+		return costTensor
 
 	end
 
