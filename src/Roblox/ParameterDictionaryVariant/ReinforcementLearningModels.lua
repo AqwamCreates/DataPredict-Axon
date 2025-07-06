@@ -160,7 +160,11 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 		local lastValue = previousQValueTensor[1][actionIndex]
 
+<<<<<<< HEAD
 		local costTensor = CostFunctions.FastMeanSquaredError{targetQValueTensor, previousQValueTensor}
+=======
+		local costTensor = CostFunctions.FastMeanSquaredError{currentQValueTensor, previousQValueTensor}
+>>>>>>> 71028ada0d7d7a22aed5d27e4ce77566eeac3f79
 
 		costTensor:differentiate()
 
