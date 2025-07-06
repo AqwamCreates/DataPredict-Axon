@@ -258,9 +258,9 @@ function WeightContainer:getTensorArray(parameterDictionary)
 
 	local tensorArray = {}
 
-	for i, TensorAndOptimizerArray in ipairs(self.WeightTensorDataArray) do
+	for i, WeightTensorData in ipairs(self.WeightTensorDataArray) do
 
-		local automaticDifferentiationTensor = TensorAndOptimizerArray[1]
+		local automaticDifferentiationTensor = WeightTensorData[i]
 
 		tensorArray[i] = automaticDifferentiationTensor:getTensor(doNotDeepCopy)
 
@@ -276,9 +276,9 @@ function WeightContainer:setTensorArray(parameterDictionary)
 
 	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[2]
 
-	for i, TensorAndOptimizerArray in ipairs(self.WeightTensorDataArray) do
+	for i, WeightTensorData in ipairs(self.WeightTensorDataArray) do
 
-		local automaticDifferentiationTensor = TensorAndOptimizerArray[1]
+		local automaticDifferentiationTensor = WeightTensorData[i]
 
 		automaticDifferentiationTensor:getTensor(tensorArray[i], doNotDeepCopy)
 
