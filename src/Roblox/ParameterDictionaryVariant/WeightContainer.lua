@@ -36,6 +36,8 @@ local defaultLearningRate = 0.01
 
 local defaultUpdateWeightTensorInPlace = true
 
+local defaultSkipMissingGradientTensor = false
+
 local function performInPlaceSubtraction(tensorToUpdate, tensorToUseForUpdate, dimensionSizeArray, numberOfDimensions, currentDimension) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 
 	local nextDimension = currentDimension + 1
@@ -102,63 +104,79 @@ function WeightContainer.new(parameterDictionary)
 
 	setmetatable(NewWeightContainer, WeightContainer)
 
-	NewWeightContainer.TensorAndOptimizerArrayArray = parameterDictionary
-
-	NewWeightContainer.updateWeightTensorInPlace = parameterDictionary.updateWeightTensorInPlace or defaultUpdateWeightTensorInPlace
+	NewWeightContainer.updateWeightTensorInPlace = parameterDictionary.updateWeightTensorInPlace or parameterDictionary[1] or defaultUpdateWeightTensorInPlace
+	
+	NewWeightContainer.skipMissingGradientTensor = parameterDictionary.skipMissingGradientTensor or parameterDictionary[2] or defaultSkipMissingGradientTensor
+	
+	NewWeightContainer.TensorAndOptimizerArrayArray = {}
 
 	return NewWeightContainer
 
 end
 
+function WeightContainer:setWeightTensorDataArray(parameterDictionary)
+	
+	self.WeightTensorDataArray = parameterDictionary.WeightTensorDataArray or parameterDictionary[1]
+	
+end
+
 function WeightContainer:gradientDescent()
-
-	local TensorAndOptimizerArrayArray = self.TensorAndOptimizerArrayArray
-
-	local numberOfElements = #TensorAndOptimizerArrayArray
 	
 	local updateWeightTensorInPlace = self.updateWeightTensorInPlace
+	
+	local skipMissingGradientTensor = self.skipMissingGradientTensor
+	
+	local WeightTensorDataArray = self.WeightTensorDataArray
+
+	local numberOfElements = #WeightTensorDataArray
 
 	for i = numberOfElements, 1, -1 do
 
-		local TensorAndOptimizerArray = TensorAndOptimizerArrayArray[i]
+		local WeightTensorDataArray = WeightTensorDataArray[i]
 
-		local automaticDifferentiationTensor = TensorAndOptimizerArray.automaticDifferentiationTensor or TensorAndOptimizerArray[1]
+		local automaticDifferentiationTensor = WeightTensorDataArray.automaticDifferentiationTensor or WeightTensorDataArray[1]
 
-		local learningRate =  TensorAndOptimizerArray.learningRate or TensorAndOptimizerArray[2] or defaultLearningRate
+		local learningRate =  WeightTensorDataArray.learningRate or WeightTensorDataArray[2] or defaultLearningRate
 
-		local Optimizer = TensorAndOptimizerArray.Optimizer or TensorAndOptimizerArray[3]
+		local Optimizer = WeightTensorDataArray.Optimizer or WeightTensorDataArray[3]
 
-		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor()
-
-		local tensor = automaticDifferentiationTensor:getTensor({doNotDeepCopy = true})
-
-		local optimizedFirstDerivativeTensor
-
-		if (not firstDerivativeTensor) then error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
-
-		if (Optimizer) then
-
-			optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
-
-		else
-
-			optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
-
-		end
+		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor{true}
 		
-		if (updateWeightTensorInPlace) then
+		if (firstDerivativeTensor) then
+			
+			local tensor = automaticDifferentiationTensor:getTensor{true}
 
-			performInPlaceUpdate(performInPlaceSubtraction, tensor, optimizedFirstDerivativeTensor)
+			local optimizedFirstDerivativeTensor
+
+			if (Optimizer) then
+
+				optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
+
+			else
+
+				optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
+
+			end
+
+			if (updateWeightTensorInPlace) then
+
+				performInPlaceUpdate(performInPlaceSubtraction, tensor, optimizedFirstDerivativeTensor)
+
+			else
+
+				tensor = AqwamTensorLibrary:subtract(tensor, optimizedFirstDerivativeTensor)
+
+				automaticDifferentiationTensor:setTensor{tensor, true}
+
+			end
+
+			automaticDifferentiationTensor:setTotalFirstDerivativeTensor{nil, true}
 			
 		else
-
-			tensor = AqwamTensorLibrary:subtract(tensor, optimizedFirstDerivativeTensor)
-
-			automaticDifferentiationTensor:setTensor{tensor, true}
-
+			
+			if (not skipMissingGradientTensor) then  error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
+			
 		end
-
-		automaticDifferentiationTensor:setTotalFirstDerivativeTensor{nil, true}
 
 	end
 
@@ -166,53 +184,61 @@ end
 
 function WeightContainer:gradientAscent()
 
-	local TensorAndOptimizerArrayArray = self.TensorAndOptimizerArrayArray
-
-	local numberOfElements = #TensorAndOptimizerArrayArray
-
 	local updateWeightTensorInPlace = self.updateWeightTensorInPlace
+	
+	local skipMissingGradientTensor = self.skipMissingGradientTensor
+	
+	local WeightTensorDataArray = self.WeightTensorDataArray
+
+	local numberOfElements = #WeightTensorDataArray
 
 	for i = numberOfElements, 1, -1 do
 
-		local TensorAndOptimizerArray = TensorAndOptimizerArrayArray[i]
+		local WeightTensorDataArray = WeightTensorDataArray[i]
 
-		local automaticDifferentiationTensor = TensorAndOptimizerArray.automaticDifferentiationTensor or TensorAndOptimizerArray[1]
+		local automaticDifferentiationTensor = WeightTensorDataArray.automaticDifferentiationTensor or WeightTensorDataArray[1]
 
-		local learningRate =  TensorAndOptimizerArray.learningRate or TensorAndOptimizerArray[2] or defaultLearningRate
+		local learningRate = WeightTensorDataArray.learningRate or WeightTensorDataArray[2] or defaultLearningRate
 
-		local Optimizer = TensorAndOptimizerArray.Optimizer or TensorAndOptimizerArray[3]
+		local Optimizer = WeightTensorDataArray.Optimizer or WeightTensorDataArray[3]
 
-		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor()
+		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor{true}
+		
+		if (firstDerivativeTensor) then
 
-		local tensor = automaticDifferentiationTensor:getTensor({doNotDeepCopy = true})
+			local tensor = automaticDifferentiationTensor:getTensor{true}
 
-		local optimizedFirstDerivativeTensor
+			local optimizedFirstDerivativeTensor
 
-		if (not firstDerivativeTensor) then error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
+			if (Optimizer) then
 
-		if (Optimizer) then
+				optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
 
-			optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
+			else
+
+				optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
+
+			end
+
+			if (updateWeightTensorInPlace) then
+
+				performInPlaceUpdate(performInPlaceAddition, tensor, optimizedFirstDerivativeTensor)
+
+			else
+
+				tensor = AqwamTensorLibrary:add(tensor, optimizedFirstDerivativeTensor)
+
+				automaticDifferentiationTensor:setTensor{tensor, true}
+
+			end
+
+			automaticDifferentiationTensor:setTotalFirstDerivativeTensor{nil, true}
 
 		else
 
-			optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
+			if (not skipMissingGradientTensor) then  error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
 
 		end
-
-		if (updateWeightTensorInPlace) then
-
-			performInPlaceUpdate(performInPlaceAddition, tensor, optimizedFirstDerivativeTensor)
-
-		else
-
-			tensor = AqwamTensorLibrary:add(tensor, optimizedFirstDerivativeTensor)
-
-			automaticDifferentiationTensor:setTensor{tensor, true}
-
-		end
-
-		automaticDifferentiationTensor:setTotalFirstDerivativeTensor{nil, true}
 
 	end
 
@@ -224,7 +250,7 @@ function WeightContainer:getTensorArray(parameterDictionary)
 
 	local tensorArray = {}
 
-	for i, TensorAndOptimizerArray in ipairs(self.TensorAndOptimizerArrayArray) do
+	for i, TensorAndOptimizerArray in ipairs(self.WeightTensorDataArray) do
 
 		local automaticDifferentiationTensor = TensorAndOptimizerArray[1]
 
@@ -242,7 +268,7 @@ function WeightContainer:setTensorArray(parameterDictionary)
 
 	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[2]
 
-	for i, TensorAndOptimizerArray in ipairs(self.TensorAndOptimizerArrayArray) do
+	for i, TensorAndOptimizerArray in ipairs(self.WeightTensorDataArray) do
 
 		local automaticDifferentiationTensor = TensorAndOptimizerArray[1]
 

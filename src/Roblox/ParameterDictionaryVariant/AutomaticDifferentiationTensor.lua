@@ -1842,9 +1842,9 @@ function AHAAutomaticDifferentiationTensor:getTotalFirstDerivativeTensor(paramet
 
 	parameterDictionary = parameterDictionary or {}
 
-	local doNotDeepCopyTable = parameterDictionary.doNotDeepCopyTable or parameterDictionary[1]
+	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[1]
 
-	if (doNotDeepCopyTable) then 
+	if (doNotDeepCopy) then 
 
 		return self.totalFirstDerivativeTensor
 
@@ -1864,9 +1864,9 @@ function AHAAutomaticDifferentiationTensor:setTotalFirstDerivativeTensor(paramet
 
 	local totalFirstDerivativeTensor = parameterDictionary.totalFirstDerivativeTensor or parameterDictionary[1]
 
-	local doNotDeepCopyTable = parameterDictionary.doNotDeepCopyTable or parameterDictionary[2]
+	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[2]
 
-	if (doNotDeepCopyTable) then
+	if (doNotDeepCopy) then
 
 		self.totalFirstDerivativeTensor = totalFirstDerivativeTensor
 
