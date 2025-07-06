@@ -34,9 +34,17 @@ WeightContainer.__index = WeightContainer
 
 local defaultLearningRate = 0.01
 
+local defaultSkipMissingGradientTensor = false
+
 local defaultUpdateWeightTensorInPlace = true
 
-local defaultSkipMissingGradientTensor = false
+local function getValueOrDefaultValue(value, defaultValue)
+
+	if (type(value) == "nil") then return defaultValue end
+
+	return value
+
+end
 
 local function performInPlaceSubtraction(tensorToUpdate, tensorToUseForUpdate, dimensionSizeArray, numberOfDimensions, currentDimension) -- Dimension size array is put here because it is computationally expensive to use recurvsive just to get the dimension size.
 
@@ -103,10 +111,10 @@ function WeightContainer.new(parameterDictionary)
 	local NewWeightContainer = {}
 
 	setmetatable(NewWeightContainer, WeightContainer)
-
-	NewWeightContainer.updateWeightTensorInPlace = parameterDictionary.updateWeightTensorInPlace or parameterDictionary[1] or defaultUpdateWeightTensorInPlace
 	
-	NewWeightContainer.skipMissingGradientTensor = parameterDictionary.skipMissingGradientTensor or parameterDictionary[2] or defaultSkipMissingGradientTensor
+	NewWeightContainer.skipMissingGradientTensor =  getValueOrDefaultValue(parameterDictionary.skipMissingGradientTensor or parameterDictionary[1], defaultSkipMissingGradientTensor)
+
+	NewWeightContainer.updateWeightTensorInPlace = getValueOrDefaultValue(parameterDictionary.updateWeightTensorInPlace or parameterDictionary[2], defaultUpdateWeightTensorInPlace)
 	
 	NewWeightContainer.TensorAndOptimizerArrayArray = {}
 
@@ -122,9 +130,9 @@ end
 
 function WeightContainer:gradientDescent()
 	
-	local updateWeightTensorInPlace = self.updateWeightTensorInPlace
-	
 	local skipMissingGradientTensor = self.skipMissingGradientTensor
+	
+	local updateWeightTensorInPlace = self.updateWeightTensorInPlace
 	
 	local WeightTensorDataArray = self.WeightTensorDataArray
 
@@ -183,10 +191,10 @@ function WeightContainer:gradientDescent()
 end
 
 function WeightContainer:gradientAscent()
-
-	local updateWeightTensorInPlace = self.updateWeightTensorInPlace
 	
 	local skipMissingGradientTensor = self.skipMissingGradientTensor
+
+	local updateWeightTensorInPlace = self.updateWeightTensorInPlace
 	
 	local WeightTensorDataArray = self.WeightTensorDataArray
 
