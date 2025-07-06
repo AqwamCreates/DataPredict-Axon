@@ -36,6 +36,58 @@ local ReinforcementLearningModels = {}
 
 local defaultDiscountFactor = 0.95
 
+local function calculateCategoricalProbability(valueTensor)
+
+	local highestActionValue = valueTensor:findMaximumValue()
+
+	local subtractedZTensor = valueTensor - highestActionValue
+
+	local exponentValueTensor = AutomaticDifferentiationTensor.exponent{subtractedZTensor}
+
+	local exponentValueSumTensor = exponentValueTensor:sum{2}
+
+	local targetActionTensor = exponentValueTensor / exponentValueSumTensor
+
+	return targetActionTensor
+
+end
+
+local function calculateDiagonalGaussianProbability(meanTensor, standardDeviationTensor, noiseTensor)
+
+	local valueTensor = meanTensor + (standardDeviationTensor * noiseTensor)
+
+	local zScoreTensor = (valueTensor - meanTensor) / standardDeviationTensor
+
+	local squaredZScoreTensor = zScoreTensor:power{2}
+
+	local logValueTensorPart1 = AutomaticDifferentiationTensor.logarithm{standardDeviationTensor}
+
+	local logValueTensorPart2 = 2 * logValueTensorPart1
+
+	local logValueTensor = squaredZScoreTensor + logValueTensorPart2 + math.log(2 * math.pi)
+
+	return logValueTensor
+
+end
+
+local function calculateRewardToGo(rewardValueHistory, discountFactor)
+
+	local rewardToGoArray = {}
+
+	local discountedReward = 0
+
+	for h = #rewardValueHistory, 1, -1 do
+
+		discountedReward = rewardValueHistory[h] + (discountFactor * discountedReward)
+
+		table.insert(rewardToGoArray, 1, discountedReward)
+
+	end
+
+	return rewardToGoArray
+
+end
+
 function ReinforcementLearningModels.new(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
@@ -62,11 +114,11 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 	
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
 	
-	local categoricalUpdateFunction = function(previousStateTensor, actionIndex, rewardValue, currentStateTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 		
-		local previousQValueTensor = Model{previousStateTensor}
+		local previousQValueTensor = Model{previousFeatureTensor}
 		
-		local currentQValueTensor = Model{currentStateTensor}
+		local currentQValueTensor = Model{currentFeatureTensor}
 		
 		local maxQValue = currentQValueTensor:findMaximumValue()
 		
@@ -74,13 +126,13 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 		
 		local lastValue = previousQValueTensor[1][actionIndex]
 		
-		local loss = CostFunctions.FastMeanSquaredError{targetValue, previousQValueTensor}
+		local cost = CostFunctions.FastMeanSquaredError{targetValue, previousQValueTensor}
 		
-		loss:differentiate()
+		cost:differentiate()
 
 		WeightContainer:gradientAscent()
 		
-		return loss
+		return cost
 		
 	end
 	
@@ -98,27 +150,89 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
 
-	local categoricalUpdateFunction = function(previousStateTensor, actionIndex, rewardValue, currentStateTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentStateTensor, terminalStateValue)
 
-		local previousQValueTensor = Model{previousStateTensor}
+		local previousQValueTensor = Model{previousFeatureTensor}
 
 		local currentQValueTensor = Model{currentStateTensor}
 
-		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
+		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
 
 		local lastValue = previousQValueTensor[1][actionIndex]
 
-		local lossTensor = CostFunctions.FastMeanSquaredError{currentQValueTensor, previousQValueTensor}
+		local costTensor = CostFunctions.FastMeanSquaredError{targetQValueTensor, previousQValueTensor}
 
-		lossTensor:differentiate()
+		costTensor:differentiate()
 
 		WeightContainer:gradientAscent()
 		
-		return lossTensor
+		return costTensor
 
 	end
 
 	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+
+end
+
+function ReinforcementLearningModels.REINFORCE(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+	
+	local featureTensorArray = {}
+
+	local actionProbabilityTensorArray = {}
+
+	local rewardValueArray = {}
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local actionTensor = Model{previousFeatureTensor}
+		
+		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
+		
+		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
+
+		table.insert(featureTensorArray, previousFeatureTensor)
+
+		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
+
+		table.insert(rewardValueArray, rewardValue)
+
+		return nil
+
+	end
+	
+	local episodeUpdateFunction = function(terminalStateValue)
+
+		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
+
+		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
+
+			local costTensor = actionProbabilityTensor * rewardToGoArray[h]
+
+			costTensor:differentiate()
+
+			WeightContainer:gradientAscent()
+
+		end
+
+		table.clear(featureTensorArray)
+
+		table.clear(actionProbabilityTensorArray)
+
+		table.clear(rewardValueArray)
+
+		return nil
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
 
 end
 
@@ -134,17 +248,17 @@ function ReinforcementLearningModels:categoricalUpdate(stateParameterDictionary)
 	
 	stateParameterDictionary = stateParameterDictionary or {}
 	
-	local previousStateTensor = stateParameterDictionary.previousStateTensor or stateParameterDictionary[1]
+	local previousFeatureTensor = stateParameterDictionary.previousFeatureTensor or stateParameterDictionary[1]
 
 	local actionIndex = stateParameterDictionary.actionIndex or stateParameterDictionary[2]
 
 	local rewardValue = stateParameterDictionary.rewardValue or stateParameterDictionary[3]
 
-	local currentStateTensor = stateParameterDictionary.currentStateTensor or stateParameterDictionary[4]
+	local currentFeatureTensor = stateParameterDictionary.currentFeatureTensor or stateParameterDictionary[4]
 	
 	local terminalStateValue = stateParameterDictionary.terminalStateValue or stateParameterDictionary[5]
 	
-	return categoricalUpdateFunction(previousStateTensor, actionIndex, rewardValue, currentStateTensor, terminalStateValue)
+	return categoricalUpdateFunction(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 	
 end
 
@@ -160,17 +274,21 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(stateParameterDictio
 
 	stateParameterDictionary = stateParameterDictionary or {}
 
-	local previousStateTensor = stateParameterDictionary.previousStateTensor or stateParameterDictionary[1]
+	local previousFeatureTensor = stateParameterDictionary.previousFeatureTensor or stateParameterDictionary[1]
 
-	local actionIndex = stateParameterDictionary.actionIndex or stateParameterDictionary[2]
+	local actionMeanTensor = stateParameterDictionary.actionMeanTensor or stateParameterDictionary[2]
+	
+	local actionStandardDeviationTensor = stateParameterDictionary.actionStandardDeviationTensor or stateParameterDictionary[3]
+	
+	local actionNoiseTensor = stateParameterDictionary.actionNoiseTensor or stateParameterDictionary[4]
 
-	local rewardValue = stateParameterDictionary.rewardValue or stateParameterDictionary[3]
+	local rewardValue = stateParameterDictionary.rewardValue or stateParameterDictionary[5]
 
-	local currentStateTensor = stateParameterDictionary.currentStateTensor or stateParameterDictionary[4]
+	local currentFeatureTensor = stateParameterDictionary.currentFeatureTensor or stateParameterDictionary[6]
 
-	local terminalStateValue = stateParameterDictionary.terminalStateValue or stateParameterDictionary[5]
+	local terminalStateValue = stateParameterDictionary.terminalStateValue or stateParameterDictionary[7]
 
-	return diagonalGaussianUpdateFunction(previousStateTensor, actionIndex, rewardValue, currentStateTensor, terminalStateValue)
+	return diagonalGaussianUpdateFunction(previousFeatureTensor, actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 
 end
 
