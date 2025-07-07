@@ -580,9 +580,9 @@ function AHAAutomaticDifferentiationTensor:findMaximumValue()
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local functionToApply = function(firstDerivativeValue, value) return ((value == maximumValue) and firstDerivativeValue) or 0 end
+		local functionToApply = function(value, firstDerivativeValue) return ((value == maximumValue) and firstDerivativeValue) or 0 end
 
-		local chainRuleFirstderivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor, tensor)
+		local chainRuleFirstderivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor, firstDerivativeTensor)
 
 		tensor:differentiate{chainRuleFirstderivativeTensor}
 
@@ -603,12 +603,14 @@ function AHAAutomaticDifferentiationTensor:findMinimumValue()
 	local minimumValue = AqwamTensorLibrary:findMinimumValue(selfTensorValue)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		local tensor = inputTensorArray[1]
 
-		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{self}) then return end
+		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local functionToApply = function(firstDerivativeValue, value) return ((value == minimumValue) and firstDerivativeValue) or 0 end
+		local functionToApply = function(value, firstDerivativeValue) return ((value == minimumValue) and firstDerivativeValue) or 0 end
 
-		local chainRuleFirstderivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor, self)
+		local chainRuleFirstderivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor, firstDerivativeTensor)
 
 		self:differentiate{chainRuleFirstderivativeTensor}
 
@@ -1747,23 +1749,31 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 		local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
 		local firstDerivativeTensorNumberOfDimensions = #firstDerivativeTensorDimensionSizeArray
+		
+		local isOutputScalar = (tensorNumberOfDimensions == 0) 
+		
+		local isFirstDerivativeScalar = (firstDerivativeTensorNumberOfDimensions == 0)
+		
+		if (not isOutputScalar) and (firstDerivativeTensorNumberOfDimensions ~= tensorNumberOfDimensions) then
+			
+			error("Unable to differentiate. The derivative tensor has " .. firstDerivativeTensorNumberOfDimensions .. " dimensions, but the original tensor has " .. tensorNumberOfDimensions .. ".")
+			
+		end
 
-		if (firstDerivativeTensorNumberOfDimensions ~= 0) then
-
-			if (firstDerivativeTensorNumberOfDimensions ~= tensorNumberOfDimensions) then error("Unable to differentiate. The derivative tensor has " .. firstDerivativeTensorNumberOfDimensions .. " dimensions, but the original tensor has " .. tensorNumberOfDimensions .. ".") end
-
+		if (not isOutputScalar) then
+			
 			for dimension, firstDerivativeTensorDimensionSize in ipairs(firstDerivativeTensorDimensionSizeArray) do
 
 				local tensorDimensionSize = tensorDimensionSizeArray[dimension]
 
 				if (firstDerivativeTensorDimensionSize ~= tensorDimensionSize) then
-
+					
 					error("Unable to differentiate. The derivative tensor has a dimension size of " .. firstDerivativeTensorDimensionSize .. " at dimension " .. dimension .. ", but the original tensor has " .. tensorDimensionSize .. ".")
-
+					
 				end
 
 			end
-
+			
 		end
 
 	end
