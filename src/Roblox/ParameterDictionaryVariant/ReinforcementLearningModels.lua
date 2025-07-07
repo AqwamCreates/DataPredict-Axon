@@ -132,7 +132,7 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 
 		WeightContainer:gradientAscent()
 		
-		return cost
+		cost:destroy{true}
 		
 	end
 	
@@ -166,7 +166,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 		WeightContainer:gradientAscent()
 		
-		return costTensor
+		costTensor:destroy{true}
 
 	end
 
@@ -217,10 +217,12 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 			local costTensor = actionProbabilityTensor * rewardToGoArray[h]
 
 			costTensor:differentiate()
-
-			WeightContainer:gradientAscent()
-
+			
+			costTensor:destroy{true}
+			
 		end
+		
+		WeightContainer:gradientAscent()
 
 		table.clear(featureTensorArray)
 

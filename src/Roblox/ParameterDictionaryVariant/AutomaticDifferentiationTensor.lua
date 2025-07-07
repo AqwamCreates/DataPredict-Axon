@@ -1750,17 +1750,23 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 
 		local firstDerivativeTensorNumberOfDimensions = #firstDerivativeTensorDimensionSizeArray
 		
-		local isOutputScalar = (tensorNumberOfDimensions == 0) 
+		local isInputScalar = (tensorNumberOfDimensions == 0) 
 		
 		local isFirstDerivativeScalar = (firstDerivativeTensorNumberOfDimensions == 0)
 		
-		if (not isOutputScalar) and (firstDerivativeTensorNumberOfDimensions ~= tensorNumberOfDimensions) then
+		if (not isInputScalar) and (isFirstDerivativeScalar) then
+			
+			error("Unable to differentiate. The scalar derivative cannot be applied to the original tensor.")
+			
+		end
+		
+		if (not isInputScalar) and (firstDerivativeTensorNumberOfDimensions ~= tensorNumberOfDimensions) then
 			
 			error("Unable to differentiate. The derivative tensor has " .. firstDerivativeTensorNumberOfDimensions .. " dimensions, but the original tensor has " .. tensorNumberOfDimensions .. ".")
 			
 		end
 
-		if (not isOutputScalar) then
+		if (not isInputScalar) then
 			
 			for dimension, firstDerivativeTensorDimensionSize in ipairs(firstDerivativeTensorDimensionSizeArray) do
 
