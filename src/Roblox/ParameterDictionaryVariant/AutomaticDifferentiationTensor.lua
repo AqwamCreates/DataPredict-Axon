@@ -426,9 +426,7 @@ end
 
 function AHAAutomaticDifferentiationTensor.maximum(parameterDictionary)
 
-	parameterDictionary = parameterDictionary or {}
-
-	local tensorArray = parameterDictionary
+	local tensorArray = parameterDictionary or {}
 
 	local numberOfTensors = #tensorArray
 
@@ -446,7 +444,7 @@ function AHAAutomaticDifferentiationTensor.maximum(parameterDictionary)
 
 	end
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(math.max, table.unpack(tensorArray))
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.max, table.unpack(expandedTensorArray))
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -496,9 +494,7 @@ end
 
 function AHAAutomaticDifferentiationTensor.minimum(parameterDictionary)
 
-	parameterDictionary = parameterDictionary or {}
-
-	local tensorArray = parameterDictionary.tensorArray or parameterDictionary[1]
+	local tensorArray = parameterDictionary or {}
 
 	local numberOfTensors = #tensorArray
 
@@ -516,7 +512,7 @@ function AHAAutomaticDifferentiationTensor.minimum(parameterDictionary)
 
 	end
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(math.min, table.unpack(tensorArray))
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.min, table.unpack(expandedTensorArray))
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 

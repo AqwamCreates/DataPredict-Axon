@@ -116,7 +116,7 @@ function WeightContainer.new(parameterDictionary)
 
 	NewWeightContainer.updateWeightTensorInPlace = getValueOrDefaultValue(parameterDictionary.updateWeightTensorInPlace or parameterDictionary[2], defaultUpdateWeightTensorInPlace)
 	
-	NewWeightContainer.TensorAndOptimizerArrayArray = {}
+	NewWeightContainer.WeightTensorDataArray = {}
 
 	return NewWeightContainer
 
@@ -124,7 +124,7 @@ end
 
 function WeightContainer:setWeightTensorDataArray(parameterDictionary)
 	
-	self.WeightTensorDataArray = parameterDictionary.WeightTensorDataArray or parameterDictionary[1]
+	self.WeightTensorDataArray = parameterDictionary
 	
 end
 
@@ -252,27 +252,31 @@ function WeightContainer:gradientAscent()
 
 end
 
-function WeightContainer:getTensorArray(parameterDictionary)
+function WeightContainer:getWeightTensorArray(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
 
 	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[1]
 
-	local tensorArray = {}
+	local weightTensorArray = {}
 
 	for i, WeightTensorData in ipairs(self.WeightTensorDataArray) do
 
 		local automaticDifferentiationTensor = WeightTensorData[i]
 
-		tensorArray[i] = automaticDifferentiationTensor:getTensor(doNotDeepCopy)
+		weightTensorArray[i] = automaticDifferentiationTensor:getTensor{doNotDeepCopy}
 
 	end
 
-	return tensorArray
+	return weightTensorArray
 
 end
 
-function WeightContainer:setTensorArray(parameterDictionary)
+function WeightContainer:setWeightTensorArray(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
 
-	local tensorArray = parameterDictionary.tensorArray or parameterDictionary[1]
+	local weightTensorArray = parameterDictionary.weightTensorArray or parameterDictionary[1]
 
 	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[2]
 
@@ -280,7 +284,7 @@ function WeightContainer:setTensorArray(parameterDictionary)
 
 		local automaticDifferentiationTensor = WeightTensorData[i]
 
-		automaticDifferentiationTensor:getTensor(tensorArray[i], doNotDeepCopy)
+		automaticDifferentiationTensor:getTensor{weightTensorArray[i], doNotDeepCopy}
 
 	end
 
