@@ -620,7 +620,7 @@ function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
 	
 	if (not categoricalUpdateFunction) then
 		
-		error("This reinforcement learning model does not support categorical updates.")
+		error("The reinforcement learning model does not support categorical updates.")
 		
 	end
 	
@@ -646,7 +646,7 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
 
 	if (not diagonalGaussianUpdateFunction) then
 
-		error("This reinforcement learning model does not support diagonal gaussian updates.")
+		error("The reinforcement learning model does not support diagonal gaussian updates.")
 
 	end
 
