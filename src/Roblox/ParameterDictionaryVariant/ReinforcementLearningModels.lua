@@ -166,7 +166,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 		WeightContainer:gradientAscent()
 		
-		costTensor:destroy{true}
+		costTensor:destroy{true, true}
 
 	end
 
@@ -183,8 +183,6 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
-	
-	local featureTensorArray = {}
 
 	local actionProbabilityTensorArray = {}
 
@@ -198,13 +196,9 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 		
 		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
 
-		table.insert(featureTensorArray, previousFeatureTensor)
-
-		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
+		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
 
 		table.insert(rewardValueArray, rewardValue)
-
-		return nil
 
 	end
 	
@@ -214,23 +208,161 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 
 		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
 			
-			local costTensor = actionProbabilityTensor * rewardToGoArray[h]
+			local lossTensor = actionProbabilityTensor * rewardToGoArray[h]
 
-			costTensor:differentiate()
+			lossTensor:differentiate()
 			
-			costTensor:destroy{true}
+			lossTensor:destroy{true, true}
 			
 		end
 		
 		WeightContainer:gradientAscent()
 
-		table.clear(featureTensorArray)
-
 		table.clear(actionProbabilityTensorArray)
 
 		table.clear(rewardValueArray)
 
-		return nil
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+
+end
+
+function ReinforcementLearningModels.ActorCritic(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
+
+	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
+	
+	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
+
+	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[5] or defaultDiscountFactor
+
+	local actionProbabilityTensorArray = {}
+
+	local rewardValueArray = {}
+	
+	local criticValueArray = {}
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local actionTensor = ActorModel{previousFeatureTensor}
+		
+		local criticValue = CriticModel{previousFeatureTensor}
+
+		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
+
+		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
+
+		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
+
+		table.insert(rewardValueArray, rewardValue)
+		
+		table.insert(criticValueArray, criticValue)
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue)
+
+		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
+
+		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
+			
+			local criticLoss = rewardToGoArray[h] - criticValueArray[h]
+			
+			local actorLossTensor = actionProbabilityTensor * criticLoss
+
+			actorLossTensor:differentiate()
+			
+			criticLoss:differentiate()
+
+			criticLoss:destroy{true, true}
+
+		end
+
+		ActorWeightContainer:gradientAscent()
+		
+		CriticWeightContainer:gradientAscent()
+
+		table.clear(actionProbabilityTensorArray)
+
+		table.clear(rewardValueArray)
+		
+		table.clear(criticValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+
+end
+
+function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
+
+	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
+
+	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
+
+	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[5] or defaultDiscountFactor
+
+	local actionProbabilityTensorArray = {}
+
+	local advantageValueArray = {}
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local actionTensor = ActorModel{previousFeatureTensor}
+
+		local previousCriticValue = CriticModel{previousFeatureTensor}
+		
+		local currentCriticValue = CriticModel{previousFeatureTensor}
+
+		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
+		
+		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
+
+		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
+
+		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
+
+		table.insert(advantageValueArray, advantageValue)
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue)
+
+		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
+			
+			local advantageValue = advantageValueArray[h]
+			
+			local actorLossTensor = actionProbabilityTensor * advantageValue
+
+			actorLossTensor:differentiate()
+
+			advantageValue:differentiate()
+
+			actorLossTensor:destroy{true, true}
+			
+			advantageValue:destroy{true, true}
+
+		end
+
+		ActorWeightContainer:gradientAscent()
+
+		CriticWeightContainer:gradientAscent()
+
+		table.clear(actionProbabilityTensorArray)
+
+		table.clear(advantageValueArray)
 
 	end
 
