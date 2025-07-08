@@ -36,6 +36,14 @@ local defaultAlpha = 0.25
 
 local defaultGamma = 2
 
+local function getNumberOfData(value)
+	
+	if (type(value) == "table") then return #value end
+	
+	return 1
+	
+end
+
 function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 	
 	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
@@ -49,8 +57,10 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 	local binaryCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
 	
 	local sumBinaryCrossEntropyValue = AqwamTensorLibrary:sum(binaryCrossEntropyTensor)
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumBinaryCrossEntropyValue / (#labelTensor)
+	local resultValue = sumBinaryCrossEntropyValue / numberOfData
 	
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
@@ -91,8 +101,10 @@ function CostFunctions.FastBinaryCategoricalCrossEntropy(parameterDictionary)
 	local categoricalCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
 
 	local sumCategoricalCrossEntropyValue = AqwamTensorLibrary:sum(categoricalCrossEntropyTensor)
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumCategoricalCrossEntropyValue / (#labelTensor)
+	local resultValue = sumCategoricalCrossEntropyValue / numberOfData
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
@@ -147,8 +159,10 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 	local focalLossTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
 
 	local sumFocalLossValue = AqwamTensorLibrary:sum(focalLossTensor)
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumFocalLossValue / (#labelTensor)
+	local resultValue = sumFocalLossValue / numberOfData
 	
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
@@ -201,8 +215,10 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 	local absoluteErrorTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
 
 	local sumAbsoluteErrorValue = AqwamTensorLibrary:sum(absoluteErrorTensor)
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumAbsoluteErrorValue / (#labelTensor)
+	local resultValue = sumAbsoluteErrorValue / numberOfData
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
@@ -243,8 +259,10 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 	local squaredErrorTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
 
 	local sumSquaredErrorValue = AqwamTensorLibrary:sum(squaredErrorTensor)
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumSquaredErrorValue / (#labelTensor)
+	local resultValue = sumSquaredErrorValue / numberOfData
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
@@ -283,8 +301,10 @@ function CostFunctions.BinaryCrossEntropy(parameterDictionary)
 	local binaryCrossEntropyTensor = -(labelTensor * AutomaticDifferentiationTensor.logarithm{generatedLabelTensor} + (1 - labelTensor) * AutomaticDifferentiationTensor.logarithm{1 - generatedLabelTensor})
 
 	local sumBinaryCrossEntropyTensor = binaryCrossEntropyTensor:sum()
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumBinaryCrossEntropyTensor / (#labelTensor)
+	local resultValue = sumBinaryCrossEntropyTensor / numberOfData
 
 	return resultValue
 
@@ -299,8 +319,10 @@ function CostFunctions.BinaryCategoricalCrossEntropy(parameterDictionary)
 	local categoricalCrossEntropyTensor = -(labelTensor * AutomaticDifferentiationTensor.logarithm{generatedLabelTensor})
 
 	local sumCategoricalCrossEntropy = categoricalCrossEntropyTensor:sum()
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumCategoricalCrossEntropy / (#labelTensor)
+	local resultValue = sumCategoricalCrossEntropy / numberOfData
 	
 	return resultValue
 
@@ -321,8 +343,10 @@ function CostFunctions.FocalLoss(parameterDictionary)
 	local focalLossTensor =  -alpha * ((1 - focalLossTensorPart1) ^ gamma) * AutomaticDifferentiationTensor.logarithm(focalLossTensorPart1)
 
 	local sumFocalLossValue = focalLossTensor:sum()
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumFocalLossValue / (#labelTensor)
+	local resultValue = sumFocalLossValue / numberOfData
 
 	return resultValue
 
@@ -337,8 +361,10 @@ function CostFunctions.MeanAbsoluteError(parameterDictionary)
 	local absoluteErrorTensor = (generatedLabelTensor - labelTensor):absolute()
 
 	local sumAbsoluteError = absoluteErrorTensor:sum()
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumAbsoluteError / (#labelTensor)
+	local resultValue = sumAbsoluteError / numberOfData
 
 	return resultValue
 
@@ -353,8 +379,10 @@ function CostFunctions.MeanSquaredError(parameterDictionary)
 	local squaredErrorTensor = (generatedLabelTensor - labelTensor)^2
 
 	local sumSquaredErrorValue = squaredErrorTensor:sum()
+	
+	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumSquaredErrorValue / (#labelTensor)
+	local resultValue = sumSquaredErrorValue / numberOfData
 
 	return resultValue
 
