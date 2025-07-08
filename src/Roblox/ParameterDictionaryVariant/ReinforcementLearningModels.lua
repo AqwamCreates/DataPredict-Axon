@@ -166,7 +166,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 		WeightContainer:gradientAscent()
 		
-		costTensor:destroy{true, true}
+		costTensor:destroy{true}
 
 	end
 
@@ -212,7 +212,7 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 
 			lossTensor:differentiate()
 			
-			lossTensor:destroy{true, true}
+			lossTensor:destroy{true}
 			
 		end
 		
@@ -280,7 +280,7 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 			
 			criticLoss:differentiate()
 
-			criticLoss:destroy{true, true}
+			criticLoss:destroy{true}
 
 		end
 
@@ -350,9 +350,9 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 			advantageValue:differentiate()
 
-			actorLossTensor:destroy{true, true}
+			actorLossTensor:destroy{true}
 			
-			advantageValue:destroy{true, true}
+			advantageValue:destroy{true}
 
 		end
 
