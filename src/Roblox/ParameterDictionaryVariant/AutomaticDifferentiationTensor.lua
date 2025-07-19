@@ -351,6 +351,8 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 		local baseTensor = inputTensorArray[2]
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{numberTensor} then
+			
+			local pureNumberTensor = AHAAutomaticDifferentiationTensor:fetchValue(numberTensor)
 
 			local numberTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureNumberTensor)
 
@@ -377,6 +379,8 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 		end
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{baseTensor} then
+			
+			local pureBaseTensor = AHAAutomaticDifferentiationTensor:fetchValue(baseTensor)
 
 			local baseTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureBaseTensor)
 
@@ -425,6 +429,8 @@ function AHAAutomaticDifferentiationTensor.clamp(parameterDictionary)
 		local tensor = inputTensorArray[1]
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+		
+		local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue(tensor)
 
 		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
