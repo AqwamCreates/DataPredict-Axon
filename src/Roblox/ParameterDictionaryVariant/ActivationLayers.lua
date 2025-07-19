@@ -127,8 +127,10 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local functionToApply = function(z) return 1/(1 + math.exp(-1 * z)) end
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -136,7 +138,7 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 
 		local functionToApply = function (a) return (a * (1 - a)) end
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
@@ -176,7 +178,9 @@ function ActivationLayer.FastRectifiedLinearUnit(parameterDictionary)
 
 	local functionToApply = function (z) return math.max(z, 0) end
 
-	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -184,7 +188,7 @@ function ActivationLayer.FastRectifiedLinearUnit(parameterDictionary)
 
 		local derivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return 0 end end
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(derivativeFunctionToApply, tensor)
+		local gradientTensor = AqwamTensorLibrary:applyFunction(derivativeFunctionToApply, pureTensor)
 
 		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
@@ -204,7 +208,9 @@ function ActivationLayer.FastLeakyRectifiedLinearUnit(parameterDictionary)
 
 	local functionToApply = function (z) return math.max(z, z * negativeSlopeFactor) end
 
-	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -212,7 +218,7 @@ function ActivationLayer.FastLeakyRectifiedLinearUnit(parameterDictionary)
 
 		local partialDerivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return negativeSlopeFactor end end
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, tensor)
+		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
 
 		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
@@ -232,7 +238,9 @@ function ActivationLayer.FastExponentLinearUnit(parameterDictionary)
 
 	local functionToApply = function (z) return if (z > 0) then z else ((math.exp(z) - 1) * negativeSlopeFactor) end
 
-	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -240,7 +248,7 @@ function ActivationLayer.FastExponentLinearUnit(parameterDictionary)
 
 		local partialDerivativeFunctionToApply = function (z) if (z > 0) then return 1 else return (negativeSlopeFactor * math.exp(z)) end end
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, tensor)
+		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
 
 		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
@@ -258,7 +266,9 @@ function ActivationLayer.FastSigmoidLinearUnit(parameterDictionary)
 
 	local functionToApply = function (z) return z / (1 + math.exp(-z)) end
 
-	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -266,7 +276,7 @@ function ActivationLayer.FastSigmoidLinearUnit(parameterDictionary)
 
 		local partialDerivativeFunctionToApply = function (z) return (1 + math.exp(-z) + (z * math.exp(-z))) / (1 + math.exp(-z))^2 end
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, tensor)
+		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
 
 		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
@@ -284,7 +294,9 @@ function ActivationLayer.FastGaussian(parameterDictionary)
 
 	local functionToApply = function (z) return math.exp(-math.pow(z, 2)) end
 
-	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -292,7 +304,7 @@ function ActivationLayer.FastGaussian(parameterDictionary)
 
 		local partialDerivativeFunctionToApply = function (z) return -2 * z * math.exp(-math.pow(z, 2)) end
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, tensor)
+		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
 
 		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
@@ -310,7 +322,9 @@ function ActivationLayer.FastMish(parameterDictionary)
 
 	local functionToApply = function (z) return (z * math.tanh(math.log(1 + math.exp(z)))) end
 
-	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -318,7 +332,7 @@ function ActivationLayer.FastMish(parameterDictionary)
 
 		local partialDerivativeFunctionToApply = function (z) return (math.exp(z) * (math.exp(3 * z) + 4 * math.exp(2 * z) + (6 + 4 * z) * math.exp(z) + 4 * (1 + z)) / math.pow((1 + math.pow((math.exp(z) + 1), 2)), 2)) end
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, tensor)
+		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
 
 		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
@@ -333,8 +347,10 @@ function ActivationLayer.FastTanh(parameterDictionary)
 	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
 
-	local resultTensor =  AqwamTensorLibrary:applyFunction(math.tanh, tensor)
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.tanh, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -342,7 +358,7 @@ function ActivationLayer.FastTanh(parameterDictionary)
 
 		local partialDerivativeFunctionToApply = function (a) return (1 - math.pow(a, 2)) end
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, tensor)
+		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
 
 		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
@@ -359,8 +375,10 @@ function ActivationLayer.FastSoftmax(parameterDictionary)
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local dimension = parameterDictionary.dimension or parameterDictionary[2] or 1
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
 
-	local exponentTensor = AqwamTensorLibrary:applyFunction(math.exp, tensor)
+	local exponentTensor = AqwamTensorLibrary:applyFunction(math.exp, pureTensor)
 
 	local sumExponentTensor = AqwamTensorLibrary:sum(exponentTensor, dimension)
 
@@ -370,7 +388,7 @@ function ActivationLayer.FastSoftmax(parameterDictionary)
 
 		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 		local gradientTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
 
@@ -390,7 +408,7 @@ function ActivationLayer.Sigmoid(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local exponentTensor = AutomaticDifferentiationTensor.exponent{-1 * tensor}
+	local exponentTensor = AutomaticDifferentiationTensor.exponent{-tensor}
 
 	return 1 / (1 + exponentTensor)
 
