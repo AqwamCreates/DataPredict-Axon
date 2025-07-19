@@ -72,7 +72,7 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 
 		local labelTensor = inputTensorArray[2]
 		
-		local lossTensor = AqwamTensorLibrary:subtract(generatedLabelTensor, labelTensor)
+		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
 		
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 			
@@ -120,7 +120,7 @@ function CostFunctions.FastBinaryCategoricalCrossEntropy(parameterDictionary)
 
 		local labelTensor = inputTensorArray[2]
 
-		local lossTensor = AqwamTensorLibrary:subtract(generatedLabelTensor, labelTensor)
+		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
@@ -194,7 +194,7 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 
 		end
 
-		local lossTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
+		local lossTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
@@ -242,7 +242,7 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 
 		local labelTensor = inputTensorArray[2]
 
-		local lossTensor = AqwamTensorLibrary:subtract(generatedLabelTensor, labelTensor)
+		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
@@ -290,7 +290,7 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 
 		local labelTensor = inputTensorArray[2]
 
-		local lossTensor = AqwamTensorLibrary:subtract(generatedLabelTensor, labelTensor)
+		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
