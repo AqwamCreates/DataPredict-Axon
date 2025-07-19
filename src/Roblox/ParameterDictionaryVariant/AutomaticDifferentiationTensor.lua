@@ -36,7 +36,7 @@ local function showFunctionErrorDueToNonObjectCondition(showError)
 
 end
 
-local function deepCopyTable(original, copies)
+local function deepCopyValue(original, copies)
 
 	copies = copies or {}
 
@@ -58,11 +58,11 @@ local function deepCopyTable(original, copies)
 
 			for originalKey, originalValue in next, original, nil do
 
-				copy[deepCopyTable(originalKey, copies)] = deepCopyTable(originalValue, copies)
+				copy[deepCopyValue(originalKey, copies)] = deepCopyValue(originalValue, copies)
 
 			end
 
-			setmetatable(copy, deepCopyTable(getmetatable(original), copies))
+			setmetatable(copy, deepCopyValue(getmetatable(original), copies))
 
 		end
 
@@ -1876,7 +1876,7 @@ function AHAAutomaticDifferentiationTensor:copy()
 
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
-	return deepCopyTable(self)
+	return deepCopyValue(self)
 
 end
 
@@ -1894,7 +1894,7 @@ function AHAAutomaticDifferentiationTensor:getTensor(parameterDictionary)
 
 	else
 
-		return deepCopyTable(self.tensor)
+		return deepCopyValue(self.tensor)
 
 	end
 
@@ -1914,7 +1914,7 @@ function AHAAutomaticDifferentiationTensor:setTensor(parameterDictionary)
 
 	else
 
-		self.tensor = deepCopyTable(tensor)
+		self.tensor = deepCopyValue(tensor)
 
 	end
 
@@ -1934,7 +1934,7 @@ function AHAAutomaticDifferentiationTensor:getTotalFirstDerivativeTensor(paramet
 
 	else
 
-		return deepCopyTable(self.totalFirstDerivativeTensor)
+		return deepCopyValue(self.totalFirstDerivativeTensor)
 
 	end
 
@@ -1956,7 +1956,7 @@ function AHAAutomaticDifferentiationTensor:setTotalFirstDerivativeTensor(paramet
 
 	else
 
-		self.totalFirstDerivativeTensor = deepCopyTable(totalFirstDerivativeTensor)
+		self.totalFirstDerivativeTensor = deepCopyValue(totalFirstDerivativeTensor)
 
 	end
 
@@ -2008,7 +2008,7 @@ function AHAAutomaticDifferentiationTensor:__index(index)
 			
 			local rawSubTensor = rawget(tensor, index)
 			
-			local deepCopyRawSubTensor = deepCopyTable(rawSubTensor)
+			local deepCopyRawSubTensor = deepCopyValue(rawSubTensor)
 
 			return AHAAutomaticDifferentiationTensor.new({deepCopyRawSubTensor, nil, {self}})
 
