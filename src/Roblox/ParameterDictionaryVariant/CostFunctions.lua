@@ -53,8 +53,12 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 	local inputTensorArray = {generatedLabelTensor, labelTensor}
 	
 	local functionToApply = function (generatedLabelValue, labelValue) return -(labelValue * math.log(generatedLabelValue) + (1 - labelValue) * math.log(1 - generatedLabelValue)) end
+	
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
 
-	local binaryCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+
+	local binaryCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 	
 	local sumBinaryCrossEntropyValue = AqwamTensorLibrary:sum(binaryCrossEntropyTensor)
 	
@@ -98,7 +102,11 @@ function CostFunctions.FastBinaryCategoricalCrossEntropy(parameterDictionary)
 	
 	local functionToApply = function (generatedLabelValue, labelValue) return -(labelValue * math.log(generatedLabelValue)) end
 	
-	local categoricalCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
+
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+	
+	local categoricalCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
 	local sumCategoricalCrossEntropyValue = AqwamTensorLibrary:sum(categoricalCrossEntropyTensor)
 	
@@ -155,8 +163,12 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 		return focalLossValue
 
 	end
+	
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
 
-	local focalLossTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+
+	local focalLossTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
 	local sumFocalLossValue = AqwamTensorLibrary:sum(focalLossTensor)
 	
@@ -211,8 +223,12 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 	local inputTensorArray = {generatedLabelTensor, labelTensor}
 
 	local functionToApply = function (generatedLabelValue, labelValue) return math.abs(generatedLabelValue - labelValue) end
+	
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
 
-	local absoluteErrorTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+
+	local absoluteErrorTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
 	local sumAbsoluteErrorValue = AqwamTensorLibrary:sum(absoluteErrorTensor)
 	
@@ -256,7 +272,11 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 
 	local functionToApply = function (generatedLabelValue, labelValue) return math.pow((generatedLabelValue - labelValue), 2) end
 
-	local squaredErrorTensor = AqwamTensorLibrary:applyFunction(functionToApply, generatedLabelTensor, labelTensor)
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
+	
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+
+	local squaredErrorTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
 	local sumSquaredErrorValue = AqwamTensorLibrary:sum(squaredErrorTensor)
 	
