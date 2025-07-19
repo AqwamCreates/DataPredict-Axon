@@ -129,7 +129,7 @@ function AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTens
 end
 
 function AHAAutomaticDifferentiationTensor:fetchValue(automaticDifferentiationTensor) -- DO NOT REMOVE THIS. I REPEAT. DO NOT REMOVE THIS AT ALL COSTS! THIS IS BECAUSE YOUR TENSOR LIBRARY CANNOT HANDLE AUTOMATIC DIFFERENTIATION TENSOR OBJECTS STORING A SCALAR VALUE!
-
+	
 	if (type(automaticDifferentiationTensor) ~= "table") then return automaticDifferentiationTensor end
 
 	return automaticDifferentiationTensor.tensor or automaticDifferentiationTensor
