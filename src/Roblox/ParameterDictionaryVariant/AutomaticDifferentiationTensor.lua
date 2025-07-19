@@ -352,7 +352,7 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{numberTensor} then
 
-			local numberTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(numberTensor)
+			local numberTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureNumberTensor)
 
 			local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, numberTensorDimensionSizeArray)
 
@@ -362,13 +362,13 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 
 				local partialDerivativeFunctionToApply = function (number, base) return (1 / (number * math.log(base))) end
 
-				partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, numberTensor, baseTensor)
+				partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureNumberTensor, pureBaseTensor)
 
 			else
 
 				local partialDerivativeFunctionToApply = function (number) return (1 / number) end
 
-				partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, numberTensor)
+				partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureNumberTensor)
 
 			end
 
@@ -378,13 +378,13 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{baseTensor} then
 
-			local baseTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(baseTensor)
+			local baseTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureBaseTensor)
 
 			local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, baseTensorDimensionSizeArray)
 
 			local partialDerivativeFunctionToApply = function (number, base) return -(math.log(number) / (base * math.pow(math.log(base), 2))) end
 
-			local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, numberTensor, baseTensorDimensionSizeArray)
+			local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureNumberTensor, baseTensorDimensionSizeArray)
 
 			baseTensor:differentiate{AqwamTensorLibrary:multiply(partialDerivativeTensor, collapsedDerivativeTensor)}
 
@@ -426,7 +426,7 @@ function AHAAutomaticDifferentiationTensor.clamp(parameterDictionary)
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 		local lowerBoundTensor = inputTensorArray[2]
 
@@ -434,7 +434,7 @@ function AHAAutomaticDifferentiationTensor.clamp(parameterDictionary)
 
 		local functionToApply = function(value, derivative, lowerBoundValue, upperBoundValue) if ((value >= lowerBoundValue) and (value <= upperBoundValue)) then return value else return 0 end end
 
-		local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor, firstDerivativeTensor, lowerBoundTensor, upperBoundTensor)
+		local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor, firstDerivativeTensor, pureLowerBoundTensor, pureUpperBoundTensor)
 
 		local collapsedPartialDerivativeTensor = collapseTensor(partialDerivativeTensor, dimensionSizeArray)
 
@@ -890,9 +890,9 @@ function AHAAutomaticDifferentiationTensor:__pow(otherTensor)
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
 
-			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensor)
+			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
 
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(function(base, exponent) return (math.pow(base, exponent) * math.log(base)) end, self, otherTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(function(base, exponent) return (math.pow(base, exponent) * math.log(base)) end, selfTensorValue, otherTensorValue)
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensor, firstDerivativeTensor)
 
@@ -926,7 +926,7 @@ function AHAAutomaticDifferentiationTensor.add(inputTensorArray)
 
 			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
 
-				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensorArray)
 
 				local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
@@ -960,7 +960,7 @@ function AHAAutomaticDifferentiationTensor.subtract(inputTensorArray)
 
 			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
 
-				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensorArray)
 
 				local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
@@ -1004,7 +1004,7 @@ function AHAAutomaticDifferentiationTensor.multiply(inputTensorArray)
 
 				local currentDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, table.unpack(remainingTensorArray))
 
-				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensorArray)
 
 				local collapsedCurrentDerivativeTensor = collapseTensor(currentDerivativeTensor, dimensionSizeArray)
 
@@ -1048,7 +1048,7 @@ function AHAAutomaticDifferentiationTensor.divide(inputTensorArray)
 
 				local currentDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, table.unpack(remainingTensorArray))
 
-				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensorArray)
 
 				local collapsedCurrentDerivativeTensor = collapseTensor(currentDerivativeTensor, dimensionSizeArray)
 
@@ -1150,7 +1150,7 @@ function AHAAutomaticDifferentiationTensor:power(parameterDictionary)
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then 
 
-			local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(self)
+			local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
 			local chainRuleFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(firstDerivativeTensor, otherTensor)
 
@@ -1168,9 +1168,9 @@ function AHAAutomaticDifferentiationTensor:power(parameterDictionary)
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
 
-			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensor)
+			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
 
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(function(base, exponent) return (math.pow(base, exponent) * math.log(base)) end, self, otherTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(function(base, exponent) return (math.pow(base, exponent) * math.log(base)) end, self, otherTensorValue)
 
 			local collapsedChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensor, firstDerivativeTensor)
 
@@ -1268,7 +1268,7 @@ function AHAAutomaticDifferentiationTensor:extract(parameterDictionary)
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local originalTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+		local originalTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
 		local originDimensionIndexArray = originDimensionIndexArray
 
@@ -1446,7 +1446,7 @@ function AHAAutomaticDifferentiationTensor:flatten(parameterDictionary)
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
 		firstDerivativeTensor = AqwamTensorLibrary:reshape(firstDerivativeTensor, dimensionSizeArray)
 
@@ -1478,7 +1478,7 @@ function AHAAutomaticDifferentiationTensor:reshape(parameterDictionary)
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local originalDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+		local originalDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
 		firstDerivativeTensor = AqwamTensorLibrary:reshape(firstDerivativeTensor, originalDimensionSizeArray)
 
@@ -1544,7 +1544,7 @@ function AHAAutomaticDifferentiationTensor:mean(parameterDictionary)
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local dimensionSize = AqwamTensorLibrary:getDimensionSizeArray(tensor)[dimension]
+		local dimensionSize = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)[dimension]
 
 		firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, dimensionSize)
 
@@ -1576,7 +1576,7 @@ function AHAAutomaticDifferentiationTensor:standardDeviation(parameterDictionary
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local dimensionSize = AqwamTensorLibrary:getDimensionSizeArray(tensor)[dimension]
+		local dimensionSize = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)[dimension]
 
 		local chainRuleFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(2, resultTensor, dimensionSize)
 
@@ -1610,7 +1610,7 @@ function AHAAutomaticDifferentiationTensor:zScoreNormalization(parameterDictiona
 
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local standardDeviationTensor = AqwamTensorLibrary:standardDeviation(tensor, dimension)
+		local standardDeviationTensor = AqwamTensorLibrary:standardDeviation(selfTensorValue, dimension)
 
 		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, standardDeviationTensor)
 
@@ -2006,11 +2006,11 @@ function AHAAutomaticDifferentiationTensor:__index(index)
 
 		if (type(tensor) == "table") then
 			
-			local subTensor = tensor[index]
+			local targetDimensionIndexArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 			
-			local deepCopySubTensor = deepCopyValue(subTensor)
+			local originDimensionIndexArray = table.create(#targetDimensionIndexArray, 1)
 
-			return AHAAutomaticDifferentiationTensor.new({deepCopySubTensor, nil, {self}})
+			return self:extract({originDimensionIndexArray, targetDimensionIndexArray})
 
 		else
 			
