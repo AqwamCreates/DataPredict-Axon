@@ -2006,9 +2006,9 @@ function AHAAutomaticDifferentiationTensor:__index(index)
 
 		if (type(tensor) == "table") then
 			
-			local rawSubTensor = rawget(tensor, index)
+			local subTensor = tensor[index]
 			
-			local deepCopyRawSubTensor = deepCopyValue(rawSubTensor)
+			local deepCopyRawSubTensor = deepCopyValue(subTensor)
 
 			return AHAAutomaticDifferentiationTensor.new({deepCopyRawSubTensor, nil, {self}})
 
