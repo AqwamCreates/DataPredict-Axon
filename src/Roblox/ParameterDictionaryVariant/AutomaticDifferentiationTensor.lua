@@ -657,10 +657,66 @@ end
 --------------------------------------------------------------------------------------
 
 function AHAAutomaticDifferentiationTensor:__eq(otherTensor)
+	
+	local functionToApply = function (value, otherValue) return ((value == otherValue) and 1) or 0 end
+	
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, self, otherTensor)
 
-	return AqwamTensorLibrary:isSameTensor(self, otherTensor)
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
 
 end
+
+function AHAAutomaticDifferentiationTensor:__ne(otherTensor)
+
+	local functionToApply = function (value, otherValue) return ((value ~= otherValue) and 1) or 0 end
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, self, otherTensor)
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
+
+end
+
+function AHAAutomaticDifferentiationTensor:__lt(otherTensor)
+
+	local functionToApply = function (value, otherValue) return ((value < otherValue) and 1) or 0 end
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, self, otherTensor)
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
+
+end
+
+function AHAAutomaticDifferentiationTensor:__le(otherTensor)
+
+	local functionToApply = function (value, otherValue) return ((value <= otherValue) and 1) or 0 end
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, self, otherTensor)
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
+
+end
+
+function AHAAutomaticDifferentiationTensor:__gt(otherTensor)
+
+	local functionToApply = function (value, otherValue) return ((value > otherValue) and 1) or 0 end
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, self, otherTensor)
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
+
+end
+
+function AHAAutomaticDifferentiationTensor:__ge(otherTensor)
+
+	local functionToApply = function (value, otherValue) return ((value >= otherValue) and 1) or 0 end
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, self, otherTensor)
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
+
+end
+
+--------------------------------------------------------------------------------------
 
 function AHAAutomaticDifferentiationTensor:__add(otherTensor)
 
