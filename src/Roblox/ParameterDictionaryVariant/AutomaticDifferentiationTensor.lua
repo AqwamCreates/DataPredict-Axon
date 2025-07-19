@@ -616,7 +616,7 @@ function AHAAutomaticDifferentiationTensor:findMaximumValue()
 
 		local functionToApply = function(value, firstDerivativeValue) return ((value == maximumValue) and firstDerivativeValue) or 0 end
 
-		local chainRuleFirstderivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor, firstDerivativeTensor)
+		local chainRuleFirstderivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, selfTensorValue, firstDerivativeTensor)
 
 		tensor:differentiate{chainRuleFirstderivativeTensor}
 
@@ -644,7 +644,7 @@ function AHAAutomaticDifferentiationTensor:findMinimumValue()
 
 		local functionToApply = function(value, firstDerivativeValue) return ((value == minimumValue) and firstDerivativeValue) or 0 end
 
-		local chainRuleFirstderivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor, firstDerivativeTensor)
+		local chainRuleFirstderivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, selfTensorValue, firstDerivativeTensor)
 
 		self:differentiate{chainRuleFirstderivativeTensor}
 
