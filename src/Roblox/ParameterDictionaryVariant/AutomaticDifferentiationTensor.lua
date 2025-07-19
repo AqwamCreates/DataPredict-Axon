@@ -2012,7 +2012,7 @@ function AHAAutomaticDifferentiationTensor:__index(index)
 
 		else
 			
-			error("Attempting to index an ADTensor number value.")
+			error("Unable to index ADTensor number value with a number.")
 
 		end
 
