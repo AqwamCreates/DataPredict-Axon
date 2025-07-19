@@ -2008,9 +2008,9 @@ function AHAAutomaticDifferentiationTensor:__index(index)
 			
 			local subTensor = tensor[index]
 			
-			local deepCopyRawSubTensor = deepCopyValue(subTensor)
+			local deepCopySubTensor = deepCopyValue(subTensor)
 
-			return AHAAutomaticDifferentiationTensor.new({deepCopyRawSubTensor, nil, {self}})
+			return AHAAutomaticDifferentiationTensor.new({deepCopySubTensor, nil, {self}})
 
 		else
 			
