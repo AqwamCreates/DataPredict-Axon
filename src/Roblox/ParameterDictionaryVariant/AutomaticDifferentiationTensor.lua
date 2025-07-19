@@ -734,7 +734,9 @@ function AHAAutomaticDifferentiationTensor:__add(otherTensor)
 
 		local otherTensor = inputTensorArray[2]
 
-		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then 
+		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+			
+			local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(self)
 
 			local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
@@ -745,6 +747,8 @@ function AHAAutomaticDifferentiationTensor:__add(otherTensor)
 		end
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+			
+			local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(otherTensor)
 
 			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
 
@@ -777,6 +781,8 @@ function AHAAutomaticDifferentiationTensor:__sub(otherTensor)
 		local otherTensor = inputTensorArray[2]
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+			
+			local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(self)
 
 			local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
@@ -787,6 +793,8 @@ function AHAAutomaticDifferentiationTensor:__sub(otherTensor)
 		end
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+			
+			local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(otherTensor)
 
 			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
 
@@ -819,6 +827,8 @@ function AHAAutomaticDifferentiationTensor:__mul(otherTensor)
 		local otherTensor = inputTensorArray[2]
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+			
+			local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(self)
 
 			local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
@@ -831,6 +841,8 @@ function AHAAutomaticDifferentiationTensor:__mul(otherTensor)
 		end
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+			
+			local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(otherTensor)
 
 			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
 
@@ -865,6 +877,8 @@ function AHAAutomaticDifferentiationTensor:__div(otherTensor)
 		local otherTensor = inputTensorArray[2]
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+			
+			local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(self)
 
 			local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
@@ -877,6 +891,8 @@ function AHAAutomaticDifferentiationTensor:__div(otherTensor)
 		end
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+			
+			local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(otherTensor)
 
 			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
 
@@ -927,6 +943,8 @@ function AHAAutomaticDifferentiationTensor:__pow(otherTensor)
 		local otherTensor = inputTensorArray[2]
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+			
+			local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(self)
 
 			local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
@@ -945,6 +963,8 @@ function AHAAutomaticDifferentiationTensor:__pow(otherTensor)
 		end
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+			
+			local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(otherTensor)
 
 			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
 
@@ -1205,6 +1225,8 @@ function AHAAutomaticDifferentiationTensor:power(parameterDictionary)
 		local otherTensor = inputTensorArray[2]
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then 
+			
+			local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(self)
 
 			local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
@@ -1223,6 +1245,8 @@ function AHAAutomaticDifferentiationTensor:power(parameterDictionary)
 		end
 
 		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+			
+			local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(otherTensor)
 
 			local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
 
