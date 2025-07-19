@@ -92,9 +92,13 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 	
 	local inputTensorArray = {tensor, weightTensor}
 	
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
 	
-	local weightTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(weightTensor)
+	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+	
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
+	
+	local weightTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureWeightTensor)
 	
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
 	
@@ -126,13 +130,13 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 	
 	for a = 1, transformedTensorDimensionSizeArray[1], 1 do
 
-		local subTensor = tensor[a]
+		local subTensor = pureTensor[a]
 
 		resultTensor[a] = {}
 		
 		for w = 1, weightTensorDimensionSizeArray[1], 1 do
 			
-			local weight2DTensor = weightTensor[w]
+			local weight2DTensor = pureWeightTensor[w]
 			
 			resultTensor[a][w] = {}
 
@@ -168,13 +172,15 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 		
 		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
 			
+			local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+			
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 			
 			for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
 				
 				createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
 				
-					local weight2DTensor = weightTensor[kernelIndex]
+					local weight2DTensor = pureWeightTensor[kernelIndex]
 
 					for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
 
@@ -218,6 +224,8 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 		end
 		
 		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
+			
+			local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
 
@@ -231,7 +239,7 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 					
 						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
 
-							local subTensor = tensor[a][kernelChannelIndex]
+							local subTensor = pureTensor[a][kernelChannelIndex]
 
 							local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
 
@@ -282,10 +290,14 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
 
 	local inputTensorArray = {tensor, weightTensor}
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	
+	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
-	local weightTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(weightTensor)
+	local weightTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureWeightTensor)
 	
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
@@ -321,13 +333,13 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 
 	for a = 1, resultTensorDimensionSizeArray[1], 1 do
 
-		local subTensor = tensor[a]
+		local subTensor = pureTensor[a]
 
 		resultTensor[a] = {}
 
 		for w = 1, weightTensorDimensionSizeArray[1], 1 do
 
-			local weight3DTensor = weightTensor[w]
+			local weight3DTensor = pureWeightTensor[w]
 
 			resultTensor[a][w] = {}
 
@@ -368,6 +380,8 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 		local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
 		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
+			
+			local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -375,7 +389,7 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 
 				createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
 					
-					local weight3DTensor = weightTensor[kernelIndex]
+					local weight3DTensor = pureWeightTensor[kernelIndex]
 
 					for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
 
@@ -427,6 +441,8 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 		end
 
 		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
+			
+			local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
 
@@ -440,7 +456,7 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 
 						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
 
-							local subTensor = tensor[a][kernelChannelIndex]
+							local subTensor = pureTensor[a][kernelChannelIndex]
 
 							local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
 
@@ -495,8 +511,12 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray 
 
 	local inputTensorArray = {tensor, weightTensor}
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	
+	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local weightTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(weightTensor)
 	
@@ -534,13 +554,13 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 
 	for a = 1, resultTensorDimensionSizeArray[1], 1 do
 
-		local subTensor = tensor[a]
+		local subTensor = pureTensor[a]
 
 		resultTensor[a] = {}
 
 		for w = 1, weightTensorDimensionSizeArray[1], 1 do
 
-			local weight3DTensor = weightTensor[w]
+			local weight3DTensor = pureWeightTensor[w]
 
 			resultTensor[a][w] = {}
 
@@ -588,13 +608,15 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 
 		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
 
+			local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
 			for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
 
 				createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
 
-					local weight3DTensor = weightTensor[kernelIndex]
+					local weight3DTensor = pureWeightTensor[kernelIndex]
 
 					for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
 
@@ -654,6 +676,8 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 		end
 
 		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
+			
+			local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
 
@@ -667,7 +691,7 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 
 						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
 
-							local subTensor = tensor[a][kernelChannelIndex]
+							local subTensor = pureTensor[a][kernelChannelIndex]
 
 							local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
 
