@@ -1270,10 +1270,6 @@ function AHAAutomaticDifferentiationTensor:extract(parameterDictionary)
 
 		local originalTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
 
-		local originDimensionIndexArray = originDimensionIndexArray
-
-		local targetDimensionIndexArray = targetDimensionIndexArray
-
 		local numberOfDimensions = #originalTensorDimensionSizeArray
 
 		local headPaddingDimensionSizeArray = {}
@@ -1284,7 +1280,7 @@ function AHAAutomaticDifferentiationTensor:extract(parameterDictionary)
 
 			headPaddingDimensionSizeArray[dimension] = originDimensionIndexArray[dimension] - 1
 
-			tailPaddingDimensionSizeArray[dimension] = originalTensorDimensionSizeArray[dimension] - targetDimensionIndexArray[dimension]
+			tailPaddingDimensionSizeArray[dimension] = targetDimensionIndexArray[dimension] - originalTensorDimensionSizeArray[dimension]
 
 		end
 
@@ -2002,15 +1998,55 @@ function AHAAutomaticDifferentiationTensor:__index(index)
 
 	if (type(index) == "number") then
 
-		local tensor = self.tensor
+		local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue(self)
 
-		if (type(tensor) == "table") then
+		if (type(selfTensorValue) == "table") then
 			
-			local targetDimensionIndexArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
-			
-			local originDimensionIndexArray = table.create(#targetDimensionIndexArray, 1)
+			local selfSubTensorValue = selfTensorValue[index]
 
-			return self:extract({originDimensionIndexArray, targetDimensionIndexArray})
+			local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+				if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{self}) then return end
+				
+				local targetDimensionSize = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)[1]
+				
+				local headPaddingDimensionSize = index - 1
+
+				local tailPaddingDimensionSize = targetDimensionSize - index
+				
+				firstDerivativeTensor = {firstDerivativeTensor}
+
+				local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+
+				if (headPaddingDimensionSize >= 1) then
+
+					local tensorHeadPaddingDimensionSizeArray = table.clone(firstDerivativeTensorDimensionSizeArray)
+
+					tensorHeadPaddingDimensionSizeArray[1] = headPaddingDimensionSize
+
+					local headPaddingTensor = AqwamTensorLibrary:createTensor(tensorHeadPaddingDimensionSizeArray)
+
+					firstDerivativeTensor = AqwamTensorLibrary:concatenate(headPaddingTensor, firstDerivativeTensor, 1)
+
+				end
+
+				if (tailPaddingDimensionSize >= 1) then
+
+					local tensorTailPaddingDimensionSizeArray = table.clone(firstDerivativeTensorDimensionSizeArray)
+
+					tensorTailPaddingDimensionSizeArray[1] = tailPaddingDimensionSize
+
+					local tailPaddingTensor = AqwamTensorLibrary:createTensor(tensorTailPaddingDimensionSizeArray)
+
+					firstDerivativeTensor = AqwamTensorLibrary:concatenate(firstDerivativeTensor, tailPaddingTensor, 1)
+
+				end
+
+				self:differentiate{firstDerivativeTensor}
+
+			end
+
+			return AHAAutomaticDifferentiationTensor.new({selfSubTensorValue, PartialFirstDerivativeFunction, {self}})
 
 		else
 			
