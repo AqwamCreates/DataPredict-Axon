@@ -518,7 +518,7 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
-	local weightTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(weightTensor)
+	local weightTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureWeightTensor)
 	
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
