@@ -828,9 +828,11 @@ function PaddingLayers.ZeroPadding(parameterDictionary)
 
 	local tailPaddingDimensionSizeArray = parameterDictionary.tailPaddingDimensionSizeArray or parameterDictionary[3] or defaultTailPaddingDimensionSizeArray
 	
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
@@ -844,7 +846,7 @@ function PaddingLayers.ZeroPadding(parameterDictionary)
 
 	for dimension = tensorNumberOfDimensions, 1, -1 do
 
-		local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor)
+		local resultTensorDimensionSizeArray = resultTensor:getDimensionSizeArray()
 
 		local headPaddingDimensionSize = headPaddingDimensionSizeArray[dimension]
 
@@ -891,8 +893,10 @@ function PaddingLayers.ConstantPadding(parameterDictionary)
 	local tailPaddingDimensionSizeArray = parameterDictionary.tailPaddingDimensionSizeArray or parameterDictionary[3] or defaultTailPaddingDimensionSizeArray
 
 	local value = parameterDictionary.value or parameterDictionary[4] or defaultValue
+	
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
@@ -908,7 +912,7 @@ function PaddingLayers.ConstantPadding(parameterDictionary)
 
 	for dimension = tensorNumberOfDimensions, 1, -1 do
 
-		local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor)
+		local resultTensorDimensionSizeArray = resultTensor:getDimensionSizeArray()
 
 		local headPaddingDimensionSize = headPaddingDimensionSizeArray[dimension]
 
@@ -957,8 +961,10 @@ function PaddingLayers.CircularPadding(parameterDictionary)
 	local headPaddingDimensionSizeArray = parameterDictionary.headPaddingDimensionSizeArray or parameterDictionary[2] or defaultHeadPaddingDimensionSizeArray
 
 	local tailPaddingDimensionSizeArray = parameterDictionary.tailPaddingDimensionSizeArray or parameterDictionary[3] or defaultTailPaddingDimensionSizeArray
+	
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
@@ -978,7 +984,7 @@ function PaddingLayers.CircularPadding(parameterDictionary)
 
 		if (headPaddingDimensionSize >= 1) then
 
-			local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor)
+			local resultTensorDimensionSizeArray = resultTensor:getDimensionSizeArray()
 
 			local resultTensorDimensionSize = resultTensorDimensionSizeArray[dimension]
 
@@ -992,7 +998,7 @@ function PaddingLayers.CircularPadding(parameterDictionary)
 
 			for i = 1, headPaddingDimensionSize, 1 do
 
-				local extractedInputTensor = AqwamTensorLibrary:extract(resultTensor, resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray)
+				local extractedInputTensor = resultTensor:extract{resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray}
 
 				resultTensor = AutomaticDifferentiationTensor.concatenate{extractedInputTensor, resultTensor, dimension}
 
@@ -1002,7 +1008,7 @@ function PaddingLayers.CircularPadding(parameterDictionary)
 
 		if (tailPaddingDimensionSize >= 1) then
 
-			local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor)
+			local resultTensorDimensionSizeArray = resultTensor:getDimensionSizeArray()
 
 			local resultTensorDimensionSize = resultTensorDimensionSizeArray[dimension]
 
@@ -1020,7 +1026,7 @@ function PaddingLayers.CircularPadding(parameterDictionary)
 
 				currentIndex = currentIndex + 1
 
-				local extractedInputTensor = AqwamTensorLibrary:extract(resultTensor, resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray)
+				local extractedInputTensor = resultTensor:extract{resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray}
 
 				resultTensor = AutomaticDifferentiationTensor.concatenate{resultTensor, extractedInputTensor, dimension}
 
@@ -1043,8 +1049,10 @@ function PaddingLayers.ReplicationPadding(parameterDictionary)
 	local headPaddingDimensionSizeArray = parameterDictionary.headPaddingDimensionSizeArray or parameterDictionary[2] or defaultHeadPaddingDimensionSizeArray
 
 	local tailPaddingDimensionSizeArray = parameterDictionary.tailPaddingDimensionSizeArray or parameterDictionary[3] or defaultTailPaddingDimensionSizeArray
+	
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
@@ -1064,7 +1072,7 @@ function PaddingLayers.ReplicationPadding(parameterDictionary)
 
 		if (headPaddingDimensionSize >= 1) then
 
-			local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor)
+			local resultTensorDimensionSizeArray = resultTensor:getDimensionSizeArray()
 
 			local resultTensorDimensionSize = resultTensorDimensionSizeArray[dimension]
 
@@ -1076,7 +1084,7 @@ function PaddingLayers.ReplicationPadding(parameterDictionary)
 
 			resultTensorEndDimensionIndexArray[dimension] = 1
 
-			local extractedInputTensor = AqwamTensorLibrary:extract(resultTensor, resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray)
+			local extractedInputTensor = resultTensor:extract{resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray}
 
 			for i = 1, headPaddingDimensionSize, 1 do resultTensor = AutomaticDifferentiationTensor.concatenate{extractedInputTensor, resultTensor, dimension} end
 
@@ -1084,7 +1092,7 @@ function PaddingLayers.ReplicationPadding(parameterDictionary)
 
 		if (tailPaddingDimensionSize >= 1) then
 
-			local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor)
+			local resultTensorDimensionSizeArray = resultTensor:getDimensionSizeArray()
 
 			local resultTensorDimensionSize = resultTensorDimensionSizeArray[dimension]
 
@@ -1096,7 +1104,7 @@ function PaddingLayers.ReplicationPadding(parameterDictionary)
 
 			resultTensorEndDimensionIndexArray[dimension] = resultTensorDimensionSize
 
-			local extractedInputTensor = AqwamTensorLibrary:extract(resultTensor, resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray)
+			local extractedInputTensor = resultTensor:extract{resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray}
 
 			for i = 1, tailPaddingDimensionSize, 1 do resultTensor = AutomaticDifferentiationTensor.concatenate{resultTensor, extractedInputTensor, dimension} end
 
@@ -1117,8 +1125,10 @@ function PaddingLayers.ReflectionPadding(parameterDictionary)
 	local headPaddingDimensionSizeArray = parameterDictionary.headPaddingDimensionSizeArray or parameterDictionary[2] or defaultHeadPaddingDimensionSizeArray
 
 	local tailPaddingDimensionSizeArray = parameterDictionary.tailPaddingDimensionSizeArray or parameterDictionary[3] or defaultTailPaddingDimensionSizeArray
+	
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
@@ -1156,7 +1166,7 @@ function PaddingLayers.ReflectionPadding(parameterDictionary)
 
 		if (headPaddingDimensionSize >= 1) then
 
-			local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor)
+			local resultTensorDimensionSizeArray = resultTensor:getDimensionSizeArray()
 
 			local resultTensorDimensionSize = resultTensorDimensionSizeArray[dimension]
 
@@ -1176,7 +1186,7 @@ function PaddingLayers.ReflectionPadding(parameterDictionary)
 
 				startingIndex = startingIndex + 1
 
-				local extractedInputTensor = AqwamTensorLibrary:extract(resultTensor, resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray)
+				local extractedInputTensor = resultTensor:extract{resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray}
 
 				resultTensor = AutomaticDifferentiationTensor.concatenate{extractedInputTensor, resultTensor, dimension}
 
@@ -1186,7 +1196,7 @@ function PaddingLayers.ReflectionPadding(parameterDictionary)
 
 		if (tailPaddingDimensionSize >= 1) then
 
-			local resultTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(resultTensor)
+			local resultTensorDimensionSizeArray = resultTensor:getDimensionSizeArray()
 
 			local resultTensorDimensionSize = resultTensorDimensionSizeArray[dimension]
 
@@ -1204,7 +1214,7 @@ function PaddingLayers.ReflectionPadding(parameterDictionary)
 
 				resultTensorEndDimensionIndexArray[dimension] = currentIndex
 
-				local extractedInputTensor = AqwamTensorLibrary:extract(resultTensor, resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray)
+				local extractedInputTensor = resultTensor:extract{resultTensorStartDimensionIndexArray, resultTensorEndDimensionIndexArray}
 
 				resultTensor = AutomaticDifferentiationTensor.concatenate{resultTensor, extractedInputTensor, dimension}
 
