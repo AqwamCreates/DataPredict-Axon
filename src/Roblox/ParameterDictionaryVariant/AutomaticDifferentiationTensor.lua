@@ -158,6 +158,18 @@ function AHAAutomaticDifferentiationTensor.new(parameterDictionary)
 
 end
 
+function AHAAutomaticDifferentiationTensor.coerce(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+	
+	if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then return tensor end
+
+	return AHAAutomaticDifferentiationTensor.new({tensor, nil, {tensor}})
+
+end
+
 function AHAAutomaticDifferentiationTensor.radian(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
@@ -1425,10 +1437,18 @@ function AHAAutomaticDifferentiationTensor.concatenate(parameterDictionary)
 	if (type(dimensionIndex) ~= "number") then error("The final argument must be a number in order for it to be used as dimension index.") end
 
 	table.remove(tensorArray, numberOfArguments)
+	
+	local pureTensorArray = {}
+
+	for i = 1, #tensorArray, 1 do
+
+		pureTensorArray[i] = AHAAutomaticDifferentiationTensor:fetchValue(tensorArray[i])
+
+	end
 
 	local resultTensor
 
-	for i, tensor in ipairs(tensorArray) do
+	for i, tensor in ipairs(pureTensorArray) do
 
 		if (i > 1) then
 
@@ -1454,7 +1474,7 @@ function AHAAutomaticDifferentiationTensor.concatenate(parameterDictionary)
 
 		targetDimensionIndexArray[dimensionIndex] = 0
 
-		for _, tensor in ipairs(tensorArray) do
+		for _, tensor in ipairs(pureTensorArray) do
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
@@ -1468,7 +1488,7 @@ function AHAAutomaticDifferentiationTensor.concatenate(parameterDictionary)
 
 		end
 
-		for i, tensor in ipairs(tensorArray) do
+		for i, tensor in ipairs(pureTensorArray) do
 
 			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then tensor:differentiate{extractedDerivativeTensorArray[i]} end
 
@@ -1964,6 +1984,14 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 
 	self.totalFirstDerivativeTensor = totalFirstDerivativeTensor
 
+end
+
+function AHAAutomaticDifferentiationTensor:getDimensionSizeArray()
+	
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	
+	return AqwamTensorLibrary:getDimensionSizeArray(self.tensor)
+	
 end
 
 function AHAAutomaticDifferentiationTensor:copy()
