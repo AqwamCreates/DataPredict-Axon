@@ -215,8 +215,6 @@ function AHAAutomaticDifferentiationTensor.stack(parameterDictionary)
 		for i, tensor in ipairs(tensorArray) do
 
 			if (AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then
-				
-				warn(firstDerivativeTensor[i])
 
 				tensor:differentiate{firstDerivativeTensor[i]}
 
@@ -2021,8 +2019,6 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 		end
 		
 		if (not isInputScalar) and (firstDerivativeTensorNumberOfDimensions ~= tensorNumberOfDimensions) then
-			
-			print(firstDerivativeTensor, selfTensorValue)
 			
 			error("Unable to differentiate. The derivative tensor has " .. firstDerivativeTensorNumberOfDimensions .. " dimensions, but the original tensor has " .. tensorNumberOfDimensions .. ".")
 			
