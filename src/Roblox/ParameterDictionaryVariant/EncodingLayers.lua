@@ -149,8 +149,10 @@ function EncodingLayers.OneHotEncoding(parameterDictionary)
 	local oneHotEncodingMode = parameterDictionary.oneHotEncodingMode or parameterDictionary[3]
 
 	local indexDictionary = parameterDictionary.indexDictionary or parameterDictionary[4]
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -158,13 +160,13 @@ function EncodingLayers.OneHotEncoding(parameterDictionary)
 
 	if (oneHotEncodingMode == "Index") then
 
-		resultTensor = createOneHotTensorFromIndex(tensor, tensorDimensionSizeArray, numberOfDimensions, 1, finalDimensionSize)
+		resultTensor = createOneHotTensorFromIndex(pureTensor, tensorDimensionSizeArray, numberOfDimensions, 1, finalDimensionSize)
 
 	elseif (oneHotEncodingMode == "Key") then
 
 		if (not indexDictionary) then error("No index dictionary for one hot encoding key mode.") end
 
-		resultTensor = createOneHotTensorFromKey(tensor, tensorDimensionSizeArray, numberOfDimensions, 1, finalDimensionSize, indexDictionary)
+		resultTensor = createOneHotTensorFromKey(pureTensor, tensorDimensionSizeArray, numberOfDimensions, 1, finalDimensionSize, indexDictionary)
 
 	else
 
@@ -183,8 +185,10 @@ function EncodingLayers.LabelEncoding(parameterDictionary)
 	local valueDictionary = parameterDictionary.valueDictionary or parameterDictionary[2]
 
 	local functionToApply = function(x) return (valueDictionary[x] or 0) end
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	return AutomaticDifferentiationTensor.new({resultTensor, nil, {tensor}})
 
@@ -198,11 +202,13 @@ function EncodingLayers.PositionEncoding(parameterDictionary)
 
 	local nValue = parameterDictionary.nValue or parameterDictionary[3] or defaultNValue
 
-	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #dimensionSizeArray
 
-	local resultTensor = getPositionalEncodingBlockTensorRecursive(tensor, dimensionSizeArray, numberOfDimensions, 1, sequenceLength, nValue)
+	local resultTensor = getPositionalEncodingBlockTensorRecursive(pureTensor, dimensionSizeArray, numberOfDimensions, 1, sequenceLength, nValue)
 
 	return AutomaticDifferentiationTensor.new({resultTensor, nil, {tensor}})
 
