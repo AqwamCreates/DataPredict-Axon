@@ -70,17 +70,15 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 	
 	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
 	
-	local epsilon = parameterDictionary.epsilon or parameterDictionary[3]
-	
 	local inputTensorArray = {generatedLabelTensor, labelTensor}
 	
-	local functionToApply = function (generatedLabelValue, labelValue) return -(labelValue * math.log(generatedLabelValue) + (1 - labelValue) * math.log(1 - generatedLabelValue)) end
+	local functionToApply = function (labelValue, generatedLabelValue) return -(labelValue * math.log(generatedLabelValue) + (1 - labelValue) * math.log(1 - generatedLabelValue)) end
 	
 	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
 	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
-	local binaryCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
+	local binaryCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureLabelTensor, pureGeneratedLabelTensor)
 	
 	local sumBinaryCrossEntropyValue = AqwamTensorLibrary:sum(binaryCrossEntropyTensor)
 	
