@@ -36,6 +36,8 @@ local ReinforcementLearningModels = {}
 
 local defaultClipRatio = 0.3
 
+local defaultEpsilon = 0.5
+
 local defaultDiscountFactor = 0.95
 
 local function calculateCategoricalProbability(valueTensor)
@@ -294,7 +296,7 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 	
-	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultDiscountFactor
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
 
@@ -367,16 +369,22 @@ function ReinforcementLearningModels.DeepExpectedDoubleStateActionRewardStateAct
 	local Model = parameterDictionary.Model or parameterDictionary[1]
 
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+	
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
 
-	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
 
-	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[4] or {}
+	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[5] or {}
 
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
 	WeightTensorArrayArray[2] = WeightTensorArrayArray[2] or WeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
 
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+		
+		local numberOfGreedyActions = 0
+
+		local expectedQValue = 0
 
 		local randomProbability = math.random()
 
@@ -394,19 +402,55 @@ function ReinforcementLearningModels.DeepExpectedDoubleStateActionRewardStateAct
 
 		local currentQValueTensor = Model{currentFeatureTensor}
 
-		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
+		local maxQValue = currentQValueTensor:findMaximumValue()
 
-		local costTensor = CostFunctions.FastMeanSquaredError{targetQValueTensor, previousQValueTensor}
+		local unwrappedTargetTensor = currentQValueTensor[1]
+
+		local numberOfClasses = #unwrappedTargetTensor
+
+		for i = 1, numberOfClasses, 1 do
+
+			if (unwrappedTargetTensor[i] == maxQValue) then
+
+				numberOfGreedyActions = numberOfGreedyActions + 1
+
+			end
+
+		end
+
+		local nonGreedyActionProbability = epsilon / numberOfClasses
+
+		local greedyActionProbability = ((1 - epsilon) / numberOfGreedyActions) + nonGreedyActionProbability
+
+		for _, qValue in ipairs(unwrappedTargetTensor) do
+
+			if (qValue == maxQValue) then
+
+				expectedQValue = expectedQValue + (qValue * greedyActionProbability)
+
+			else
+
+				expectedQValue = expectedQValue + (qValue * nonGreedyActionProbability)
+
+			end
+
+		end
+
+		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * expectedQValue)
+
+		local lastValue = previousQValueTensor[1][actionIndex]
+
+		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
-		costTensor:differentiate()
+		cost:differentiate()
 
 		WeightContainer:gradientAscent()
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		costTensor:destroy{true}
+		cost:destroy{true}
 
 	end
 
