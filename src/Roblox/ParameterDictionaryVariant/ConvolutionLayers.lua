@@ -839,9 +839,9 @@ function ConvolutionLayers.Convolution2D(parameterDictionary)
 
 	local inputTensorArray = {tensor, weightTensor}
 
-	tensor = AutomaticDifferentiationTensor.coerce(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
 
-	weightTensor = AutomaticDifferentiationTensor.coerce(weightTensor)
+	weightTensor = AutomaticDifferentiationTensor.coerce{weightTensor}
 
 	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
@@ -939,9 +939,9 @@ function ConvolutionLayers.Convolution3D(parameterDictionary)
 
 	local inputTensorArray = {tensor, weightTensor}
 
-	tensor = AutomaticDifferentiationTensor.coerce(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
 
-	weightTensor = AutomaticDifferentiationTensor.coerce(weightTensor)
+	weightTensor = AutomaticDifferentiationTensor.coerce{weightTensor}
 
 	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
