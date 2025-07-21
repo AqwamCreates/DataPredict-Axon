@@ -1714,21 +1714,23 @@ function AHAAutomaticDifferentiationTensor:mean(parameterDictionary)
 		
 		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
-		local dimensionSize = dimensionSizeArray[dimension]
+		local totalNumberOfElements
 		
-		if (not dimensionSize) then
+		if (dimension) then
 			
-			dimensionSize = 1
+			totalNumberOfElements = dimensionSizeArray[dimension]
 			
-			for _, size in ipairs(dimensionSizeArray) do dimensionSize = dimensionSize * size end
+			firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, totalNumberOfElements)
 			
-			firstDerivativeTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, firstDerivativeTensor)
+		else
+			
+			totalNumberOfElements = 1
+
+			for _, size in ipairs(dimensionSizeArray) do totalNumberOfElements = totalNumberOfElements * size end
+
+			firstDerivativeTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, (firstDerivativeTensor / totalNumberOfElements))
 			
 		end
-
-		firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, dimensionSize)
-		
-		local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
 		self:differentiate{firstDerivativeTensor}
 
@@ -1762,19 +1764,25 @@ function AHAAutomaticDifferentiationTensor:standardDeviation(parameterDictionary
 
 		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
-		local dimensionSize = dimensionSizeArray[dimension]
+		local totalNumberOfElements
 
-		if (not dimensionSize) then
+		if (dimension) then
+			
+			totalNumberOfElements = dimensionSizeArray[dimension]
+			
+		else
 
-			dimensionSize = 1
+			totalNumberOfElements = 1
 
-			for _, size in ipairs(dimensionSizeArray) do dimensionSize = dimensionSize * size end
+			for _, size in ipairs(dimensionSizeArray) do totalNumberOfElements = totalNumberOfElements * size end
 
 		end
 
-		local chainRuleFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(2, resultTensor, dimensionSize)
+		local chainRuleFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(2, resultTensor, totalNumberOfElements)
 
 		firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, chainRuleFirstDerivativeTensorPart1)
+		
+		if (not dimension) then AqwamTensorLibrary:createTensor(dimensionSizeArray, firstDerivativeTensor) end
 
 		tensor:differentiate{firstDerivativeTensor}
 
