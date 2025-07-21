@@ -54,9 +54,9 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 	
 	local functionToApply = function (generatedLabelValue, labelValue) return -(labelValue * math.log(generatedLabelValue) + (1 - labelValue) * math.log(1 - generatedLabelValue)) end
 	
-	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
-	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
 	local binaryCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 	
@@ -102,9 +102,9 @@ function CostFunctions.FastBinaryCategoricalCrossEntropy(parameterDictionary)
 	
 	local functionToApply = function (generatedLabelValue, labelValue) return -(labelValue * math.log(generatedLabelValue)) end
 	
-	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
-	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 	
 	local categoricalCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
@@ -164,9 +164,9 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 
 	end
 	
-	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
-	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
 	local focalLossTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
@@ -224,9 +224,9 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 
 	local functionToApply = function (generatedLabelValue, labelValue) return math.abs(generatedLabelValue - labelValue) end
 	
-	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
-	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
 	local absoluteErrorTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
@@ -272,9 +272,9 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 
 	local functionToApply = function (generatedLabelValue, labelValue) return math.pow((generatedLabelValue - labelValue), 2) end
 
-	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue(generatedLabelTensor)
-	
-	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue(labelTensor)
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
 	local squaredErrorTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
 
