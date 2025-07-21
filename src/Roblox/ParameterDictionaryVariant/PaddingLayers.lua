@@ -104,7 +104,7 @@ function PaddingLayers.FastZeroPadding(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
@@ -194,7 +194,7 @@ function PaddingLayers.FastConstantPadding(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
@@ -302,7 +302,7 @@ function PaddingLayers.FastCircularPadding(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
@@ -448,7 +448,7 @@ function PaddingLayers.FastReplicationPaddingBlock(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
@@ -620,7 +620,7 @@ function PaddingLayers.FastReflectionPaddingBlock(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
