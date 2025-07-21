@@ -182,7 +182,7 @@ function WeightContainer:gradientDescent()
 			
 		else
 			
-			if (not skipMissingGradientTensor) then  error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
+			if (not skipMissingGradientTensor) then error("Unable to find first derivative tensor for ADTensor " .. i .. ".") end
 			
 		end
 
