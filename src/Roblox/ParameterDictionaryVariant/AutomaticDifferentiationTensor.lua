@@ -170,37 +170,63 @@ function AHAAutomaticDifferentiationTensor.coerce(parameterDictionary)
 
 end
 
-function AHAAutomaticDifferentiationTensor.vectorize(parameterDictionary)
+function AHAAutomaticDifferentiationTensor.stack(parameterDictionary)
 
-	local scalarArray = parameterDictionary or {}
+	local tensorArray = parameterDictionary or {}
 	
-	local resultTensor = {}
+	local numberOfTensors = #parameterDictionary
 	
-	for i, scalar in ipairs(scalarArray) do
+	local pureFirstTensor = AHAAutomaticDifferentiationTensor:fetchValue(tensorArray[1])
+
+	local resultTensor = {pureFirstTensor}
+	
+	for i = 2, numberOfTensors, 1 do
 		
-		local value = AHAAutomaticDifferentiationTensor:fetchValue(scalar)
+		local previousTensor = tensorArray[i - 1]
 		
-		if (type(value) ~= "number") then error("Value at " .. i .. " is not a number.") end
+		local currentTensor = tensorArray[i]
 		
-		resultTensor[i] = value
+		local purePreviousTensor = AHAAutomaticDifferentiationTensor:fetchValue(previousTensor)
+		
+		local pureCurrentTensor = AHAAutomaticDifferentiationTensor:fetchValue(currentTensor)
+		
+		local previousTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(purePreviousTensor)
+		
+		local currentTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureCurrentTensor)
+		
+		local previousTensorNumberOfDimensions = #previousTensorDimensionSizeArray
+		
+		local currentTensorNumberOfDimensions = #currentTensorDimensionSizeArray
+		
+		if (previousTensorNumberOfDimensions ~= currentTensorNumberOfDimensions) then error("Tensor at " .. i .. " does not contain the same number of dimensions as the previous tensors.") end
+		
+		for j, size in ipairs(previousTensorDimensionSizeArray) do
+			
+			if (size ~= currentTensorDimensionSizeArray[j]) then error("Tensor at " .. i .. " does not contain the same dimension size at dimension " .. j .. " as the previous tensors.") end
+			
+		end
+		
+		resultTensor[i] = pureCurrentTensor
 		
 	end
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		for i, scalar in ipairs(scalarArray) do
-			
-			if (AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{scalar}) then
+
+		for i, tensor in ipairs(tensorArray) do
+
+			if (AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then
 				
-				scalar:differentiate{firstDerivativeTensor[i]}
-				
+				warn(firstDerivativeTensor[i])
+
+				tensor:differentiate{firstDerivativeTensor[i]}
+
 			end
-			
+
 		end
 
 	end
 
-	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, scalarArray})
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, tensorArray})
 
 end
 
@@ -1685,8 +1711,18 @@ function AHAAutomaticDifferentiationTensor:mean(parameterDictionary)
 		if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 		
 		local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue(tensor)
+		
+		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
-		local dimensionSize = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)[dimension]
+		local dimensionSize = dimensionSizeArray[dimension]
+		
+		if (not dimensionSize) then
+			
+			dimensionSize = 1
+			
+			for _, size in ipairs(dimensionSizeArray) do dimensionSize = dimensionSize * size end
+			
+		end
 
 		firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, dimensionSize)
 
@@ -1720,7 +1756,17 @@ function AHAAutomaticDifferentiationTensor:standardDeviation(parameterDictionary
 		
 		local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue(tensor)
 
-		local dimensionSize = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)[dimension]
+		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
+
+		local dimensionSize = dimensionSizeArray[dimension]
+
+		if (not dimensionSize) then
+
+			dimensionSize = 1
+
+			for _, size in ipairs(dimensionSizeArray) do dimensionSize = dimensionSize * size end
+
+		end
 
 		local chainRuleFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(2, resultTensor, dimensionSize)
 
