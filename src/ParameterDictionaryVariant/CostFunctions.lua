@@ -293,34 +293,48 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 	local resultValue = sumAbsoluteErrorValue / numberOfData
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
+
 		local generatedLabelTensor = inputTensorArray[1]
 
 		local labelTensor = inputTensorArray[2]
 
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
 		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
+
+		local scale = 1 / numberOfData
+		
+		local functionToApply = function(x)
+			if x > 0 then return 1
+			elseif x < 0 then return -1
+			else return 0 end
+		end
+		
+		lossTensor = AqwamTensorLibrary:applyFunction(functionToApply, lossTensor)
+
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor, scale)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
-			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
 
-			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+			local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
-			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
-
-			generatedLabelTensor:differentiate{collapsedLossTensor}
+			generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
 
 		end
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
 
-			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{pureGeneratedLabelTensor}
+			local negativeFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, -1)
 
-			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
 
-			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+			local collapsedNegativeFirstDerivativeTensor = collapseTensor(negativeFirstDerivativeTensor, dimensionSizeArray)
 
-			labelTensor:differentiate{collapsedLossTensor}
+			labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
 
 		end
 
@@ -353,34 +367,40 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 	local resultValue = sumSquaredErrorValue / numberOfData
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local generatedLabelTensor = inputTensorArray[1]
 
+		local generatedLabelTensor = inputTensorArray[1]
+		
 		local labelTensor = inputTensorArray[2]
+		
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
 		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
 
+		local scale = 2 / numberOfData
+		
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor, scale)
+
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
-			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+			
+			local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
-			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
-
-			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
-
-			generatedLabelTensor:differentiate{collapsedLossTensor}
+			generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
 
 		end
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
 
-			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{pureGeneratedLabelTensor}
+			local negativeFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, -1)
+			
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+			
+			local collapsedNegativeFirstDerivativeTensor = collapseTensor(negativeFirstDerivativeTensor, dimensionSizeArray)
 
-			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
-
-			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
-
-			labelTensor:differentiate{collapsedLossTensor}
+			labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
 
 		end
 
