@@ -140,7 +140,7 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 	
 	local inputTensorArray = {generatedLabelTensor, labelTensor}
 	
-	local functionToApply = function (generatedLabelValue, labelValue) return -(labelValue * math.log(generatedLabelValue)) end
+	local functionToApply = function (generatedLabelValue, labelValue) return (labelValue * math.log(generatedLabelValue)) end
 	
 	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
@@ -152,7 +152,7 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 	
 	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumCategoricalCrossEntropyValue / numberOfData
+	local resultValue = -sumCategoricalCrossEntropyValue / numberOfData
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -164,13 +164,13 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 
 		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
-		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
-
-		local scale = 1 / numberOfData
-
-		firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor, scale)
+		local scale = -1 / numberOfData
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+			
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:logarithm(pureGeneratedLabelTensor)
+			
+			local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
 
@@ -181,14 +181,16 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 		end
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+			
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:divide(labelTensor, pureGeneratedLabelTensor)
 
-			local negativeFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, -1)
+			local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
 
-			local collapsedNegativeFirstDerivativeTensor = collapseTensor(negativeFirstDerivativeTensor, dimensionSizeArray)
+			local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
-			labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
+			labelTensor:differentiate{collapsedFirstDerivativeTensor}
 
 		end
 
@@ -450,13 +452,13 @@ function CostFunctions.CategoricalCrossEntropy(parameterDictionary)
 
 	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
 	
-	local categoricalCrossEntropyTensor = -(labelTensor * AutomaticDifferentiationTensor.logarithm{generatedLabelTensor})
+	local categoricalCrossEntropyTensor = labelTensor * AutomaticDifferentiationTensor.logarithm{generatedLabelTensor}
 
 	local sumCategoricalCrossEntropy = categoricalCrossEntropyTensor:sum()
 	
 	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumCategoricalCrossEntropy / numberOfData
+	local resultValue = -sumCategoricalCrossEntropy / numberOfData
 	
 	return resultValue
 
