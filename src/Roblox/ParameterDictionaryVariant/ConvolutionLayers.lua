@@ -92,9 +92,9 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 	
 	local inputTensorArray = {tensor, weightTensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 	
-	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue{weightTensor}
 	
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 	
@@ -291,9 +291,9 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 
 	local inputTensorArray = {tensor, weightTensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
-	
-	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue{weightTensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
@@ -512,9 +512,9 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 
 	local inputTensorArray = {tensor, weightTensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
-	
-	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue{weightTensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
