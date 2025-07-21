@@ -189,6 +189,7 @@ local unpooling3DMethodInverseFunctionList = {
 	end,
 
 }
+
 function PoolingLayers.FastMaximumUnpooling1D(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
@@ -203,7 +204,9 @@ function PoolingLayers.FastMaximumUnpooling1D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -235,7 +238,7 @@ function PoolingLayers.FastMaximumUnpooling1D(parameterDictionary)
 
 			for c = 1, tensorDimension3Size, 1 do
 
-				local value = tensor[a][b][c]
+				local value = pureTensor[a][b][c]
 
 				local startC = (c - 1) * strideDimensionSize + 1
 
@@ -302,8 +305,10 @@ function PoolingLayers.FastMaximumUnpooling2D(parameterDictionary)
 	local unpoolingMethod = parameterDictionary.unpoolingMethod or parameterDictionary[4] or defaultUnpoolingMethod
 	
 	local inputTensorArray = {tensor}
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -351,7 +356,7 @@ function PoolingLayers.FastMaximumUnpooling2D(parameterDictionary)
 
 				for d = 1, tensorDimension4Size, 1 do
 
-					local value = tensor[a][b][c][d]
+					local value = pureTensor[a][b][c][d]
 
 					local startC = (c - 1) * strideDimension1Size + 1
 					local startD = (d - 1) * strideDimension2Size + 1
@@ -427,7 +432,9 @@ function PoolingLayers.FastMaximumUnpooling3D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -483,7 +490,7 @@ function PoolingLayers.FastMaximumUnpooling3D(parameterDictionary)
 
 					for e = 1, tensorDimension5Size, 1 do
 
-						local value = tensor[a][b][c][d][e]
+						local value = pureTensor[a][b][c][d][e]
 
 						local startC = (c - 1) * strideDimension1Size + 1
 						local startD = (d - 1) * strideDimension2Size + 1
@@ -566,8 +573,10 @@ function PoolingLayers.FastAveragePooling1D(parameterDictionary)
 	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
 	
 	local inputTensorArray = {tensor}
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -595,7 +604,7 @@ function PoolingLayers.FastAveragePooling1D(parameterDictionary)
 
 			for c = 1, resultTensorDimension3Size, 1 do
 
-				local subTensor = tensor[a][b]
+				local subTensor = pureTensor[a][b]
 
 				local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
 
@@ -667,7 +676,9 @@ function PoolingLayers.FastAveragePooling2D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -711,7 +722,7 @@ function PoolingLayers.FastAveragePooling2D(parameterDictionary)
 
 				for d = 1, resultTensorDimension4Size, 1 do
 
-					local subTensor = tensor[a][b]
+					local subTensor = pureTensor[a][b]
 
 					local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
 
@@ -797,7 +808,9 @@ function PoolingLayers.FastAveragePooling3D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -849,7 +862,7 @@ function PoolingLayers.FastAveragePooling3D(parameterDictionary)
 
 					for e = 1, resultTensorDimension5Size, 1 do
 
-						local subTensor = tensor[a][b]
+						local subTensor = pureTensor[a][b]
 
 						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
@@ -943,7 +956,9 @@ function PoolingLayers.FastMinimumPooling1D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -971,7 +986,7 @@ function PoolingLayers.FastMinimumPooling1D(parameterDictionary)
 
 			for c = 1, resultTensorDimension3Size, 1 do
 
-				local subTensor = tensor[a][b]
+				local subTensor = pureTensor[a][b]
 
 				local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
 
@@ -1040,8 +1055,10 @@ function PoolingLayers.FastMinimumPooling2D(parameterDictionary)
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
 	
 	local inputTensorArray = {tensor}
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -1085,7 +1102,7 @@ function PoolingLayers.FastMinimumPooling2D(parameterDictionary)
 
 				for d = 1, resultTensorDimension4Size, 1 do
 
-					local subTensor = tensor[a][b]
+					local subTensor = pureTensor[a][b]
 
 					local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
 
@@ -1167,7 +1184,9 @@ function PoolingLayers.FastMinimumPooling3D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -1219,7 +1238,7 @@ function PoolingLayers.FastMinimumPooling3D(parameterDictionary)
 
 					for e = 1, resultTensorDimension5Size, 1 do
 
-						local subTensor = tensor[a][b]
+						local subTensor = pureTensor[a][b]
 
 						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
@@ -1309,7 +1328,9 @@ function PoolingLayers.FastMaximumPooling1D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -1337,7 +1358,7 @@ function PoolingLayers.FastMaximumPooling1D(parameterDictionary)
 
 			for c = 1, resultTensorDimension3Size, 1 do
 
-				local subTensor = tensor[a][b]
+				local subTensor = pureTensor[a][b]
 
 				local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
 
@@ -1407,7 +1428,9 @@ function PoolingLayers.FastMaximumPooling2D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -1451,7 +1474,7 @@ function PoolingLayers.FastMaximumPooling2D(parameterDictionary)
 
 				for d = 1, resultTensorDimension4Size, 1 do
 
-					local subTensor = tensor[a][b]
+					local subTensor = pureTensor[a][b]
 
 					local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
 
@@ -1531,7 +1554,9 @@ function PoolingLayers.FastMaximumPooling3D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -1583,7 +1608,7 @@ function PoolingLayers.FastMaximumPooling3D(parameterDictionary)
 
 					for e = 1, resultTensorDimension5Size, 1 do
 
-						local subTensor = tensor[a][b]
+						local subTensor = pureTensor[a][b]
 
 						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
