@@ -170,6 +170,40 @@ function AHAAutomaticDifferentiationTensor.coerce(parameterDictionary)
 
 end
 
+function AHAAutomaticDifferentiationTensor.vectorize(parameterDictionary)
+
+	local scalarArray = parameterDictionary or {}
+	
+	local resultTensor = {}
+	
+	for i, scalar in ipairs(scalarArray) do
+		
+		local value = AHAAutomaticDifferentiationTensor:fetchValue(scalar)
+		
+		if (type(value) ~= "number") then error("Value at " .. i .. " is not a number.") end
+		
+		resultTensor[i] = value
+		
+	end
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		
+		for i, scalar in ipairs(scalarArray) do
+			
+			if (AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{scalar}) then
+				
+				scalar:differentiate{firstDerivativeTensor[i]}
+				
+			end
+			
+		end
+
+	end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, scalarArray})
+
+end
+
 function AHAAutomaticDifferentiationTensor.radian(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
