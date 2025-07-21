@@ -1157,8 +1157,6 @@ function PaddingLayers.ReflectionPadding(parameterDictionary)
 	local resultTensor = tensor
 
 	for dimension = tensorNumberOfDimensions, 1, -1 do
-		
-		print(dimension)
 
 		local headPaddingDimensionSize = headPaddingDimensionSizeArray[dimension]
 
