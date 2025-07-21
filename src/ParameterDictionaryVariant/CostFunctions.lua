@@ -140,13 +140,13 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 	
 	local inputTensorArray = {generatedLabelTensor, labelTensor}
 	
-	local functionToApply = function (generatedLabelValue, labelValue) return (labelValue * math.log(generatedLabelValue)) end
+	local functionToApply = function (labelValue, generatedLabelValue) return (labelValue * math.log(generatedLabelValue)) end
 	
 	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
 	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 	
-	local categoricalCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
+	local categoricalCrossEntropyTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureLabelTensor, pureGeneratedLabelTensor)
 
 	local sumCategoricalCrossEntropyValue = AqwamTensorLibrary:sum(categoricalCrossEntropyTensor)
 	
@@ -168,8 +168,8 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 			
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:logarithm(pureGeneratedLabelTensor)
-			
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:divide(pureLabelTensor, pureGeneratedLabelTensor)
+
 			local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
@@ -182,7 +182,7 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
 			
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:divide(labelTensor, pureGeneratedLabelTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:logarithm(pureGeneratedLabelTensor)
 
 			local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
 
