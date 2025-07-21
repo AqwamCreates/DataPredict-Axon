@@ -1092,7 +1092,7 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 		for i = 1, 2, 1 do 
 
-			CriticWeightContainer:setWeightTensorArray(CriticWeightTensorArrayArray[i])
+			CriticWeightContainer:setWeightTensorArray{CriticWeightTensorArrayArray[i], true}
 
 			currentCriticValueArray[i] = CriticModel{currentFeatureTensor}[1][1] 
 
@@ -1132,15 +1132,15 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 		local minimumCurrentCriticValue = AutomaticDifferentiationTensor.minimum(previousCriticValueArray)
 
-		local actorCostTensor = alpha * previousLogActionProbabilityTensor
+		local actorCost = alpha * previousLogActionProbabilityTensor
 		
-		actorCostTensor = CostFunctions.FastMeanSquaredError{minimumCurrentCriticValue, actorCostTensor}
+		actorCost = CostFunctions.FastMeanSquaredError{minimumCurrentCriticValue, actorCost}
 		
-		actorCostTensor:differentiate()
+		actorCost:differentiate()
 
 		ActorWeightContainer:gradientAscent()
 		
-		actorCostTensor:destroy{true}
+		actorCost:destroy{true}
 
 	end
 
@@ -1168,9 +1168,9 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 		local currentActionMeanTensor, currentStandardDeviationTensor = ActorModel{currentFeatureTensor}
 
-		local previousActionProbabilityTensor = calculateDiagonalGaussianProbability(previousActionMeanTensor,previousStandardDeviationTensor)
+		local previousActionProbabilityTensor = calculateDiagonalGaussianProbability(previousActionMeanTensor, previousStandardDeviationTensor, actionNoiseTensor)
 
-		local currentActionProbabilityTensor = calculateDiagonalGaussianProbability(currentActionMeanTensor, currentStandardDeviationTensor)
+		local currentActionProbabilityTensor = calculateDiagonalGaussianProbability(currentActionMeanTensor, currentStandardDeviationTensor, actionNoiseTensor)
 
 		local previousLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{previousActionProbabilityTensor}
 
