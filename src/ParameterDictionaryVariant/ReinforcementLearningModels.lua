@@ -542,6 +542,18 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 
 	end
 	
+	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+		
+		local actionMeanTensor, actionStandardDeviationTensor = Model{previousFeatureTensor}
+		
+		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
+		
+		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
+
+		table.insert(rewardValueArray, rewardValue)
+		
+	end
+	
 	local episodeUpdateFunction = function(terminalStateValue)
 
 		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
@@ -564,7 +576,7 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
 
 end
 
@@ -605,6 +617,22 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 		table.insert(criticValueArray, criticValue)
 
 	end
+	
+	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+		
+		local actionMeanTensor, actionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local criticValue = CriticModel{previousFeatureTensor}
+
+		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
+
+		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
+
+		table.insert(rewardValueArray, rewardValue)
+
+		table.insert(criticValueArray, criticValue)
+
+	end
 
 	local episodeUpdateFunction = function(terminalStateValue)
 
@@ -638,7 +666,7 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
 
 end
 
@@ -679,6 +707,24 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 		table.insert(advantageValueArray, advantageValue)
 
 	end
+	
+	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local actionMeanTensor, actionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local previousCriticValue = CriticModel{previousFeatureTensor}
+
+		local currentCriticValue = CriticModel{currentFeatureTensor}
+
+		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
+		
+		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
+
+		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
+
+		table.insert(advantageValueArray, advantageValue)
+
+	end
 
 	local episodeUpdateFunction = function(terminalStateValue)
 
@@ -708,7 +754,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
 
 end
 
@@ -769,6 +815,38 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 		table.insert(rewardValueArray, rewardValue)
 
 	end
+	
+	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		ActorWeightContainer:setWeightTensorArray{currentActorWeightTensorArray, true}
+
+		local currentPolicyActionMeanTensor, currentPolicyActionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local currentPolicyActionProbabilityTensor = calculateDiagonalGaussianProbability(currentPolicyActionMeanTensor, currentPolicyActionStandardDeviationTensor, actionNoiseTensor)
+
+		ActorWeightContainer:setWeightTensorArray{oldActorWeightTensorArray, true}
+
+		local oldPolicyActionMeanTensor, oldPolicyActionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local oldPolicyActionProbabilityTensor = calculateDiagonalGaussianProbability(oldPolicyActionMeanTensor, oldPolicyActionStandardDeviationTensor, actionNoiseTensor)
+
+		local ratioActionProbabilityTensor = currentPolicyActionProbabilityTensor / oldPolicyActionProbabilityTensor
+
+		local previousCriticValue = CriticModel{previousFeatureTensor}
+
+		local currentCriticValue = CriticModel{currentFeatureTensor}
+
+		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
+
+		table.insert(ratioActionProbabilityTensorArray, ratioActionProbabilityTensor)
+
+		table.insert(advantageValueArray, advantageValue)
+
+		table.insert(criticValueArray, previousCriticValue)
+
+		table.insert(rewardValueArray, rewardValue)
+
+	end
 
 	local episodeUpdateFunction = function(terminalStateValue)
 		
@@ -804,7 +882,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
 
 end
 
@@ -871,6 +949,38 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 		table.insert(rewardValueArray, rewardValue)
 
 	end
+	
+	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		ActorWeightContainer:setWeightTensorArray{currentActorWeightTensorArray, true}
+
+		local currentPolicyActionMeanTensor, currentPolicyActionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local currentPolicyActionProbabilityTensor = calculateDiagonalGaussianProbability(currentPolicyActionMeanTensor, currentPolicyActionStandardDeviationTensor, actionNoiseTensor)
+
+		ActorWeightContainer:setWeightTensorArray{oldActorWeightTensorArray, true}
+
+		local oldPolicyActionMeanTensor, oldPolicyActionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local oldPolicyActionProbabilityTensor = calculateDiagonalGaussianProbability(oldPolicyActionMeanTensor, oldPolicyActionStandardDeviationTensor, actionNoiseTensor)
+
+		local ratioActionProbabilityTensor = currentPolicyActionProbabilityTensor / oldPolicyActionProbabilityTensor
+
+		local previousCriticValue = CriticModel{previousFeatureTensor}
+
+		local currentCriticValue = CriticModel{currentFeatureTensor}
+
+		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
+
+		table.insert(ratioActionProbabilityTensorArray, ratioActionProbabilityTensor)
+
+		table.insert(advantageValueArray, advantageValue)
+
+		table.insert(criticValueArray, previousCriticValue)
+
+		table.insert(rewardValueArray, rewardValue)
+
+	end
 
 	local episodeUpdateFunction = function(terminalStateValue)
 
@@ -912,7 +1022,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
 
 end
 
@@ -955,20 +1065,16 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
 	parameterDictionary = parameterDictionary or {}
 
 	local previousFeatureTensor = parameterDictionary.previousFeatureTensor or parameterDictionary[1]
-
-	local actionMeanTensor = parameterDictionary.actionMeanTensor or parameterDictionary[2]
 	
-	local actionStandardDeviationTensor = parameterDictionary.actionStandardDeviationTensor or parameterDictionary[3]
-	
-	local actionNoiseTensor = parameterDictionary.actionNoiseTensor or parameterDictionary[4]
+	local actionNoiseTensor = parameterDictionary.actionNoiseTensor or parameterDictionary[2]
 
-	local rewardValue = parameterDictionary.rewardValue or parameterDictionary[5]
+	local rewardValue = parameterDictionary.rewardValue or parameterDictionary[3]
 
-	local currentFeatureTensor = parameterDictionary.currentFeatureTensor or parameterDictionary[6]
+	local currentFeatureTensor = parameterDictionary.currentFeatureTensor or parameterDictionary[4]
 
-	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[7]
+	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[5]
 
-	return diagonalGaussianUpdateFunction(previousFeatureTensor, actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+	return diagonalGaussianUpdateFunction(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 
 end
 
