@@ -54,7 +54,7 @@ function DropoutLayers.Dropout(parameterDictionary)
 
 	end
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -80,7 +80,7 @@ function DropoutLayers.Dropout1D(parameterDictionary)
 	
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 	
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
@@ -134,7 +134,7 @@ function DropoutLayers.Dropout2D(parameterDictionary)
 
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
@@ -188,7 +188,7 @@ function DropoutLayers.Dropout3D(parameterDictionary)
 
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
@@ -242,7 +242,7 @@ function DropoutLayers.DropoutND(parameterDictionary)
 
 	local inputTensorArray = {tensor}
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
