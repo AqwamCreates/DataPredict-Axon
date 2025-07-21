@@ -44,6 +44,26 @@ local function getNumberOfData(value)
 	
 end
 
+local function collapseTensor(tensor, targetDimensionSizeArray)
+
+	local numberOfDimensionsOfTensor = #targetDimensionSizeArray
+
+	local numberOfDimensionsOfDerivativeTensor = #AqwamTensorLibrary:getDimensionSizeArray(tensor)
+
+	local numberOfDimensionsToSum = numberOfDimensionsOfDerivativeTensor - numberOfDimensionsOfTensor
+
+	for i = 1, numberOfDimensionsToSum, 1 do tensor = AqwamTensorLibrary:sum(tensor, 1)[1] end
+
+	for i, size in ipairs(targetDimensionSizeArray) do
+
+		if (size == 1) then tensor = AqwamTensorLibrary:sum(tensor, i) end
+
+	end
+
+	return tensor
+
+end
+
 function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 	
 	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
@@ -76,13 +96,25 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 		
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 			
-			generatedLabelTensor:differentiate{lossTensor}
+			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+			
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+			
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+			
+			generatedLabelTensor:differentiate{collapsedLossTensor}
 			
 		end
 		
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
 			
-			labelTensor:differentiate{lossTensor}
+			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{pureGeneratedLabelTensor}
+			
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+			
+			labelTensor:differentiate{collapsedLossTensor}
 			
 		end
 		
@@ -124,13 +156,25 @@ function CostFunctions.FastBinaryCategoricalCrossEntropy(parameterDictionary)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
-			generatedLabelTensor:differentiate{lossTensor}
+			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+
+			generatedLabelTensor:differentiate{collapsedLossTensor}
 
 		end
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+			
+			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{pureGeneratedLabelTensor}
 
-			labelTensor:differentiate{lossTensor}
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+
+			labelTensor:differentiate{collapsedLossTensor}
 
 		end
 
@@ -198,13 +242,25 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
-			generatedLabelTensor:differentiate{lossTensor}
+			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+
+			generatedLabelTensor:differentiate{collapsedLossTensor}
 
 		end
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
 
-			labelTensor:differentiate{lossTensor}
+			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{pureGeneratedLabelTensor}
+
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+
+			labelTensor:differentiate{collapsedLossTensor}
 
 		end
 
@@ -246,13 +302,25 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
-			generatedLabelTensor:differentiate{lossTensor}
+			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+
+			generatedLabelTensor:differentiate{collapsedLossTensor}
 
 		end
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
 
-			labelTensor:differentiate{lossTensor}
+			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{pureGeneratedLabelTensor}
+
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+
+			labelTensor:differentiate{collapsedLossTensor}
 
 		end
 
@@ -294,13 +362,25 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
-			generatedLabelTensor:differentiate{lossTensor}
+			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+
+			generatedLabelTensor:differentiate{collapsedLossTensor}
 
 		end
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
 
-			labelTensor:differentiate{lossTensor}
+			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{pureGeneratedLabelTensor}
+
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+
+			labelTensor:differentiate{collapsedLossTensor}
 
 		end
 
