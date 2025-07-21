@@ -112,7 +112,7 @@ function WeightContainer.new(parameterDictionary)
 
 	setmetatable(NewWeightContainer, WeightContainer)
 	
-	NewWeightContainer.skipMissingGradientTensor =  getValueOrDefaultValue(parameterDictionary.skipMissingGradientTensor or parameterDictionary[1], defaultSkipMissingGradientTensor)
+	NewWeightContainer.skipMissingGradientTensor = getValueOrDefaultValue(parameterDictionary.skipMissingGradientTensor or parameterDictionary[1], defaultSkipMissingGradientTensor)
 
 	NewWeightContainer.updateWeightTensorInPlace = getValueOrDefaultValue(parameterDictionary.updateWeightTensorInPlace or parameterDictionary[2], defaultUpdateWeightTensorInPlace)
 	
