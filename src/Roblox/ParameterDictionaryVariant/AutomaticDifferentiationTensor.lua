@@ -1436,7 +1436,7 @@ function AHAAutomaticDifferentiationTensor:extract(parameterDictionary)
 
 			headPaddingDimensionSizeArray[dimension] = originDimensionIndexArray[dimension] - 1
 
-			tailPaddingDimensionSizeArray[dimension] = targetDimensionIndexArray[dimension] - originalTensorDimensionSizeArray[dimension]
+			tailPaddingDimensionSizeArray[dimension] = originalTensorDimensionSizeArray[dimension] - targetDimensionIndexArray[dimension]
 
 		end
 
@@ -1720,9 +1720,13 @@ function AHAAutomaticDifferentiationTensor:mean(parameterDictionary)
 			
 			for _, size in ipairs(dimensionSizeArray) do dimensionSize = dimensionSize * size end
 			
+			firstDerivativeTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray, firstDerivativeTensor)
+			
 		end
 
 		firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, dimensionSize)
+		
+		local dimensionSizeArray2 = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
 		self:differentiate{firstDerivativeTensor}
 
