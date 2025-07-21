@@ -128,7 +128,7 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 
 	local functionToApply = function(z) return 1/(1 + math.exp(-1 * z)) end
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -155,8 +155,10 @@ function ActivationLayer.FastBinaryStep(parameterDictionary)
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
 	local functionToApply = function (z) return ((z > 0) and 1) or 0 end
+	
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
-	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, tensor)
+	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -178,7 +180,7 @@ function ActivationLayer.FastRectifiedLinearUnit(parameterDictionary)
 
 	local functionToApply = function (z) return math.max(z, 0) end
 
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -208,7 +210,7 @@ function ActivationLayer.FastLeakyRectifiedLinearUnit(parameterDictionary)
 
 	local functionToApply = function (z) return math.max(z, z * negativeSlopeFactor) end
 
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -238,7 +240,7 @@ function ActivationLayer.FastExponentLinearUnit(parameterDictionary)
 
 	local functionToApply = function (z) return if (z > 0) then z else ((math.exp(z) - 1) * negativeSlopeFactor) end
 
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -266,7 +268,7 @@ function ActivationLayer.FastSigmoidLinearUnit(parameterDictionary)
 
 	local functionToApply = function (z) return z / (1 + math.exp(-z)) end
 
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -294,7 +296,7 @@ function ActivationLayer.FastGaussian(parameterDictionary)
 
 	local functionToApply = function (z) return math.exp(-math.pow(z, 2)) end
 
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -322,7 +324,7 @@ function ActivationLayer.FastMish(parameterDictionary)
 
 	local functionToApply = function (z) return (z * math.tanh(math.log(1 + math.exp(z)))) end
 
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -348,7 +350,7 @@ function ActivationLayer.FastTanh(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(math.tanh, pureTensor)
 
@@ -376,7 +378,7 @@ function ActivationLayer.FastSoftmax(parameterDictionary)
 
 	local dimension = parameterDictionary.dimension or parameterDictionary[2] or 1
 	
-	local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local exponentTensor = AqwamTensorLibrary:applyFunction(math.exp, pureTensor)
 
