@@ -436,7 +436,7 @@ function PaddingLayers.FastCircularPadding(parameterDictionary)
 
 end
 
-function PaddingLayers.FastReplicationPaddingBlock(parameterDictionary)
+function PaddingLayers.FastReplicationPadding(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -608,7 +608,7 @@ function PaddingLayers.FastReplicationPaddingBlock(parameterDictionary)
 
 end
 
-function PaddingLayers.FastReflectionPaddingBlock(parameterDictionary)
+function PaddingLayers.FastReflectionPadding(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
