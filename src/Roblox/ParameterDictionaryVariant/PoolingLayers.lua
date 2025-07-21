@@ -1670,8 +1670,10 @@ function PoolingLayers.AveragePooling1D(parameterDictionary)
 	local kernelDimensionSize = parameterDictionary.kernelDimensionSize or parameterDictionary[2] or defaultKernelDimensionSize
 
 	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
+	
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -1753,7 +1755,9 @@ function PoolingLayers.AveragePooling2D(parameterDictionary)
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -1855,7 +1859,9 @@ function PoolingLayers.AveragePooling3D(parameterDictionary)
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -1894,16 +1900,24 @@ function PoolingLayers.AveragePooling3D(parameterDictionary)
 	local strideDimension2Size = strideDimensionSizeArray[2]
 
 	local strideDimension3Size = strideDimensionSizeArray[3]
-
-	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+	
+	local aSubTensorArray = {}
 
 	for a = 1, resultTensorDimension1Size, 1 do
+		
+		local bSubTensorArray = {}
 
 		for b = 1, resultTensorDimension2Size, 1 do
+			
+			local cSubTensorArray = {}
 
 			for c = 1, resultTensorDimension3Size, 1 do
+				
+				local dSubTensorArray = {}
 
 				for d = 1, resultTensorDimension4Size, 1 do
+					
+					local eSubTensorArray = {}
 
 					for e = 1, resultTensorDimension5Size, 1 do
 
@@ -1914,50 +1928,30 @@ function PoolingLayers.AveragePooling3D(parameterDictionary)
 						local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
 
 						local averageValue = extractedSubTensor:mean()
-
-						resultTensor[a][b][c][d][e] = averageValue
-
-					end
-
-				end
-
-			end
-
-		end
-
-	end
-
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
-
-		for a = 1, resultTensorDimension1Size, 1 do
-
-			for b = 1, resultTensorDimension2Size, 1 do
-
-				for c = 1, resultTensorDimension3Size, 1 do
-
-					for d = 1, resultTensorDimension4Size, 1 do
-
-						for e = 1, resultTensorDimension5Size, 1 do
-
-							local averageValue = resultTensor[a][b][c][d][e]
-
-							averageValue:differentiate{firstDerivativeTensor[a][b][c][d][e]}
-
-						end
+						
+						eSubTensorArray[e] = averageValue
 
 					end
+					
+					dSubTensorArray[d] = AutomaticDifferentiationTensor.stack(eSubTensorArray)
 
 				end
+				
+				cSubTensorArray[c] = AutomaticDifferentiationTensor.stack(dSubTensorArray)
 
 			end
+			
+			bSubTensorArray[b] = AutomaticDifferentiationTensor.stack(cSubTensorArray)
 
 		end
+		
+		aSubTensorArray[a] = AutomaticDifferentiationTensor.stack(bSubTensorArray)
 
 	end
-
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	
+	local resultTensor = AutomaticDifferentiationTensor.stack(aSubTensorArray)
+	
+	return resultTensor
 
 end
 
@@ -1971,7 +1965,9 @@ function PoolingLayers.MinimumPooling1D(parameterDictionary)
 
 	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -2051,7 +2047,9 @@ function PoolingLayers.MinimumPooling2D(parameterDictionary)
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -2153,7 +2151,9 @@ function PoolingLayers.MinimumPooling3D(parameterDictionary)
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -2193,15 +2193,23 @@ function PoolingLayers.MinimumPooling3D(parameterDictionary)
 
 	local strideDimension3Size = strideDimensionSizeArray[3]
 
-	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+	local aSubTensorArray = {} 
 
 	for a = 1, resultTensorDimension1Size, 1 do
 
+		local bSubTensorArray = {}
+
 		for b = 1, resultTensorDimension2Size, 1 do
+
+			local cSubTensorArray = {}
 
 			for c = 1, resultTensorDimension3Size, 1 do
 
+				local dSubTensorArray = {}
+
 				for d = 1, resultTensorDimension4Size, 1 do
+
+					local eSubTensorArray = {}
 
 					for e = 1, resultTensorDimension5Size, 1 do
 
@@ -2213,49 +2221,29 @@ function PoolingLayers.MinimumPooling3D(parameterDictionary)
 
 						local minimumValue = extractedSubTensor:findMinimumValue()
 
-						resultTensor[a][b][c][d][e] = minimumValue
+						eSubTensorArray[e] = minimumValue
 
 					end
 
-				end
-
-			end
-
-		end
-
-	end
-
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
-
-		for a = 1, resultTensorDimension1Size, 1 do
-
-			for b = 1, resultTensorDimension2Size, 1 do
-
-				for c = 1, resultTensorDimension3Size, 1 do
-
-					for d = 1, resultTensorDimension4Size, 1 do
-
-						for e = 1, resultTensorDimension5Size, 1 do
-
-							local minimumValue = resultTensor[a][b][c][d][e]
-
-							minimumValue:differentiate{firstDerivativeTensor[a][b][c][d][e]}
-
-						end
-
-					end
+					dSubTensorArray[d] = AutomaticDifferentiationTensor.stack(eSubTensorArray)
 
 				end
 
+				cSubTensorArray[c] = AutomaticDifferentiationTensor.stack(dSubTensorArray)
+
 			end
+
+			bSubTensorArray[b] = AutomaticDifferentiationTensor.stack(cSubTensorArray)
 
 		end
 
+		aSubTensorArray[a] = AutomaticDifferentiationTensor.stack(bSubTensorArray)
+
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	local resultTensor = AutomaticDifferentiationTensor.stack(aSubTensorArray)
+
+	return resultTensor
 
 end
 
@@ -2269,7 +2257,9 @@ function PoolingLayers.MaximumPooling1D(parameterDictionary)
 
 	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -2349,7 +2339,9 @@ function PoolingLayers.MaximumPooling2D(parameterDictionary)
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default2DStrideDimensionSizeArray
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -2453,7 +2445,9 @@ function PoolingLayers.MaximumPooling3D(parameterDictionary)
 
 	local strideDimensionSizeArray = parameterDictionary.strideDimensionSizeArray or parameterDictionary[3] or default3DStrideDimensionSizeArray
 
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+	tensor = AutomaticDifferentiationTensor.coerce{tensor}
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
 
 	local numberOfDimensions = #tensorDimensionSizeArray
 
@@ -2492,72 +2486,58 @@ function PoolingLayers.MaximumPooling3D(parameterDictionary)
 	local strideDimension2Size = strideDimensionSizeArray[2]
 
 	local strideDimension3Size = strideDimensionSizeArray[3]
-
-	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+	
+	local aSubTensorArray = {} 
 
 	for a = 1, resultTensorDimension1Size, 1 do
 
+		local bSubTensorArray = {}
+
 		for b = 1, resultTensorDimension2Size, 1 do
+
+			local cSubTensorArray = {}
 
 			for c = 1, resultTensorDimension3Size, 1 do
 
+				local dSubTensorArray = {}
+
 				for d = 1, resultTensorDimension4Size, 1 do
+
+					local eSubTensorArray = {}
 
 					for e = 1, resultTensorDimension5Size, 1 do
 
-						local subTensor = tensor[a][b]
+						local originDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
-						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
-
-						local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+						local targetDimensionIndexArray = {a, b, (c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
 
 						local extractedSubTensor = tensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
 
 						local maximumValue = extractedSubTensor:findMaximumValue()
 
-						resultTensor[a][b][c][d][e] = maximumValue
+						eSubTensorArray[e] = maximumValue
 
 					end
 
-				end
-
-			end
-
-		end
-
-	end
-
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
-
-		for a = 1, resultTensorDimension1Size, 1 do
-
-			for b = 1, resultTensorDimension2Size, 1 do
-
-				for c = 1, resultTensorDimension3Size, 1 do
-
-					for d = 1, resultTensorDimension4Size, 1 do
-
-						for e = 1, resultTensorDimension5Size, 1 do
-
-							local maximumValue = resultTensor[a][b][c][d][e]
-
-							maximumValue:differentiate{firstDerivativeTensor[a][b][c][d][e]}
-
-						end
-
-					end
+					dSubTensorArray[d] = AutomaticDifferentiationTensor.stack(eSubTensorArray)
 
 				end
 
+				cSubTensorArray[c] = AutomaticDifferentiationTensor.stack(dSubTensorArray)
+
 			end
+
+			bSubTensorArray[b] = AutomaticDifferentiationTensor.stack(cSubTensorArray)
 
 		end
 
+		aSubTensorArray[a] = AutomaticDifferentiationTensor.stack(bSubTensorArray)
+
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	local resultTensor = AutomaticDifferentiationTensor.stack(aSubTensorArray)
+	
+	return resultTensor
 
 end
 
