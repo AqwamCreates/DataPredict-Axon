@@ -739,4 +739,93 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 
 end
 
+
+function ConvolutionLayers.Convolution1D(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local weightTensor = parameterDictionary.weightTensor or parameterDictionary[2] 
+
+	local strideDimensionSize = parameterDictionary.strideDimensionSize or parameterDictionary[3] or defaultStrideDimensionSize 
+
+	local inputTensorArray = {tensor, weightTensor}
+
+	tensor = AutomaticDifferentiationTensor.coerce(tensor)
+
+	weightTensor = AutomaticDifferentiationTensor.coerce(weightTensor)
+
+	local tensorDimensionSizeArray = tensor:getDimensionSizeArray()
+
+	local weightTensorDimensionSizeArray = weightTensor:getDimensionSizeArray()
+
+	local tensorNumberOfDimensions = #tensorDimensionSizeArray
+
+	local weightNumberOfDimensions = #weightTensorDimensionSizeArray
+
+	if (tensorNumberOfDimensions ~= 3) then error("Unable to pass the input tensor to the 1D spatial convolution function. The number of dimensions of the input tensor does not equal to 3. The input tensor have " .. tensorNumberOfDimensions .. " dimensions.") end
+
+	if (weightNumberOfDimensions ~= 3) then error("Unable to pass the weight tensor to the 1D spatial convolution function. The number of dimensions of the input tensor does not equal to 3. The weight tensor have " .. weightNumberOfDimensions .. " dimensions.") end
+
+	local numberOfKernels = weightTensorDimensionSizeArray[1]
+
+	local channelSize = weightTensorDimensionSizeArray[2]
+
+	if (tensorDimensionSizeArray[2] ~= channelSize) then error("The dimension size of input tensor is not equal to the dimension size of the weight tensor at dimension 2.") end
+
+	local kernelDimensionSize = weightTensorDimensionSizeArray[3]
+
+	local transformedTensorDimensionSizeArray = {tensorDimensionSizeArray[1], numberOfKernels}
+
+	local inputDimensionSize = tensorDimensionSizeArray[3]
+
+	local outputDimensionSize = ((inputDimensionSize - weightTensorDimensionSizeArray[3]) / strideDimensionSize) + 1
+
+	transformedTensorDimensionSizeArray[3] = math.floor(outputDimensionSize)
+
+	local aSubTensorArray = {}
+
+	for a = 1, transformedTensorDimensionSizeArray[1], 1 do
+
+		local subTensor = tensor[a]
+		
+		local wSubTensorArray = {}
+
+		for w = 1, weightTensorDimensionSizeArray[1], 1 do
+
+			local weight2DTensor = weightTensor[w]
+			
+			local cSubTensorArray = {}
+
+			for c = 1, transformedTensorDimensionSizeArray[3], 1 do
+
+				local originDimensionIndexArray = {1, (c - 1) * strideDimensionSize + 1}
+
+				local targetDimensionIndexArray = {weightTensorDimensionSizeArray[2], (c - 1) * strideDimensionSize + kernelDimensionSize}
+
+				local extractedInputTensor = subTensor:extract{originDimensionIndexArray, targetDimensionIndexArray}
+
+				local subZTensor = extractedInputTensor * weight2DTensor
+				
+				local resultValue = subZTensor:sum()
+				
+				cSubTensorArray[c] = resultValue
+
+			end
+			
+			wSubTensorArray[w] = AutomaticDifferentiationTensor.stack(cSubTensorArray)
+
+		end
+		
+		aSubTensorArray[a] = AutomaticDifferentiationTensor.stack(wSubTensorArray)
+
+	end
+	
+	local resultTensor = AutomaticDifferentiationTensor.stack(aSubTensorArray)
+
+	return resultTensor
+
+end
+
 return ConvolutionLayers
