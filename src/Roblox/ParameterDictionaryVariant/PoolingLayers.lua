@@ -1693,13 +1693,19 @@ function PoolingLayers.AveragePooling1D(parameterDictionary)
 
 	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
 
-	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+	local aSubTensorArray = {} 
 
 	for a = 1, resultTensorDimension1Size, 1 do
 
+		local bSubTensorArray = {}
+
 		for b = 1, resultTensorDimension2Size, 1 do
 
+			local cSubTensorArray = {}
+
 			for c = 1, resultTensorDimension3Size, 1 do
+
+				local eSubTensorArray = {}
 
 				local originDimensionIndexArray = {a, b, (c - 1) * strideDimensionSize + 1}
 
@@ -1709,39 +1715,21 @@ function PoolingLayers.AveragePooling1D(parameterDictionary)
 
 				local averageValue = extractedSubTensor:mean()
 
-				resultTensor[a][b][c] = averageValue
-
-				print(averageValue)
+				cSubTensorArray[c] = averageValue
 
 			end
 
-		end
-
-	end
-
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
-
-		for a = 1, resultTensorDimension1Size, 1 do
-
-			for b = 1, resultTensorDimension2Size, 1 do
-
-				for c = 1, resultTensorDimension3Size, 1 do
-
-					local averageValue = resultTensor[a][b][c]
-
-					averageValue:differentiate{firstDerivativeTensor[a][b][c]}
-
-				end
-
-			end
+			bSubTensorArray[b] = AutomaticDifferentiationTensor.stack(cSubTensorArray)
 
 		end
 
+		aSubTensorArray[a] = AutomaticDifferentiationTensor.stack(bSubTensorArray)
+
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	local resultTensor = AutomaticDifferentiationTensor.stack(aSubTensorArray)
+
+	return resultTensor
 
 end
 
@@ -1987,13 +1975,19 @@ function PoolingLayers.MinimumPooling1D(parameterDictionary)
 
 	local resultTensorDimension3Size = resultTensorDimensionSizeArray[3]
 
-	local resultTensor = AqwamTensorLibrary:createTensor(resultTensorDimensionSizeArray)
+	local aSubTensorArray = {} 
 
 	for a = 1, resultTensorDimension1Size, 1 do
 
+		local bSubTensorArray = {}
+
 		for b = 1, resultTensorDimension2Size, 1 do
 
+			local cSubTensorArray = {}
+
 			for c = 1, resultTensorDimension3Size, 1 do
+
+				local eSubTensorArray = {}
 
 				local originDimensionIndexArray = {a, b, (c - 1) * strideDimensionSize + 1}
 
@@ -2003,37 +1997,21 @@ function PoolingLayers.MinimumPooling1D(parameterDictionary)
 
 				local minimumValue = extractedSubTensor:findMinimumValue()
 
-				resultTensor[a][b][c] = minimumValue
+				cSubTensorArray[c] = minimumValue
 
 			end
 
-		end
-
-	end
-
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
-
-		for a = 1, resultTensorDimension1Size, 1 do
-
-			for b = 1, resultTensorDimension2Size, 1 do
-
-				for c = 1, resultTensorDimension3Size, 1 do
-
-					local minimumValue = resultTensor[a][b][c]
-
-					minimumValue:differentiate{firstDerivativeTensor[a][b][c]}
-
-				end
-
-			end
+			bSubTensorArray[b] = AutomaticDifferentiationTensor.stack(cSubTensorArray)
 
 		end
 
+		aSubTensorArray[a] = AutomaticDifferentiationTensor.stack(bSubTensorArray)
+
 	end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	local resultTensor = AutomaticDifferentiationTensor.stack(aSubTensorArray)
+	
+	return resultTensor
 
 end
 
