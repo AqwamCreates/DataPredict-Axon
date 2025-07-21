@@ -202,6 +202,62 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 end
 
+function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+
+	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[4] or {}
+
+	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
+
+	WeightTensorArrayArray[2] = WeightTensorArrayArray[2] or WeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+		
+		local maxQValueArray = {}
+
+		for i = 1, 2, 1 do
+
+			WeightContainer:setWeightTensorArray{WeightTensorArrayArray[i], true}
+
+			local currentQValueTensor = Model{currentFeatureTensor}
+			
+			local currentMaxQValue = currentQValueTensor:findMaximumValue()
+
+			table.insert(maxQValueArray, currentMaxQValue)
+
+		end
+		
+		local minimumCurrentMaxQValue = AutomaticDifferentiationTensor.minimum(maxQValueArray)
+		
+		for i = 1, 2, 1 do
+
+			WeightContainer:setWeightTensorArray{WeightTensorArrayArray[i], true}
+
+			local previousQValueTensor = Model{previousFeatureTensor}
+
+			local previousQValue = previousQValueTensor[1][actionIndex]
+
+			local cost = CostFunctions.FastMeanSquaredError{minimumCurrentMaxQValue, previousQValue}
+			
+			cost:differentiate()
+			
+			WeightContainer:gradientAscent()
+
+		end
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+
+end
+
 function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
