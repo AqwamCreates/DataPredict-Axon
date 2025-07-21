@@ -96,13 +96,19 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 
 		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
-		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
-
 		local scale = 1 / numberOfData
-
-		firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor, scale)
+		
+		local subtractedPureGeneratedLabelTensor = AqwamTensorLibrary:subtract(1, pureGeneratedLabelTensor)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+			
+			local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:subtract(pureLabelTensor, pureGeneratedLabelTensor)
+			
+			local partialFirstDerivativeTensorPart2 = AqwamTensorLibrary:multiply(subtractedPureGeneratedLabelTensor, pureGeneratedLabelTensor)
+			
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:divide(partialFirstDerivativeTensorPart1, partialFirstDerivativeTensorPart2)
+			
+			local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
 
@@ -113,12 +119,18 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 		end
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
-
-			local negativeFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, -1)
+			
+			local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:logarithm(subtractedPureGeneratedLabelTensor)
+			
+			local partialFirstDerivativeTensorPart2 = AqwamTensorLibrary:logarithm(pureGeneratedLabelTensor)
+			
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:subtract(partialFirstDerivativeTensorPart1, partialFirstDerivativeTensorPart2)
+			
+			local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
 
-			local collapsedNegativeFirstDerivativeTensor = collapseTensor(negativeFirstDerivativeTensor, dimensionSizeArray)
+			local collapsedNegativeFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 			labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
 
