@@ -26,7 +26,7 @@
 
 --]]
 
-local AqwamTensorLibraryLinker = require(script.Parent.AqwamTensorLibraryLinker.Value)
+local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
 local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferentiationTensor)
 
@@ -38,7 +38,29 @@ local defaultClipRatio = 0.3
 
 local defaultEpsilon = 0.5
 
+local defaultAlpha = 0.1
+
+local defaultAveragingRate = 0.995
+
 local defaultDiscountFactor = 0.95
+
+local function rateAverageWeightTensorArray(averagingRate, TargetWeightTensorArray, PrimaryWeightTensorArray)
+
+	local averagingRateComplement = 1 - averagingRate
+
+	for layer = 1, #TargetWeightTensorArray, 1 do
+
+		local TargetWeightTensorArrayPart = AqwamTensorLibrary:multiply(averagingRate, TargetWeightTensorArray[layer])
+
+		local PrimaryWeightTensorArrayPart = AqwamTensorLibrary:multiply(averagingRateComplement, PrimaryWeightTensorArray[layer])
+
+		TargetWeightTensorArray[layer] = AqwamTensorLibrary:add(TargetWeightTensorArrayPart, PrimaryWeightTensorArrayPart)
+
+	end
+
+	return TargetWeightTensorArray
+
+end
 
 local function calculateCategoricalProbability(valueTensor)
 
@@ -640,15 +662,15 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 
 		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
 			
-			local criticLoss = rewardToGoArray[h] - criticValueArray[h]
+			local criticCost = CostFunctions.FastMeanSquaredError{rewardToGoArray[h], criticValueArray[h]}
 			
-			local actorLossTensor = actionProbabilityTensor * criticLoss
+			local actorLossTensor = actionProbabilityTensor * criticCost
 			
-			criticLoss:differentiate()
+			criticCost:differentiate()
 
 			actorLossTensor:differentiate()
 			
-			criticLoss:destroy{true}
+			criticCost:destroy{true}
 			
 			actorLossTensor:destroy{true}
 
@@ -656,7 +678,7 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 
 		ActorWeightContainer:gradientAscent()
 		
-		CriticWeightContainer:gradientAscent()
+		CriticWeightContainer:gradientDescent()
 
 		table.clear(actionProbabilityTensorArray)
 
@@ -746,7 +768,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 		ActorWeightContainer:gradientAscent()
 
-		CriticWeightContainer:gradientAscent()
+		CriticWeightContainer:gradientDescent()
 
 		table.clear(actionProbabilityTensorArray)
 
@@ -854,15 +876,15 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 
 		for h, ratioActionProbabilityTensor in ipairs(ratioActionProbabilityTensorArray) do
 			
-			local criticLoss = CostFunctions.FastMeanSquaredError{criticValueArray[h], rewardValueArray[h]}
+			local criticCost = CostFunctions.FastMeanSquaredError{criticValueArray[h], rewardValueArray[h]}
 
 			local actorLossTensor = ratioActionProbabilityTensor * advantageValueArray[h]
 
-			criticLoss:differentiate()
+			criticCost:differentiate()
 
 			actorLossTensor:differentiate()
 
-			criticLoss:destroy{true}
+			criticCost:destroy{true}
 
 			actorLossTensor:destroy{true}
 
@@ -988,7 +1010,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 
 		for h, ratioActionProbabilityTensor in ipairs(ratioActionProbabilityTensorArray) do
 			
-			local criticLoss = CostFunctions.FastMeanSquaredError{criticValueArray[h], rewardValueArray[h]}
+			local criticCost = CostFunctions.FastMeanSquaredError{criticValueArray[h], rewardValueArray[h]}
 			
 			local clippedRatioActionProbabilityTensor = AutomaticDifferentiationTensor.clamp{ratioActionProbabilityTensor, lowerClipRatioValue, upperClipRatioValue}
 			
@@ -998,11 +1020,11 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 			
 			local actorLossTensor = AutomaticDifferentiationTensor.minimum{actorLossTensorPart1, actorLossTensorPart2}
 
-			criticLoss:differentiate()
+			criticCost:differentiate()
 
 			actorLossTensor:differentiate()
 
-			criticLoss:destroy{true}
+			criticCost:destroy{true}
 
 			actorLossTensor:destroy{true}
 
@@ -1023,6 +1045,142 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 	end
 
 	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
+
+end
+
+function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+	
+	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
+
+	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
+
+	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
+
+	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
+	
+	local alpha = parameterDictionary.alpha or parameterDictionary[5] or defaultAlpha
+
+	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[6] or defaultAveragingRate
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[7]  or defaultDiscountFactor
+
+	local CriticWeightTensorArrayArray = parameterDictionary.CriticWeightTensorArrayArray or parameterDictionary[8] or {}
+
+	CriticWeightTensorArrayArray[1] = CriticWeightTensorArrayArray[1] or CriticWeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
+
+	CriticWeightTensorArrayArray[2] = CriticWeightTensorArrayArray[2] or CriticWeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
+	
+	local function update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local PreviousCriticWeightTensorArrayArray = {}
+
+		local previousLogActionProbabilityValue
+
+		if (actionIndex) then
+
+			previousLogActionProbabilityValue = previousLogActionProbabilityTensor[1][actionIndex]
+
+		else
+
+			previousLogActionProbabilityValue = previousLogActionProbabilityTensor:sum()
+
+		end
+
+		local currentCriticValueArray = {}
+
+		for i = 1, 2, 1 do 
+
+			CriticWeightContainer:setWeightTensorArray(CriticWeightTensorArrayArray[i])
+
+			currentCriticValueArray[i] = CriticModel{currentFeatureTensor}[1][1] 
+
+			local CriticWeightTensorArray = CriticWeightContainer:getWeightTensorArray{true}
+
+			PreviousCriticWeightTensorArrayArray[i] = CriticWeightTensorArray
+
+		end
+
+		local minimumCurrentCriticValue = AutomaticDifferentiationTensor.minimum(currentCriticValueArray)
+
+		local yValuePart1 = (1 - terminalStateValue) * (minimumCurrentCriticValue - (alpha * previousLogActionProbabilityValue))
+
+		local yValue = rewardValue + (discountFactor * yValuePart1)
+
+		local previousCriticValueArray = {}
+
+		for i = 1, 2, 1 do 
+
+			CriticWeightContainer:setWeightTensorArray{PreviousCriticWeightTensorArrayArray[i], true}
+
+			local previousCriticValue = CriticModel{previousFeatureTensor}
+
+			previousCriticValueArray[i] = previousCriticValue
+			
+			local criticCost = CostFunctions.FastMeanSquaredError{previousCriticValue, yValue}
+			
+			criticCost:differentiate()
+
+			CriticWeightContainer:gradientAscent()
+
+			local TargetWeightTensorArray = CriticWeightContainer:getWeightTensorArray{true}
+
+			CriticWeightTensorArrayArray[i] = rateAverageWeightTensorArray(averagingRate, TargetWeightTensorArray, PreviousCriticWeightTensorArrayArray[i])
+
+		end
+
+		local minimumCurrentCriticValue = AutomaticDifferentiationTensor.minimum(previousCriticValueArray)
+
+		local actorCostTensor = alpha * previousLogActionProbabilityTensor
+		
+		actorCostTensor = CostFunctions.FastMeanSquaredError{minimumCurrentCriticValue, actorCostTensor}
+		
+		actorCostTensor:differentiate()
+
+		ActorWeightContainer:gradientAscent()
+		
+		actorCostTensor:destroy{true}
+
+	end
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local previousActionTensor = ActorModel{previousFeatureTensor}
+
+		local currentActionTensor = ActorModel{currentFeatureTensor, true}
+
+		local previousActionProbabilityTensor = calculateCategoricalProbability(previousActionTensor)
+
+		local currentActionProbabilityTensor = calculateCategoricalProbability(currentActionTensor)
+
+		local previousLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{previousActionProbabilityTensor}
+
+		local currentLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{currentActionProbabilityTensor}
+		
+		update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+	end
+	
+	local diagonalGaussianUpdate = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local previousActionMeanTensor, previousStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local currentActionMeanTensor, currentStandardDeviationTensor = ActorModel{currentFeatureTensor}
+
+		local previousActionProbabilityTensor = calculateDiagonalGaussianProbability(previousActionMeanTensor,previousStandardDeviationTensor)
+
+		local currentActionProbabilityTensor = calculateDiagonalGaussianProbability(currentActionMeanTensor, currentStandardDeviationTensor)
+
+		local previousLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{previousActionProbabilityTensor}
+
+		local currentLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{currentActionProbabilityTensor}
+
+		update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, nil, rewardValue, currentFeatureTensor, terminalStateValue)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdate}
 
 end
 
