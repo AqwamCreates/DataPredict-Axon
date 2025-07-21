@@ -1548,7 +1548,7 @@ function AHAAutomaticDifferentiationTensor.concatenate(parameterDictionary)
 
 		end
 
-		for i, tensor in ipairs(pureTensorArray) do
+		for i, tensor in ipairs(tensorArray) do
 
 			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then tensor:differentiate{extractedDerivativeTensorArray[i]} end
 
