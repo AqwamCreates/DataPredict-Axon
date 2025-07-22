@@ -131,6 +131,10 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 	local activationLayer = ActivationLayers[activationFunctionName]
 	
 	local gateActivationLayer = ActivationLayers[gateActivationFunctionName]
+	
+	if (not activationLayer) then error("The activation function does not exist.") end
+	
+	if (not gateActivationLayer) then error("The gate activation function does not exist.") end
 
 	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
 
