@@ -256,11 +256,13 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 		
 		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 		
-		local functionToApply = function (predictedValue, labelValue) 
+		local pureNegativeGeneratedLabelTensor = AqwamTensorLibrary:unaryMinus(pureGeneratedLabelTensor)
+		
+		local pureNegativeLabelTensor = AqwamTensorLibrary:unaryMinus(pureLabelTensor)
+		
+		local functionToApply = function (labelValue, generatedValue) 
 
-			local isLabelValueEqualTo1 = (labelValue == 1)
-
-			local pT = (isLabelValueEqualTo1 and predictedValue) or (1 - predictedValue)
+			local pT = (labelValue * generatedValue) + (1 - labelValue) * (1 - generatedValue)
 
 			local focalLossValue = -alpha * ((1 - pT) ^ gamma) * ((gamma * pT * math.log(pT)) + pT - 1)
 
@@ -268,13 +270,47 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 
 		end
 
-		local lossTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureGeneratedLabelTensor, pureLabelTensor)
+		local scale = 1 / numberOfData
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+			
+			local twoABTensor = AqwamTensorLibrary:multiply(2, AqwamTensorLibrary:multiply(pureLabelTensor, pureGeneratedLabelTensor))
+			
+			local zTensor = AqwamTensorLibrary:add(twoABTensor, AqwamTensorLibrary:add(pureNegativeLabelTensor, AqwamTensorLibrary:add(pureNegativeGeneratedLabelTensor, 1)))
+
+			local aPlusBTensor = AqwamTensorLibrary:add(pureLabelTensor, pureGeneratedLabelTensor)
+
+			local aPlusBMinusTwoTensor = AqwamTensorLibrary:add(aPlusBTensor, -2)
+
+			local minusGeneratedLabelTensor = AqwamTensorLibrary:multiply(-1, pureGeneratedLabelTensor)
+			
+			local basePowerTensor = AqwamTensorLibrary:multiply(minusGeneratedLabelTensor, aPlusBMinusTwoTensor)
+
+			local powerTermTensor = AqwamTensorLibrary:power(basePowerTensor, gamma)
+
+			local oneMinusTwoATensor = AqwamTensorLibrary:add(1, AqwamTensorLibrary:multiply(-2, pureLabelTensor))
+
+			local logZTensor = AqwamTensorLibrary:logarithm(zTensor)
+
+			local twoGeneratedLabelTensor = AqwamTensorLibrary:multiply(2, pureGeneratedLabelTensor)
+			
+			local aPlusTwoBMinusTwoTensor = AqwamTensorLibrary:add(pureLabelTensor, AqwamTensorLibrary:add(twoGeneratedLabelTensor, -2))
+
+			local numeratorTermTwoTensor = AqwamTensorLibrary:multiply(gamma, AqwamTensorLibrary:multiply(aPlusTwoBMinusTwoTensor, logZTensor))
+
+			local denominatorTermTwoTensor = AqwamTensorLibrary:multiply(pureGeneratedLabelTensor, aPlusBMinusTwoTensor)
+
+			local termOneTensor = AqwamTensorLibrary:divide(oneMinusTwoATensor, zTensor)
+
+			local termTwoTensor = AqwamTensorLibrary:divide(numeratorTermTwoTensor, denominatorTermTwoTensor)
+
+			local bracketExpressionTensor = AqwamTensorLibrary:subtract(termOneTensor, termTwoTensor)
+
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(alpha, AqwamTensorLibrary:multiply(powerTermTensor, bracketExpressionTensor))
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
 
-			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+			local collapsedLossTensor = collapseTensor(partialFirstDerivativeTensor, dimensionSizeArray)
 
 			generatedLabelTensor:differentiate{collapsedLossTensor}
 
@@ -282,9 +318,39 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
 
+			local twoABTensor = AqwamTensorLibrary:multiply(2, AqwamTensorLibrary:multiply(pureLabelTensor, pureGeneratedLabelTensor))
+			
+			local zTensor = AqwamTensorLibrary:add(twoABTensor, AqwamTensorLibrary:add(pureNegativeLabelTensor, AqwamTensorLibrary:add(pureNegativeGeneratedLabelTensor, 1)))
+
+			local aPlusBTensor = AqwamTensorLibrary:add(pureLabelTensor, pureGeneratedLabelTensor)
+
+			local aPlusBMinusTwoTensor = AqwamTensorLibrary:add(aPlusBTensor, -2)
+
+			local minusGeneratedLabelTensor = AqwamTensorLibrary:multiply(-1, pureGeneratedLabelTensor)
+			
+			local basePowerTensor = AqwamTensorLibrary:multiply(minusGeneratedLabelTensor, aPlusBMinusTwoTensor)
+
+			local powerTermTensor = AqwamTensorLibrary:power(basePowerTensor, gamma)
+
+			local oneMinusTwoBTensor = AqwamTensorLibrary:add(1, AqwamTensorLibrary:multiply(-2, pureGeneratedLabelTensor))
+
+			local logZTensor = AqwamTensorLibrary:logarithm(zTensor)
+
+			local termOneTensor = AqwamTensorLibrary:divide(oneMinusTwoBTensor, zTensor)
+
+			local gammaLogZTensor = AqwamTensorLibrary:multiply(gamma, logZTensor)
+			
+			local termTwoTensor = AqwamTensorLibrary:divide(gammaLogZTensor, aPlusBMinusTwoTensor)
+
+			local bracketExpressionTensor = AqwamTensorLibrary:subtract(termOneTensor, termTwoTensor)
+
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(alpha, AqwamTensorLibrary:multiply(powerTermTensor, bracketExpressionTensor))
+			
+			local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
+
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
 
-			local collapsedLossTensor = collapseTensor(lossTensor, dimensionSizeArray)
+			local collapsedLossTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 			labelTensor:differentiate{collapsedLossTensor}
 
