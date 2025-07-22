@@ -1194,7 +1194,7 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[5] or defaultAveragingRate
 
-	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6] or defaultDiscountFactor
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6]  or defaultDiscountFactor
 
 	local diagonalGaussianUpdate = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 		
@@ -1224,9 +1224,15 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 
 		ActorWeightContainer:gradientAscent()
 
-		CriticWeightContainer:gradientDescent()
+		local previousCriticActionMeanInputTensor = AutomaticDifferentiationTensor.concatenate(previousFeatureTensor, previousActionMeanTensor, 2)
+		
+		previousCriticActionMeanInputTensor:differentiate()
 
+		CriticWeightContainer:gradientDescent()
+		
 		negatedtemporalDifferenceError:destroy{}
+		
+		previousCriticActionMeanInputTensor:destroy{}
 
 		local TargetActorWeightTensorArray = ActorWeightContainer:getWeightTensorArray{true}
 
