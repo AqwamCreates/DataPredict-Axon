@@ -1226,6 +1226,8 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 
 		CriticWeightContainer:gradientDescent()
 
+		negatedtemporalDifferenceError:destroy{}
+
 		local TargetActorWeightTensorArray = ActorWeightContainer:getWeightTensorArray{true}
 
 		local TargetCriticWeightTensorArray = CriticWeightContainer:getWeightTensorArray{true}
