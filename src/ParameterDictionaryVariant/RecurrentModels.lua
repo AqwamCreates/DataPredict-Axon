@@ -8,13 +8,13 @@ local ActivationLayers = require(script.Parent.ActivationLayers)
 
 local RecurrentModels = {}
 
-function RecurrentModels.RNNCell(parameterDictionary)
+function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 	
 	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
 	
 	local hiddenSize = parameterDictionary.hiddenSize or parameterDictionary[2]
 	
-	local activationFunction = parameterDictionary.activationFunction or parameterDictionary[3] or "Tanh"
+	local activationFunction = parameterDictionary.activationFunction or parameterDictionary[3] or "FastTanh"
 	
 	local learningRate = parameterDictionary.learningRate or parameterDictionary[4] or 0.001
 	
@@ -36,11 +36,9 @@ function RecurrentModels.RNNCell(parameterDictionary)
 		
 	}
 	
-	local activationLayerToCreate = ActivationLayers[activationFunction]
+	local activationLayer = ActivationLayers[activationFunction]
 	
-	if (not activationLayerToCreate) then error("The activation function does not exist.") end
-	
-	local activationLayer = activationLayerToCreate()
+	if (not activationLayer) then error("The activation function does not exist.") end
 	
 	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
 
@@ -74,6 +72,106 @@ function RecurrentModels.RNNCell(parameterDictionary)
 
 	return Model, WeightContainer, reset, setHiddenStateTensor
 	
+end
+
+function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
+
+	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
+	
+	local hiddenSize = parameterDictionary.hiddenSize or parameterDictionary[2]
+	
+	local activationFunctionName = parameterDictionary.activationFunction or parameterDictionary[3] or "FastTanh"
+	
+	local gateActivationFunctionName = parameterDictionary.gateActivationFunction or parameterDictionary[4] or "FastSigmoid"
+	
+	local learningRate = parameterDictionary.learningRate or parameterDictionary[5] or 0.001
+
+	local updateGateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, inputSize}}
+	
+	local updateGateHiddenWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, hiddenSize}}
+	
+	local updateGateBiasTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
+
+	local resetGateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, inputSize}}
+	
+	local resetGateHiddenWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, hiddenSize}}
+	
+	local resetGateBiasTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
+
+	local candidateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, inputSize}}
+	
+	local candidateHiddenWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, hiddenSize}}
+	
+	local candidateBiasTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
+
+	local WeightContainer = WeightContainer.new{}
+
+	WeightContainer:setWeightTensorDataArray{
+
+		{updateGateInputWeightTensor, learningRate},
+		
+		{updateGateHiddenWeightTensor, learningRate},
+		
+		{updateGateBiasTensor, learningRate},
+
+		{resetGateInputWeightTensor, learningRate},
+		
+		{resetGateHiddenWeightTensor, learningRate},
+		
+		{resetGateBiasTensor, learningRate},
+
+		{candidateInputWeightTensor, learningRate},
+		
+		{candidateHiddenWeightTensor, learningRate},
+		
+		{candidateBiasTensor, learningRate},
+
+	}
+
+	local activationLayer = ActivationLayers[activationFunctionName]
+	
+	local gateActivationLayer = ActivationLayers[gateActivationFunctionName]
+
+	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
+
+	local function Model(parameterDictionary)
+
+		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
+		
+		local updateGateZTensor = updateGateInputWeightTensor:dotProduct{inputTensor} + updateGateHiddenWeightTensor:dotProduct{hiddenStateTensor} + updateGateBiasTensor
+
+		local updateGateTensor = gateActivationLayer{updateGateZTensor}
+		
+		local resetGateZTensor = resetGateInputWeightTensor:dotProduct{inputTensor} + resetGateHiddenWeightTensor:dotProduct{hiddenStateTensor} + resetGateBiasTensor
+
+		local resetGateTensor = gateActivationLayer{resetGateZTensor}
+		
+		local candidateZTensor = candidateInputWeightTensor:dotProduct{inputTensor} + candidateHiddenWeightTensor:dotProduct{hiddenStateTensor * resetGateTensor} + candidateBiasTensor
+
+		local candidateActivationTensor = activationLayer{candidateZTensor}
+
+		local oneMinusUpdateGateTensor = AutomaticDifferentiationTensor.onesLike{updateGateTensor} - updateGateTensor
+
+		hiddenStateTensor = oneMinusUpdateGateTensor:multiply{hiddenStateTensor} + updateGateTensor:multiply{candidateActivationTensor}
+
+		return hiddenStateTensor
+
+	end
+
+	local function reset()
+		
+		hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
+		
+	end
+
+	local function setHiddenStateTensor(parameterDictionary)
+		
+		hiddenStateTensor = parameterDictionary.hiddenStateTensor or parameterDictionary[1]
+		
+	end
+
+	return Model, WeightContainer, reset, setHiddenStateTensor
+
 end
 
 return RecurrentModels
