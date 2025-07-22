@@ -1180,6 +1180,70 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 end
 
+function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
+
+	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
+
+	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
+
+	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
+
+	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[5] or defaultAveragingRate
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6] or defaultDiscountFactor
+
+	local diagonalGaussianUpdate = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+		
+		local ActorWeightTensorArray = ActorWeightContainer:getWeightTensorArray{}
+		
+		local CriticWeightTensorArray = CriticWeightContainer:getWeightTensorArray{}
+		
+		local previousActionMeanTensor, previousActionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local currentActionMeanTensor, currentActionStandardDeviationTensor = ActorModel{currentFeatureTensor}
+
+		local targetCriticActionMeanInputTensor = AutomaticDifferentiationTensor.concatenate(currentFeatureTensor, currentActionMeanTensor, 2)
+
+		local targetQValue = CriticModel{targetCriticActionMeanInputTensor}[1][1]
+
+		local yValue = rewardValue + (discountFactor * (1 - terminalStateValue) * targetQValue)
+
+		local actionTensor = (previousActionStandardDeviationTensor * actionNoiseTensor) + previousActionMeanTensor
+
+		local previousCriticActionInputTensor = AutomaticDifferentiationTensor.concatenate(previousFeatureTensor, actionTensor, 2)
+
+		local currentQValue = CriticModel{previousCriticActionInputTensor}[1][1]
+
+		local negatedtemporalDifferenceError = currentQValue - yValue
+		
+		negatedtemporalDifferenceError:differentiate()
+
+		ActorWeightContainer:gradientAscent()
+
+		CriticWeightContainer:gradientDescent()
+
+		local TargetActorWeightTensorArray = ActorWeightContainer:getWeightTensorArray{true}
+
+		local TargetCriticWeightTensorArray = CriticWeightContainer:getWeightTensorArray{true}
+
+		TargetActorWeightTensorArray = rateAverageWeightTensorArray(averagingRate, TargetActorWeightTensorArray, ActorWeightTensorArray)
+
+		TargetCriticWeightTensorArray = rateAverageWeightTensorArray(averagingRate, TargetCriticWeightTensorArray, CriticWeightTensorArray)
+
+		ActorWeightContainer:setWeightTensorArray{TargetActorWeightTensorArray, true}
+
+		CriticWeightContainer:setWeightTensorArray{TargetCriticWeightTensorArray, true}
+
+	end
+
+	return ReinforcementLearningModels.new{nil, diagonalGaussianUpdate}
+
+end
+
 function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
 	
 	local categoricalUpdateFunction = self.categoricalUpdateFunction
