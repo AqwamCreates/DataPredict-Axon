@@ -1,6 +1,6 @@
 # API Reference
 
-[AutomaticDifferentiationTensors](API/AutomaticDifferentiationTensors.md)
+[AutomaticDifferentiationTensor](API/AutomaticDifferentiationTensor.md)
 
 [CostFunctions](API/CostFunctions.md)
 
