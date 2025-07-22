@@ -1072,15 +1072,11 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 	CriticWeightTensorArrayArray[2] = CriticWeightTensorArrayArray[2] or CriticWeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
 	
-	local function update(previousFeatureTensor, previousActionProbabilityTensor, currentActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local function update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		local PreviousCriticWeightTensorArrayArray = {}
 
 		local previousLogActionProbabilityValue
-		
-		local previousLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{previousActionProbabilityTensor}
-
-		local currentLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{currentActionProbabilityTensor}
 
 		if (actionIndex) then
 
@@ -1157,8 +1153,12 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 		local previousActionProbabilityTensor = calculateCategoricalProbability(previousActionTensor)
 
 		local currentActionProbabilityTensor = calculateCategoricalProbability(currentActionTensor)
+
+		local previousLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{previousActionProbabilityTensor}
+
+		local currentLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{currentActionProbabilityTensor}
 		
-		update(previousFeatureTensor, previousActionProbabilityTensor, currentActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+		update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 
 	end
 	
@@ -1168,11 +1168,11 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 		local currentActionMeanTensor, currentStandardDeviationTensor = ActorModel{currentFeatureTensor}
 
-		local previousActionProbabilityTensor = calculateDiagonalGaussianProbability(previousActionMeanTensor, previousStandardDeviationTensor, actionNoiseTensor)
+		local previousLogActionProbabilityTensor = calculateDiagonalGaussianProbability(previousActionMeanTensor, previousStandardDeviationTensor, actionNoiseTensor)
 
-		local currentActionProbabilityTensor = calculateDiagonalGaussianProbability(currentActionMeanTensor, currentStandardDeviationTensor, actionNoiseTensor)
+		local currentLogActionProbabilityTensor = calculateDiagonalGaussianProbability(currentActionMeanTensor, currentStandardDeviationTensor, actionNoiseTensor)
 
-		update(previousFeatureTensor, previousActionProbabilityTensor, currentActionProbabilityTensor, nil, rewardValue, currentFeatureTensor, terminalStateValue)
+		update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, nil, rewardValue, currentFeatureTensor, terminalStateValue)
 
 	end
 
