@@ -1,4 +1,4 @@
-# [API Reference](../API.md) - AutomaticDifferentiationTensors
+# [API Reference](../API.md) - AutomaticDifferentiationTensor
 
 ## Constructors
 
@@ -6,7 +6,7 @@
 
 ```
 
-AutomaticDifferentiationTensors.new{tensor: tensor, PartialFirstDerivativeFunction: function, inputTensorArray: {tensor}}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.new{tensor: tensor, PartialFirstDerivativeFunction: function, inputTensorArray: {tensor}}: AutomaticDifferentiationTensor
 
 ```
 
@@ -26,7 +26,7 @@ AutomaticDifferentiationTensors.new{tensor: tensor, PartialFirstDerivativeFuncti
 
 ```
 
-AutomaticDifferentiationTensors.coerce{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.coerce{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -42,7 +42,7 @@ AutomaticDifferentiationTensors.coerce{tensor: tensor}: AutomaticDifferentiation
 
 ```
 
-AutomaticDifferentiationTensors.stack{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.stack{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -58,7 +58,7 @@ AutomaticDifferentiationTensors.stack{tensor: tensor}: AutomaticDifferentiationT
 
 ```
 
-AutomaticDifferentiationTensors.createTensor{dimensionSizeArray: {number}, allValues: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.createTensor{dimensionSizeArray: {number}, allValues: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -72,7 +72,7 @@ AutomaticDifferentiationTensors.createTensor{dimensionSizeArray: {number}, allVa
 
 ```
 
-AutomaticDifferentiationTensors.createRandomNormalTensor{dimensionSizeArray: {number}, mean: number, standardDeviation: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.createRandomNormalTensor{dimensionSizeArray: {number}, mean: number, standardDeviation: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -92,7 +92,7 @@ AutomaticDifferentiationTensors.createRandomNormalTensor{dimensionSizeArray: {nu
 
 ```
 
-AutomaticDifferentiationTensors.createRandomNormalTensor{dimensionSizeArray: {number}, minimumValue: number, maximumValue: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.createRandomNormalTensor{dimensionSizeArray: {number}, minimumValue: number, maximumValue: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -112,7 +112,7 @@ AutomaticDifferentiationTensors.createRandomNormalTensor{dimensionSizeArray: {nu
 
 ```
 
-AutomaticDifferentiationTensors.radian{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.radian{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -128,7 +128,7 @@ AutomaticDifferentiationTensors.radian{tensor: tensor}: AutomaticDifferentiation
 
 ```
 
-AutomaticDifferentiationTensors.degree{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.degree{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -144,7 +144,7 @@ AutomaticDifferentiationTensors.degree{tensor: tensor}: AutomaticDifferentiation
 
 ```
 
-AutomaticDifferentiationTensors.sin{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.sin{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -160,7 +160,7 @@ AutomaticDifferentiationTensors.sin{tensor: tensor}: AutomaticDifferentiationTen
 
 ```
 
-AutomaticDifferentiationTensors.cos{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.cos{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -176,7 +176,7 @@ AutomaticDifferentiationTensors.cos{tensor: tensor}: AutomaticDifferentiationTen
 
 ```
 
-AutomaticDifferentiationTensors.tan{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.tan{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -192,7 +192,7 @@ AutomaticDifferentiationTensors.tan{tensor: tensor}: AutomaticDifferentiationTen
 
 ```
 
-AutomaticDifferentiationTensors.exponent{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.exponent{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -208,7 +208,7 @@ AutomaticDifferentiationTensors.exponent{tensor: tensor}: AutomaticDifferentiati
 
 ```
 
-AutomaticDifferentiationTensors.logarithm{numberTensor: tensor, baseTensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.logarithm{numberTensor: tensor, baseTensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -226,7 +226,7 @@ AutomaticDifferentiationTensors.logarithm{numberTensor: tensor, baseTensor: tens
 
 ```
 
-AutomaticDifferentiationTensors.clamp{tensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.clamp{tensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -246,7 +246,7 @@ AutomaticDifferentiationTensors.clamp{tensor: tensor}: AutomaticDifferentiationT
 
 ```
 
-AutomaticDifferentiationTensors.maximum{...: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.maximum{...: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -262,7 +262,7 @@ AutomaticDifferentiationTensors.maximum{...: tensor}: AutomaticDifferentiationTe
 
 ```
 
-AutomaticDifferentiationTensors.minimum{...: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.minimum{...: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -278,7 +278,7 @@ AutomaticDifferentiationTensors.minimum{...: tensor}: AutomaticDifferentiationTe
 
 ```
 
-AutomaticDifferentiationTensors.add{...: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.add{...: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -294,7 +294,7 @@ AutomaticDifferentiationTensors.add{...: tensor}: AutomaticDifferentiationTensor
 
 ```
 
-AutomaticDifferentiationTensors.subtract{...: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.subtract{...: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -310,7 +310,7 @@ AutomaticDifferentiationTensors.subtract{...: tensor}: AutomaticDifferentiationT
 
 ```
 
-AutomaticDifferentiationTensors.multiply{...: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.multiply{...: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -326,7 +326,7 @@ AutomaticDifferentiationTensors.multiply{...: tensor}: AutomaticDifferentiationT
 
 ```
 
-AutomaticDifferentiationTensors.divide{...: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.divide{...: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -342,7 +342,7 @@ AutomaticDifferentiationTensors.divide{...: tensor}: AutomaticDifferentiationTen
 
 ```
 
-AutomaticDifferentiationTensors.concatenate{...: tensor, dimension: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.concatenate{...: tensor, dimension: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -360,7 +360,7 @@ AutomaticDifferentiationTensors.concatenate{...: tensor, dimension: number}: Aut
 
 ```
 
-AutomaticDifferentiationTensors:findMinimumValue{}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:findMinimumValue{}: AutomaticDifferentiationTensor
 
 ```
 
@@ -372,7 +372,7 @@ AutomaticDifferentiationTensors:findMinimumValue{}: AutomaticDifferentiationTens
 
 ```
 
-AutomaticDifferentiationTensors:findMaximumValue{}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:findMaximumValue{}: AutomaticDifferentiationTensor
 
 ```
 
@@ -384,7 +384,7 @@ AutomaticDifferentiationTensors:findMaximumValue{}: AutomaticDifferentiationTens
 
 ```
 
-AutomaticDifferentiationTensors:sum{dimension: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:sum{dimension: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -400,7 +400,7 @@ AutomaticDifferentiationTensors:sum{dimension: number}: AutomaticDifferentiation
 
 ```
 
-AutomaticDifferentiationTensors:unaryMinus{}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:unaryMinus{}: AutomaticDifferentiationTensor
 
 ```
 
@@ -412,7 +412,7 @@ AutomaticDifferentiationTensors:unaryMinus{}: AutomaticDifferentiationTensor
 
 ```
 
-AutomaticDifferentiationTensors:absolute{}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:absolute{}: AutomaticDifferentiationTensor
 
 ```
 
@@ -424,7 +424,7 @@ AutomaticDifferentiationTensors:absolute{}: AutomaticDifferentiationTensor
 
 ```
 
-AutomaticDifferentiationTensors:power{otherTensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:power{otherTensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -440,7 +440,7 @@ AutomaticDifferentiationTensors:power{otherTensor: tensor}: AutomaticDifferentia
 
 ```
 
-AutomaticDifferentiationTensors:dotProduct{otherTensor: tensor}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:dotProduct{otherTensor: tensor}: AutomaticDifferentiationTensor
 
 ```
 
@@ -456,7 +456,7 @@ AutomaticDifferentiationTensors:dotProduct{otherTensor: tensor}: AutomaticDiffer
 
 ```
 
-AutomaticDifferentiationTensors:transpose{dimensionArray: {number}}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:transpose{dimensionArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
@@ -472,7 +472,7 @@ AutomaticDifferentiationTensors:transpose{dimensionArray: {number}}: AutomaticDi
 
 ```
 
-AutomaticDifferentiationTensors:flatten{dimensionArray: {number}}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:flatten{dimensionArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
@@ -488,7 +488,7 @@ AutomaticDifferentiationTensors:flatten{dimensionArray: {number}}: AutomaticDiff
 
 ```
 
-AutomaticDifferentiationTensors:reshape{dimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:reshape{dimensionSizeArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
@@ -504,7 +504,7 @@ AutomaticDifferentiationTensors:reshape{dimensionSizeArray: {number}}: Automatic
 
 ```
 
-AutomaticDifferentiationTensors:permute{dimensionArray: {number}}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:permute{dimensionArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
@@ -520,7 +520,7 @@ AutomaticDifferentiationTensors:permute{dimensionArray: {number}}: AutomaticDiff
 
 ```
 
-AutomaticDifferentiationTensors:mean{dimension: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:mean{dimension: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -536,7 +536,7 @@ AutomaticDifferentiationTensors:mean{dimension: number}: AutomaticDifferentiatio
 
 ```
 
-AutomaticDifferentiationTensors:standardDeviation{dimension: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:standardDeviation{dimension: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -552,7 +552,7 @@ AutomaticDifferentiationTensors:standardDeviation{dimension: number}: AutomaticD
 
 ```
 
-AutomaticDifferentiationTensors:zScoreNormalization{dimension: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:zScoreNormalization{dimension: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -568,7 +568,7 @@ AutomaticDifferentiationTensors:zScoreNormalization{dimension: number}: Automati
 
 ```
 
-AutomaticDifferentiationTensors:expandDimensionSizes{targetDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:expandDimensionSizes{targetDimensionSizeArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
@@ -584,7 +584,7 @@ AutomaticDifferentiationTensors:expandDimensionSizes{targetDimensionSizeArray: {
 
 ```
 
-AutomaticDifferentiationTensors:expandNumberOfDimensions{dimensionSizeToAddArray: {number}}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:expandNumberOfDimensions{dimensionSizeToAddArray: {number}}: AutomaticDifferentiationTensor
 
 ```
 
@@ -602,7 +602,7 @@ AutomaticDifferentiationTensors:expandNumberOfDimensions{dimensionSizeToAddArray
 
 ```
 
-AutomaticDifferentiationTensors:getDimensionSizeArray{}: number
+AutomaticDifferentiationTensor:getDimensionSizeArray{}: number
 ```
 
 #### Returns:
@@ -625,7 +625,7 @@ AutomaticDifferentiationTensors:differentiate{firstDerivativeTensor: tensor}
 
 ```
 
-AutomaticDifferentiationTensors:copy{}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor:copy{}: AutomaticDifferentiationTensor
 
 ```
 
@@ -637,7 +637,7 @@ AutomaticDifferentiationTensors:copy{}: AutomaticDifferentiationTensor
 
 ```
 
-AutomaticDifferentiationTensors:getTensor{doNotDeepCopy: boolean}: tensor
+AutomaticDifferentiationTensor:getTensor{doNotDeepCopy: boolean}: tensor
 
 ```
 
@@ -653,7 +653,7 @@ AutomaticDifferentiationTensors:getTensor{doNotDeepCopy: boolean}: tensor
 
 ```
 
-AutomaticDifferentiationTensors:setTensor{tensor: tensor, doNotDeepCopy: boolean}
+AutomaticDifferentiationTensor:setTensor{tensor: tensor, doNotDeepCopy: boolean}
 
 ```
 
@@ -667,7 +667,7 @@ AutomaticDifferentiationTensors:setTensor{tensor: tensor, doNotDeepCopy: boolean
 
 ```
 
-AutomaticDifferentiationTensors:getTotalFirstDerivativeTensor{doNotDeepCopy: boolean}: tensor
+AutomaticDifferentiationTensor:getTotalFirstDerivativeTensor{doNotDeepCopy: boolean}: tensor
 
 ```
 
@@ -683,7 +683,7 @@ AutomaticDifferentiationTensors:getTotalFirstDerivativeTensor{doNotDeepCopy: boo
 
 ```
 
-AutomaticDifferentiationTensors:setTotalFirstDerivativeTensor{tensor: tensor, doNotDeepCopy: boolean}
+AutomaticDifferentiationTensor:setTotalFirstDerivativeTensor{tensor: tensor, doNotDeepCopy: boolean}
 
 ```
 
@@ -697,7 +697,7 @@ AutomaticDifferentiationTensors:setTotalFirstDerivativeTensor{tensor: tensor, do
 
 ```
 
-AutomaticDifferentiationTensors:destroy{areDescendantsDestroyed: boolean, destroyFirstInputTensor: boolean}
+AutomaticDifferentiationTensor:destroy{areDescendantsDestroyed: boolean, destroyFirstInputTensor: boolean}
 
 ```
 
@@ -712,7 +712,7 @@ AutomaticDifferentiationTensors:destroy{areDescendantsDestroyed: boolean, destro
 
 ```
 
-AutomaticDifferentiationTensors:isAutomaticDifferentiationTensor{}: boolean
+AutomaticDifferentiationTensor:isAutomaticDifferentiationTensor{}: boolean
 
 ```
 
