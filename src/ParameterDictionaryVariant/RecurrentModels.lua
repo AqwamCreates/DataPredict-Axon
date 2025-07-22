@@ -158,7 +158,7 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 		
 		local oneTensorDimensionSizeArray = updateGateTensor:getDimensionSizeArray()
 		
-		local oneTensor = AutomaticDifferentiationTensor.createTensor{oneTensorDimensionSizeArray}
+		local oneTensor = AutomaticDifferentiationTensor.createTensor{oneTensorDimensionSizeArray, 1}
 
 		local oneMinusUpdateGateTensor = oneTensor - updateGateTensor
 
