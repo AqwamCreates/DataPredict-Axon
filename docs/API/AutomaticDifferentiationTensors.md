@@ -22,6 +22,38 @@ AutomaticDifferentiationTensors.new{tensor: tensor, PartialFirstDerivativeFuncti
 
 * AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
 
+### coerce()
+
+```
+
+AutomaticDifferentiationTensors.coerce{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be coerced.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### stack()
+
+```
+
+AutomaticDifferentiationTensors.stack{tensor: tensor}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* ...: A list of tensors that will be stacked to form a new automatic differentiation tensor object.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
 ### createTensor()
 
 ```
@@ -565,6 +597,19 @@ AutomaticDifferentiationTensors:expandNumberOfDimensions{dimensionSizeToAddArray
 * AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
 
 ## Non-Arithmetic Functions
+
+### getDimensionSizeArray()
+
+```
+
+AutomaticDifferentiationTensors:getDimensionSizeArray{}: number
+```
+
+#### Returns:
+
+* dimensionSizeArray: The dimension size array for the automatic differentiation tensor.
+
+### differentiate()
 
 ```
 
