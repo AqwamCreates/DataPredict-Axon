@@ -8,6 +8,12 @@ local ActivationLayers = require(script.Parent.ActivationLayers)
 
 local RecurrentModels = {}
 
+local function calculateZTensor(inputTensor, inputWeightTensor, hiddenStateTensor, hiddenWeightTensor, biasTensor)
+	
+	return inputTensor:dotProduct{inputWeightTensor} + hiddenStateTensor:dotProduct{hiddenWeightTensor} + biasTensor
+	
+end
+
 function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 	
 	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
@@ -46,11 +52,7 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 		
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 		
-		local weightedInputTensor = inputWeightTensor:dotProduct{inputTensor}
-		
-		local weightedHiddenTensor = hiddenWeightTensor:dotProduct{hiddenStateTensor}
-		
-		local zTensor = weightedInputTensor + weightedHiddenTensor + biasTensor
+		local zTensor = calculateZTensor(inputTensor, inputWeightTensor, hiddenStateTensor, hiddenWeightTensor, biasTensor)
 		
 		hiddenStateTensor = activationLayer{zTensor}
 		
@@ -142,19 +144,23 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 		
-		local updateGateZTensor = updateGateInputWeightTensor:dotProduct{inputTensor} + updateGateHiddenWeightTensor:dotProduct{hiddenStateTensor} + updateGateBiasTensor
+		local updateGateZTensor = calculateZTensor(inputTensor, updateGateInputWeightTensor, hiddenStateTensor, updateGateHiddenWeightTensor, updateGateBiasTensor)
 
 		local updateGateTensor = gateActivationLayer{updateGateZTensor}
 		
-		local resetGateZTensor = resetGateInputWeightTensor:dotProduct{inputTensor} + resetGateHiddenWeightTensor:dotProduct{hiddenStateTensor} + resetGateBiasTensor
+		local resetGateZTensor = calculateZTensor(inputTensor, resetGateInputWeightTensor, hiddenStateTensor, resetGateHiddenWeightTensor, resetGateBiasTensor)
 
 		local resetGateTensor = gateActivationLayer{resetGateZTensor}
 		
-		local candidateZTensor = candidateInputWeightTensor:dotProduct{inputTensor} + candidateHiddenWeightTensor:dotProduct{hiddenStateTensor * resetGateTensor} + candidateBiasTensor
+		local candidateZTensor = calculateZTensor(inputTensor, candidateInputWeightTensor, (hiddenStateTensor * resetGateTensor), candidateHiddenWeightTensor, candidateBiasTensor)
 
 		local candidateActivationTensor = activationLayer{candidateZTensor}
+		
+		local oneTensorDimensionSizeArray = updateGateTensor:getDimensionSizeArray()
+		
+		local oneTensor = AutomaticDifferentiationTensor.createTensor{oneTensorDimensionSizeArray}
 
-		local oneMinusUpdateGateTensor = AutomaticDifferentiationTensor.onesLike{updateGateTensor} - updateGateTensor
+		local oneMinusUpdateGateTensor = oneTensor - updateGateTensor
 
 		hiddenStateTensor = oneMinusUpdateGateTensor:multiply{hiddenStateTensor} + updateGateTensor:multiply{candidateActivationTensor}
 
