@@ -24,7 +24,7 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 	
 	local learningRate = parameterDictionary.learningRate or parameterDictionary[4] or 0.001
 	
-	local inputWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, inputSize}}
+	local inputWeightTensor = AutomaticDifferentiationTensor.createTensor{{inputSize, hiddenSize}}
 	
 	local hiddenWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, hiddenSize}}
 	
@@ -88,19 +88,19 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 	
 	local learningRate = parameterDictionary.learningRate or parameterDictionary[5] or 0.001
 
-	local updateGateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, inputSize}}
+	local updateGateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{inputSize, hiddenSize}}
 	
 	local updateGateHiddenWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, hiddenSize}}
 	
 	local updateGateBiasTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
 
-	local resetGateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, inputSize}}
+	local resetGateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{inputSize, hiddenSize}}
 	
 	local resetGateHiddenWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, hiddenSize}}
 	
 	local resetGateBiasTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
 
-	local candidateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, inputSize}}
+	local candidateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{inputSize, hiddenSize}}
 	
 	local candidateHiddenWeightTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, hiddenSize}}
 	
