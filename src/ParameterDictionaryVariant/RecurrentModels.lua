@@ -162,7 +162,7 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 
 		local oneMinusUpdateGateTensor = oneTensor - updateGateTensor
 
-		hiddenStateTensor = oneMinusUpdateGateTensor:multiply{hiddenStateTensor} + updateGateTensor:multiply{candidateActivationTensor}
+		hiddenStateTensor = (oneMinusUpdateGateTensor * hiddenStateTensor) + (updateGateTensor * candidateActivationTensor)
 
 		return hiddenStateTensor
 
