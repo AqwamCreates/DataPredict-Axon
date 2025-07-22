@@ -8,6 +8,8 @@ local ActivationLayers = require(script.Parent.ActivationLayers)
 
 local RecurrentModels = {}
 
+local defaultLearningRate = 0.001
+
 local function calculateZTensor(inputTensor, inputWeightTensor, hiddenStateTensor, hiddenWeightTensor, biasTensor)
 	
 	return inputTensor:dotProduct{inputWeightTensor} + hiddenStateTensor:dotProduct{hiddenWeightTensor} + biasTensor
@@ -22,7 +24,7 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 	
 	local activationFunction = parameterDictionary.activationFunction or parameterDictionary[3] or "FastTanh"
 	
-	local learningRate = parameterDictionary.learningRate or parameterDictionary[4] or 0.001
+	local learningRate = parameterDictionary.learningRate or parameterDictionary[4] or defaultLearningRate
 	
 	local inputWeightTensor = AutomaticDifferentiationTensor.createTensor{{inputSize, hiddenSize}}
 	
@@ -86,7 +88,7 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 	
 	local gateActivationFunctionName = parameterDictionary.gateActivationFunction or parameterDictionary[4] or "FastSigmoid"
 	
-	local learningRate = parameterDictionary.learningRate or parameterDictionary[5] or 0.001
+	local learningRate = parameterDictionary.learningRate or parameterDictionary[5] or defaultLearningRate
 
 	local updateGateInputWeightTensor = AutomaticDifferentiationTensor.createTensor{{inputSize, hiddenSize}}
 	
