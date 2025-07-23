@@ -778,6 +778,110 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 
 end
 
+function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
+
+	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
+
+	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
+
+	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
+	
+	local AdvantageFunction = parameterDictionary.AdvantageFunction or parameterDictionary[5]
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6] or defaultDiscountFactor
+
+	local actionProbabilityTensorArray = {}
+	
+	local advantageValueArray = {}
+
+	local rewardValueArray = {}
+
+	local criticValueArray = {}
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local actionTensor = ActorModel{previousFeatureTensor}
+
+		local criticValue = CriticModel{previousFeatureTensor}
+		
+		local advantageValue = AdvantageFunction{previousFeatureTensor}
+
+		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
+
+		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
+
+		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
+		
+		table.insert(advantageValueArray, advantageValue)
+
+		table.insert(rewardValueArray, rewardValue)
+
+		table.insert(criticValueArray, criticValue)
+
+	end
+
+	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local actionMeanTensor, actionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local criticValue = CriticModel{previousFeatureTensor}
+		
+		local advantageValue = AdvantageFunction{previousFeatureTensor}
+
+		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
+
+		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
+		
+		table.insert(advantageValueArray, advantageValue)
+
+		table.insert(rewardValueArray, rewardValue)
+
+		table.insert(criticValueArray, criticValue)
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue)
+
+		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
+
+		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
+
+			local criticCost = CostFunctions.FastMeanSquaredError{rewardToGoArray[h], criticValueArray[h]}
+
+			local actorLossTensor = actionProbabilityTensor * advantageValueArray[h]
+
+			criticCost:differentiate()
+
+			actorLossTensor:differentiate()
+
+			criticCost:destroy{true}
+
+			actorLossTensor:destroy{true}
+
+		end
+
+		ActorWeightContainer:gradientAscent()
+
+		CriticWeightContainer:gradientDescent()
+
+		table.clear(actionProbabilityTensorArray)
+		
+		table.clear(advantageValueArray)
+
+		table.clear(rewardValueArray)
+
+		table.clear(criticValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
+
+end
+
 function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
