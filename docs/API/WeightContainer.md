@@ -12,7 +12,7 @@ WeightContainer.new{TensorAndOptimizerArray: {tensor, number, Optimizer}, update
 
 #### Parameters:
 
-* TensorAndOptimizerArray: An array containing the ADTensor, the learningRate and the optimizer.
+* skipMissingGradientTensor: Set whether or not to perform weight updates if the weight tensor does not receive a gradient tensor.
 
 * updateWeightTensorInPlace: Set whether or not to update the weight tensor in place. If true, updates the weight tensor directly for better performance by avoiding new table creation and reducing memory usage. Not supported for scalar values. [Default: true]
 
@@ -21,6 +21,18 @@ WeightContainer.new{TensorAndOptimizerArray: {tensor, number, Optimizer}, update
 * WeightContainer: The generated WeightContainer object.
 
 ## Functions
+
+### new()
+
+```
+
+WeightContainer:setWeightTensorDataArray{...: {tensor, number, Optimizer}}: WeightContainer
+
+```
+
+#### Parameters:
+
+* ...: An array containing the ADTensor, the learningRate and the optimizer.
 
 ### gradientDescent()
 
