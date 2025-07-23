@@ -1,8 +1,12 @@
 # Creating Our First Recurrent Neural Network
 
-From our previous [tutorial](CreatingOurFirstNeuralNetwork.md), we have seen how simple it is to build a regular neural network. I recommend you to read the previous tutorial if you have not done so already just to make the current tutorial easier to understand. 
-
 In this tutorial, we will show on how to create the recurrent neural network variant and give it the ability to handle temporal sequencing.
+
+Before we proceed, you are required to read these two tutorials:
+
+* [Creating Our First Neural Network](CreatingOurFirstNeuralNetwork.md)
+
+* [General Tensor Conventions](GeneralTensorConventions.md)
 
 # Setting Up The Recurrent Neural Network Cell
 
@@ -35,7 +39,7 @@ Once you have everything set up, you can test this recurrent neural network with
 
 local CostFunctions = DataPredictAxon.CostFunctions
 
-local datasetVector = {
+local inputTensor = {
 	{{1}, {2}, {3}}, 
 	{{2}, {3}, {4}}, 
 	{{3}, {4}, {5}}, 
@@ -43,7 +47,7 @@ local datasetVector = {
 	{{5}, {7}, {8}}
 }
 
-local outputVector = {
+local outputTensor = {
 	{{2}, {3}, {4}},
 	{{3}, {4}, {5}}, 
 	{{4}, {5}, {6}}, 
@@ -53,9 +57,9 @@ local outputVector = {
 
 for i = 1, 300, 1 do
 	
-	local generatedLabelTensor = RNN{datasetVector}
+	local generatedLabelTensor = RNN{inputTensor}
 	
-	local costTensor = CostFunctions.FastMeanSquaredError{generatedLabelTensor, outputVector}
+	local costTensor = CostFunctions.FastMeanSquaredError{generatedLabelTensor, outputTensor}
 	
 	costTensor:differentiate()
 
@@ -71,7 +75,7 @@ end
 
 for i = 10, 100, 1 do
 	
-	local test3 = Model{{{i}}}
+	local test3 = RNNCell{{{i}}} -- Notice that this is a "cell", hence any input 
 	
 	print(test3)
 	
