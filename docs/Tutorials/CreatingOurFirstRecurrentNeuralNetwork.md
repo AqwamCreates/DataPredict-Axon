@@ -18,7 +18,7 @@ local RecurrentModels = DataPredictAxon.RecurrentModels
 
 local RNNCell, WeightContainer, reset, setHiddenStateTensor = RecurrentModels.RecurrentNeuralNetworkCell{inputSize = 1, hiddenSize = 1, learningRate = 0.001, activationFunction = "FastLeakyRectifiedLinearUnit"}
 
--- Generally, this model has FastSigmoid as a default for activationFunction parameter. For this tutorial, we will change to FastLeakyRectifiedLinearUnit activation function.
+-- For this tutorial, we will change the activationFunction to FastLeakyRectifiedLinearUnit instead of using the default.
 -- You can use hidden size to determine the maximum number of features it should output.
 
 ```
