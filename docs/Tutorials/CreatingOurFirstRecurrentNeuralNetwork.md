@@ -6,7 +6,7 @@ In this tutorial, we will show on how to create the recurrent neural network var
 
 # Setting Up The Recurrent Neural Network Cell
 
-In the previous tutorial, you have seen that the we have to manually create our weight tensors and WeightContainer. Fortunately, because recurrent neural networks and its variants have specific configurations, this library provides you a modular way to setup it.
+In the previous tutorial, you have seen that the we have to manually create our weight tensors and WeightContainer. Fortunately, because recurrent neural networks and its variants have specific configurations, this library provides you a modular way to create it.
 
 ```lua
 
@@ -26,5 +26,55 @@ Now, notice that this is recurrent neural network "cell", which means that it ca
 local RNN = RecurrentModels.UncellModel{RNNCell, true} 
 
 -- Setting the second parameter to true will make it train in reverse sequence.
+
+```
+
+Once you have everything set up, you can test this recurrent neural network with some data.
+
+```
+
+local CostFunctions = DataPredictAxon.CostFunctions
+
+local datasetVector = {
+	{{1}, {2}, {3}}, 
+	{{2}, {3}, {4}}, 
+	{{3}, {4}, {5}}, 
+	{{4}, {5}, {6}}, 
+	{{5}, {7}, {8}}
+}
+
+local outputVector = {
+	{{2}, {3}, {4}},
+	{{3}, {4}, {5}}, 
+	{{4}, {5}, {6}}, 
+	{{5}, {6}, {7}}, 
+	{{6}, {8}, {9}}
+}
+
+for i = 1, 300, 1 do
+	
+	local generatedLabelTensor = RNN{datasetVector}
+	
+	local costTensor = CostFunctions.FastMeanSquaredError{generatedLabelTensor, outputVector}
+	
+	costTensor:differentiate()
+
+	costTensor:destroy()
+	
+	reset() -- We need to reset the hidden stete tensor before going to the next iteration.
+	
+	task.wait()
+	
+	WeightContainer:gradientDescent()
+	
+end
+
+for i = 10, 100, 1 do
+	
+	local test3 = Model{{{i}}}
+	
+	print(test3)
+	
+end
 
 ```
