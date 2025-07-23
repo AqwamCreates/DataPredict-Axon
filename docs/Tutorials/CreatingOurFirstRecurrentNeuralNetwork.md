@@ -64,6 +64,8 @@ for i = 1, 300, 1 do
 	local generatedLabelTensor = RNN{inputTensor}
 	
 	local costTensor = CostFunctions.FastMeanSquaredError{generatedLabelTensor, outputTensor}
+
+	WeightContainer:gradientDescent()
 	
 	costTensor:differentiate()
 
@@ -72,8 +74,6 @@ for i = 1, 300, 1 do
 	reset() -- We need to reset the hidden stete tensor before going to the next iteration.
 	
 	task.wait()
-	
-	WeightContainer:gradientDescent()
 	
 end
 
