@@ -31,7 +31,7 @@ local RNN = RecurrentModels.UncellModel{RNNCell, true}
 
 Once you have everything set up, you can test this recurrent neural network with some data.
 
-```
+```lua
 
 local CostFunctions = DataPredictAxon.CostFunctions
 
