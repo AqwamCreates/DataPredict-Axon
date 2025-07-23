@@ -12,9 +12,17 @@ In the previous tutorial, you have seen that the we have to manually create our 
 
 local RecurrentModels = DataPredictAxon.RecurrentModels
 
-local Model, WeightContainer, reset, setHiddenStateTensor = RecurrentModels.RecurrentNeuralNetworkCell{inputSize = 1, hiddenSize = 1, learningRate = 0.01, activationFunction = "FastLeakyRectifiedLinearUnit"}
+local RNNCell, WeightContainer, reset, setHiddenStateTensor = RecurrentModels.RecurrentNeuralNetworkCell{inputSize = 1, hiddenSize = 1, learningRate = 0.001, activationFunction = "FastLeakyRectifiedLinearUnit"}
 
+-- Generally, this model has FastSigmoid as a default for activationFunction parameter. For this tutorial, we will change to FastLeakyRectifiedLinearUnit activation function.
 -- You can use hidden size to determine the maximum number of features it should output.
 
 ```
 
+Now, notice that this is recurrent neural network "cell", which means that it can only handle a single timestep. To change this, we must "uncell" our recurrent neural network.
+
+```
+
+local RNN = RecurrentModels.UncellModel{RNNCell, true} -- Setting the second parameter to true will make it train in reverse sequence.
+
+```
