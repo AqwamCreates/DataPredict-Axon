@@ -425,11 +425,11 @@ function RecurrentModels.LongShortTermMemoryCell(parameterDictionary)
 
 end
 
-function RecurrentModels.ConvertToBatch(parameterDictionary)
+function RecurrentModels.UncellModel(parameterDictionary)
 	
 	local Model = parameterDictionary.Model or parameterDictionary[1]
 	
-	local function BatchModel(parameterDictionary)
+	local function ModifiedModel(parameterDictionary)
 		
 		parameterDictionary = parameterDictionary or {}
 		
@@ -473,7 +473,7 @@ function RecurrentModels.ConvertToBatch(parameterDictionary)
 		
 	end
 	
-	return BatchModel
+	return ModifiedModel
 	
 end
 
