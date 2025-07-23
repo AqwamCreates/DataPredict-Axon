@@ -29,7 +29,7 @@ Now, notice that this is recurrent neural network "cell", which means that it ca
 
 local RNN = RecurrentModels.UncellModel{RNNCell, true} 
 
--- Setting the second parameter to true will make it train in reverse sequence.
+-- Setting the second parameter to true will make it train and predict in reverse sequence.
 
 ```
 
