@@ -532,7 +532,7 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 end
 
-function ReinforcementLearningModels.DeepExpectedDoubleStateActionRewardStateActionV1(parameterDictionary)
+function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateActionV1(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -628,7 +628,7 @@ function ReinforcementLearningModels.DeepExpectedDoubleStateActionRewardStateAct
 
 end
 
-function ReinforcementLearningModels.DeepExpectedDoubleStateActionRewardStateActionV2(parameterDictionary)
+function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateActionV2(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
