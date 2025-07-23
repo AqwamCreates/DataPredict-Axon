@@ -86,8 +86,6 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 		
 		local zTensor = calculateZTensor(inputTensor, inputWeightTensor, hiddenStateTensor, hiddenWeightTensor, biasTensor)
 		
-		print(zTensor)
-		
 		hiddenStateTensor = activationLayer{zTensor}
 		
 		return hiddenStateTensor
