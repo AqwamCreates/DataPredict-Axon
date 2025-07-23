@@ -40,6 +40,10 @@ local defaultEpsilon = 0.5
 
 local defaultAlpha = 0.1
 
+local defaultNoiseClippingFactor = 0.5
+
+local defaultPolicyDelayAmount = 3
+
 local defaultAveragingRate = 0.995
 
 local defaultDiscountFactor = 0.95
@@ -1194,7 +1198,7 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[5] or defaultAveragingRate
 
-	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6]  or defaultDiscountFactor
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6] or defaultDiscountFactor
 
 	local diagonalGaussianUpdate = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 		
@@ -1245,6 +1249,148 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 		ActorWeightContainer:setWeightTensorArray{TargetActorWeightTensorArray, true}
 
 		CriticWeightContainer:setWeightTensorArray{TargetCriticWeightTensorArray, true}
+
+	end
+
+	return ReinforcementLearningModels.new{nil, diagonalGaussianUpdate}
+
+end
+
+function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
+
+	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
+
+	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
+
+	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
+
+	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[5] or defaultAveragingRate
+	
+	local noiseClippingFactor = parameterDictionary.noiseClippingFactor or parameterDictionary[6] or defaultNoiseClippingFactor
+
+	local policyDelayAmount = parameterDictionary.policyDelayAmount or parameterDictionary[7] or defaultPolicyDelayAmount
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[8] or defaultDiscountFactor
+	
+	local CriticWeightTensorArrayArray = parameterDictionary.CriticWeightTensorArrayArray or {}
+	
+	local TargetCriticWeightTensorArrayArray = {}
+
+	local currentNumberOfUpdate = 0
+
+	local diagonalGaussianUpdate = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local noiseClipFunction = function(value) return math.clamp(value, -noiseClippingFactor, noiseClippingFactor) end
+
+		local clippedCurrentActionNoiseTensor = AqwamTensorLibrary:applyFunction(noiseClipFunction, actionNoiseTensor)
+		
+		local previousActionMeanTensor, previousActionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local previousActionTensor = (previousActionStandardDeviationTensor * actionNoiseTensor) + previousActionMeanTensor
+
+		local lowestActionValue = previousActionTensor:findMinimumValue()
+
+		local highestActionValue = previousActionTensor:findMaximumValue()
+
+		local currentActionMeanTensor, currentActionStandardDeviationTensor = ActorModel{currentFeatureTensor}
+
+		local ActorWeightTensorArray = ActorModel:getWeightTensorArray{true}
+
+		local targetActionTensorPart1 = currentActionMeanTensor + clippedCurrentActionNoiseTensor
+
+		local actionClipFunction = function(value)
+
+			if (lowestActionValue ~= lowestActionValue) or (highestActionValue ~= highestActionValue) then
+
+				error("Received nan values.")
+
+			elseif (lowestActionValue < highestActionValue) then
+
+				return math.clamp(value, lowestActionValue, highestActionValue) 
+
+			elseif (lowestActionValue > highestActionValue) then
+
+				return math.clamp(value, highestActionValue, lowestActionValue)
+
+			else
+
+				return lowestActionValue
+
+			end
+
+		end
+
+		local targetActionTensor = AqwamTensorLibrary:applyFunction(actionClipFunction, targetActionTensorPart1)
+
+		local targetCriticActionInputTensor = AutomaticDifferentiationTensor.concatenate(currentFeatureTensor, targetActionTensor, 2)
+
+		local currentCriticValueArray = {}
+
+		for i = 1, 2, 1 do 
+
+			CriticWeightContainer:setWeightTensorArray{TargetCriticWeightTensorArrayArray[i]}
+
+			currentCriticValueArray[i] = CriticModel{targetCriticActionInputTensor}[1][1] 
+
+			local CriticWeightTensorArray = CriticWeightContainer:getWeightTensorArray{true}
+
+			TargetCriticWeightTensorArrayArray[i] = CriticWeightTensorArray
+
+		end
+
+		local minimumCurrentCriticValue = AutomaticDifferentiationTensor.minimum(currentCriticValueArray)
+
+		local yValuePart1 = discountFactor * (1 - terminalStateValue) * minimumCurrentCriticValue
+
+		local yValue = rewardValue + yValuePart1
+
+		local previousCriticActionMeanInputTensor = AutomaticDifferentiationTensor.concatenate(previousFeatureTensor, previousActionMeanTensor, 2)
+
+		for i = 1, 2, 1 do 
+
+			CriticWeightContainer:setWeightTensorArray{CriticWeightTensorArrayArray[i], true}
+
+			local previousCriticValue = CriticModel{previousCriticActionMeanInputTensor}[1][1] 
+
+			local criticCost = previousCriticValue - yValue
+			
+			criticCost:differentiate()
+
+			CriticWeightContainer:gradientDescent()
+
+			CriticWeightTensorArrayArray[i] = CriticWeightContainer:getWeightTensorArray{true}
+
+		end
+
+		currentNumberOfUpdate = currentNumberOfUpdate + 1
+		
+		if ((currentNumberOfUpdate % policyDelayAmount) == 0) then
+
+			local actionTensor = (previousActionStandardDeviationTensor * actionNoiseTensor) + previousActionMeanTensor
+
+			local previousCriticActionInputTensor = AutomaticDifferentiationTensor.concatenate(previousFeatureTensor, actionTensor, 2)
+
+			CriticWeightContainer:setWeightTensorArray{CriticWeightTensorArrayArray[1], true}
+
+			local currentQValue = CriticModel{previousCriticActionInputTensor}[1][1]
+
+			currentQValue:differentiate()
+
+			ActorWeightContainer:gradientAscent()
+
+			for i = 1, 2, 1 do TargetCriticWeightTensorArrayArray[i] = rateAverageWeightTensorArray(averagingRate, TargetCriticWeightTensorArrayArray[i], CriticWeightTensorArrayArray[i]) end
+
+			local TargetActorWeightTensorArray = ActorModel:getWeightTensorArray(true)
+
+			TargetActorWeightTensorArray = rateAverageWeightTensorArray(averagingRate, TargetActorWeightTensorArray, ActorWeightTensorArray)
+
+			ActorWeightContainer:setWeightTensorArray{TargetActorWeightTensorArray, true}
+
+		end
 
 	end
 
