@@ -36,7 +36,7 @@ local ActivationLayers = require(script.Parent.ActivationLayers)
 
 local RecurrentModels = {}
 
-local defaultLearningRate = 0.001
+local defaultLearningRate = 0.0001
 
 local function calculateZTensor(inputTensor, inputWeightTensor, hiddenStateTensor, hiddenWeightTensor, biasTensor)
 	
