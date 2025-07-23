@@ -38,6 +38,8 @@ local RecurrentModels = {}
 
 local defaultLearningRate = 0.0001
 
+local defaultReverse = false
+
 local function calculateZTensor(inputTensor, inputWeightTensor, hiddenStateTensor, hiddenWeightTensor, biasTensor)
 	
 	return inputTensor:dotProduct{inputWeightTensor} + hiddenStateTensor:dotProduct{hiddenWeightTensor} + biasTensor
@@ -429,6 +431,10 @@ function RecurrentModels.UncellModel(parameterDictionary)
 	
 	local Model = parameterDictionary.Model or parameterDictionary[1]
 	
+	local reverse = parameterDictionary.reverse or parameterDictionary[2]
+	
+	if (not Model)then error("No model.") end
+	
 	local function ModifiedModel(parameterDictionary)
 		
 		parameterDictionary = parameterDictionary or {}
@@ -451,22 +457,46 @@ function RecurrentModels.UncellModel(parameterDictionary)
 		
 		local generatedLabelSubTensor
 		
-		for sequenceIndex = 1, sequenceLength, 1 do
+		if (reverse) then
 			
-			inputSubTensor = inputTensor:extract{{1, sequenceIndex, 1} , {numberOfData, sequenceIndex, numberOfFeatures}}
+			for sequenceIndex = sequenceLength, 1, -1 do
 
-			generatedLabelSubTensor = Model{inputSubTensor}
-			
-			if (generatedLabelTensor) then
-				
-				generatedLabelTensor = AutomaticDifferentiationTensor.concatenate{generatedLabelTensor, generatedLabelSubTensor, 2}
-				
-			else
-				
-				generatedLabelTensor = generatedLabelSubTensor
-				
+				inputSubTensor = inputTensor:extract{{1, sequenceIndex, 1} , {numberOfData, sequenceIndex, numberOfFeatures}}
+
+				generatedLabelSubTensor = Model{inputSubTensor}
+
+				if (generatedLabelTensor) then
+
+					generatedLabelTensor = AutomaticDifferentiationTensor.concatenate{generatedLabelSubTensor, generatedLabelTensor, 2}
+
+				else
+
+					generatedLabelTensor = generatedLabelSubTensor
+
+				end
+
 			end
+			
+		else
 
+			for sequenceIndex = 1, sequenceLength, 1 do
+
+				inputSubTensor = inputTensor:extract{{1, sequenceIndex, 1} , {numberOfData, sequenceIndex, numberOfFeatures}}
+
+				generatedLabelSubTensor = Model{inputSubTensor}
+
+				if (generatedLabelTensor) then
+
+					generatedLabelTensor = AutomaticDifferentiationTensor.concatenate{generatedLabelTensor, generatedLabelSubTensor, 2}
+
+				else
+
+					generatedLabelTensor = generatedLabelSubTensor
+
+				end
+
+			end
+			
 		end
 		
 		return generatedLabelTensor
