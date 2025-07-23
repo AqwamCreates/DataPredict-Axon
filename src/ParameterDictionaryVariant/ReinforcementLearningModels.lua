@@ -228,6 +228,52 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 end
 
+function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+	
+	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[3] or defaultAveragingRate
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+		
+		local PrimaryWeightTensorArray = WeightContainer:getWeightTensorArray{true}
+
+		local currentQTensor = Model{currentFeatureTensor}
+		
+		local maxQValue = currentQTensor:findMaximumValue()
+
+		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
+
+		local previousQTensor = Model{previousFeatureTensor}
+
+		local lastValue = previousQTensor[1][actionIndex]
+
+		local temporalDifferenceError = targetValue - lastValue
+		
+		temporalDifferenceError:differentiate()
+		
+		WeightContainer:gradientAscent()
+
+		local TargetWeightTensorArray = WeightContainer:getWeightTensorArray{true}
+
+		TargetWeightTensorArray = rateAverageWeightTensorArray(averagingRate, TargetWeightTensorArray, PrimaryWeightTensorArray)
+
+		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
+
+		temporalDifferenceError:destroy{true}
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+
+end
+
 function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
