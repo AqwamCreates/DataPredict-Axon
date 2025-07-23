@@ -46,6 +46,8 @@ end
 
 function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 	
+	parameterDictionary = parameterDictionary or {}
+	
 	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
 	
 	local hiddenSize = parameterDictionary.hiddenSize or parameterDictionary[2]
@@ -80,6 +82,8 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 
 	local function Model(parameterDictionary)
 		
+		parameterDictionary = parameterDictionary or {}
+		
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 		
 		inputTensor = AutomaticDifferentiationTensor.coerce{inputTensor}
@@ -109,6 +113,8 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 end
 
 function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
 
 	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
 	
@@ -161,6 +167,8 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
 
 	local function Model(parameterDictionary)
+		
+		parameterDictionary = parameterDictionary or {}
 
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 		
@@ -207,6 +215,8 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 end
 
 function RecurrentModels.MinimalGatedUnitCell(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
 
 	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
 
@@ -247,6 +257,8 @@ function RecurrentModels.MinimalGatedUnitCell(parameterDictionary)
 	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
 
 	local function Model(parameterDictionary)
+		
+		parameterDictionary = parameterDictionary or {}
 
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 
@@ -289,6 +301,8 @@ function RecurrentModels.MinimalGatedUnitCell(parameterDictionary)
 end
 
 function RecurrentModels.LongShortTermMemoryCell(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
 
 	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
 	
@@ -354,6 +368,8 @@ function RecurrentModels.LongShortTermMemoryCell(parameterDictionary)
 	local cellStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
 
 	local function Model(parameterDictionary)
+		
+		parameterDictionary = parameterDictionary or {}
 
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 		
@@ -409,5 +425,56 @@ function RecurrentModels.LongShortTermMemoryCell(parameterDictionary)
 
 end
 
+function RecurrentModels.ConvertToBatch(parameterDictionary)
+	
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+	
+	local function BatchModel(parameterDictionary)
+		
+		parameterDictionary = parameterDictionary or {}
+		
+		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
+		
+		inputTensor = AutomaticDifferentiationTensor.coerce{inputTensor}
+		
+		local dimensionSizeArray = inputTensor:getDimensionSizeArray()
+		
+		local numberOfData = dimensionSizeArray[1]
+		
+		local sequenceLength = dimensionSizeArray[2]
+		
+		local numberOfFeatures = dimensionSizeArray[3]
+		
+		local inputSubTensor
+		
+		local generatedLabelTensor
+		
+		local generatedLabelSubTensor
+		
+		for sequenceIndex = 1, sequenceLength, 1 do
+			
+			inputSubTensor = inputTensor:extract{{1, sequenceIndex, 1} , {numberOfData, sequenceIndex, numberOfFeatures}}
+
+			generatedLabelSubTensor = Model{inputSubTensor}
+			
+			if (generatedLabelTensor) then
+				
+				generatedLabelTensor = AutomaticDifferentiationTensor.concatenate{generatedLabelTensor, generatedLabelSubTensor, 2}
+				
+			else
+				
+				generatedLabelTensor = generatedLabelSubTensor
+				
+			end
+
+		end
+		
+		return generatedLabelTensor
+		
+	end
+	
+	return BatchModel
+	
+end
 
 return RecurrentModels
