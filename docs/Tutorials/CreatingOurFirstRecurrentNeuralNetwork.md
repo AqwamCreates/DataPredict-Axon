@@ -40,19 +40,23 @@ Once you have everything set up, you can test this recurrent neural network with
 local CostFunctions = DataPredictAxon.CostFunctions
 
 local inputTensor = {
+
 	{{1}, {2}, {3}}, 
 	{{2}, {3}, {4}}, 
 	{{3}, {4}, {5}}, 
 	{{4}, {5}, {6}}, 
 	{{5}, {7}, {8}}
+
 }
 
 local outputTensor = {
+
 	{{2}, {3}, {4}},
 	{{3}, {4}, {5}}, 
 	{{4}, {5}, {6}}, 
 	{{5}, {6}, {7}}, 
 	{{6}, {8}, {9}}
+
 }
 
 for i = 1, 300, 1 do
