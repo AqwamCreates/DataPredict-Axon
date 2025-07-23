@@ -244,15 +244,15 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 		
 		local PrimaryWeightTensorArray = WeightContainer:getWeightTensorArray{true}
 
-		local currentQTensor = Model{currentFeatureTensor}
+		local currentQValueTensor = Model{currentFeatureTensor}
 		
-		local maxQValue = currentQTensor:findMaximumValue()
+		local maxQValue = currentQValueTensor:findMaximumValue()
 
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
 
-		local previousQTensor = Model{previousFeatureTensor}
+		local previousQValueTensor = Model{previousFeatureTensor}
 
-		local lastValue = previousQTensor[1][actionIndex]
+		local lastValue = previousQValueTensor[1][actionIndex]
 
 		local temporalDifferenceError = targetValue - lastValue
 		
@@ -407,6 +407,48 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 		WeightContainer:gradientAscent()
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
+
+		costTensor:destroy{true}
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+
+end
+
+function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+
+	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[3] or defaultAveragingRate
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local PrimaryWeightTensorArray = WeightContainer:getWeightTensorArray{true}
+
+		local currentQValueTensor = Model{currentFeatureTensor}
+
+		local previousQValueTensor = Model{previousFeatureTensor}
+		
+		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
+
+		local costTensor = CostFunctions.FastMeanSquaredError{targetQValueTensor, previousQValueTensor}
+
+		costTensor:differentiate()
+
+		WeightContainer:gradientAscent()
+
+		local TargetWeightTensorArray = WeightContainer:getWeightTensorArray{true}
+
+		TargetWeightTensorArray = rateAverageWeightTensorArray(averagingRate, TargetWeightTensorArray, PrimaryWeightTensorArray)
+
+		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
 
 		costTensor:destroy{true}
 
