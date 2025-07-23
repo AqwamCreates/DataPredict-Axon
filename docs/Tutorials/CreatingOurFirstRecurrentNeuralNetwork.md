@@ -2,7 +2,7 @@
 
 In this tutorial, we will show on how to create the recurrent neural network variant and give it the ability to handle temporal sequencing.
 
-Before we proceed, you are required to read these two tutorials:
+Before we proceed this tutorial, you are required to read these two tutorials:
 
 * [Creating Our First Neural Network](CreatingOurFirstNeuralNetwork.md)
 
@@ -89,6 +89,6 @@ end
 
 Whew! That took quite a bit. 
 
-You may have noticed why we don't manually handle the hidden state tensors like other deep learning libraries and frameworks. This is because DataPredict™ Axon is designed to reduce manual handling that could be otherwise be a headache to keep track on. As such, this allows any recurrent neural networks under DataPredict™ Axon to be extended flexibly.
+You may have noticed why we don't manually handle the hidden state tensors like other deep learning libraries and frameworks. This is because DataPredict™ Axon is designed to reduce manual handling that could be otherwise be a headache to keep track on. As such, this allows any recurrent neural networks under DataPredict™ Axon to be extended easily.
 
 That's all for today and have fun with it!
