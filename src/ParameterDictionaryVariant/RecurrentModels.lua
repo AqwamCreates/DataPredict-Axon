@@ -174,7 +174,7 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 
 		local resetGateTensor = ActivationLayers.FastTanh{resetGateZTensor}
 		
-		local candidateZTensor = calculateZTensor(inputTensor, candidateInputWeightTensor, (hiddenStateTensor * resetGateTensor), candidateHiddenWeightTensor, candidateBiasTensor)
+		local candidateZTensor = calculateZTensor(inputTensor, candidateInputWeightTensor, (resetGateTensor * hiddenStateTensor), candidateHiddenWeightTensor, candidateBiasTensor)
 
 		local candidateActivationTensor = ActivationLayers.FastTanh{candidateZTensor}
 		
@@ -200,6 +200,88 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 		
 		hiddenStateTensor = parameterDictionary.hiddenStateTensor or parameterDictionary[1]
 		
+	end
+
+	return Model, WeightContainer, reset, setHiddenStateTensor
+
+end
+
+function RecurrentModels.MinimalGatedUnitCell(parameterDictionary)
+
+	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
+
+	local hiddenSize = parameterDictionary.hiddenSize or parameterDictionary[2]
+
+	local learningRate = parameterDictionary.learningRate or parameterDictionary[3] or defaultLearningRate
+
+	local forgetGateInputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+
+	local forgetGateHiddenWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{hiddenSize, hiddenSize}}
+
+	local forgetGateBiasTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{1, hiddenSize}}
+
+	local candidateInputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+
+	local candidateHiddenWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{hiddenSize, hiddenSize}}
+
+	local candidateBiasTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{1, hiddenSize}}
+
+	local WeightContainer = WeightContainer.new{}
+
+	WeightContainer:setWeightTensorDataArray{
+
+		{forgetGateInputWeightTensor, learningRate},
+
+		{forgetGateHiddenWeightTensor, learningRate},
+
+		{forgetGateBiasTensor, learningRate},
+
+		{candidateInputWeightTensor, learningRate},
+
+		{candidateHiddenWeightTensor, learningRate},
+
+		{candidateBiasTensor, learningRate},
+
+	}
+
+	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
+
+	local function Model(parameterDictionary)
+
+		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
+
+		inputTensor = AutomaticDifferentiationTensor.coerce{inputTensor}
+
+		local forgetGateZTensor = calculateZTensor(inputTensor, forgetGateInputWeightTensor, hiddenStateTensor, forgetGateHiddenWeightTensor, forgetGateBiasTensor)
+
+		local forgetGateTensor = ActivationLayers.FastSigmoid{forgetGateZTensor}
+
+		local candidateZTensor = calculateZTensor(inputTensor, candidateInputWeightTensor, (forgetGateTensor * hiddenStateTensor), candidateHiddenWeightTensor, candidateBiasTensor)
+
+		local candidateActivationTensor = ActivationLayers.FastTanh{candidateZTensor}
+
+		local oneTensorDimensionSizeArray = forgetGateTensor:getDimensionSizeArray()
+
+		local oneTensor = AutomaticDifferentiationTensor.createTensor{oneTensorDimensionSizeArray, 1}
+
+		local oneMinusUpdateGateTensor = oneTensor - forgetGateTensor
+
+		hiddenStateTensor = (oneMinusUpdateGateTensor * hiddenStateTensor) + (forgetGateTensor * candidateActivationTensor)
+
+		return hiddenStateTensor
+
+	end
+
+	local function reset()
+
+		hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
+
+	end
+
+	local function setHiddenStateTensor(parameterDictionary)
+
+		hiddenStateTensor = parameterDictionary.hiddenStateTensor or parameterDictionary[1]
+
 	end
 
 	return Model, WeightContainer, reset, setHiddenStateTensor
