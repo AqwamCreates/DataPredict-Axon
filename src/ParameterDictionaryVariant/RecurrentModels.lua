@@ -76,13 +76,17 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 	
 	if (not activationLayer) then error("The activation function does not exist.") end
 	
-	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
+	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, 1}}
 
 	local function Model(parameterDictionary)
 		
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 		
+		inputTensor = AutomaticDifferentiationTensor.coerce{inputTensor}
+		
 		local zTensor = calculateZTensor(inputTensor, inputWeightTensor, hiddenStateTensor, hiddenWeightTensor, biasTensor)
+		
+		print(zTensor)
 		
 		hiddenStateTensor = activationLayer{zTensor}
 		
@@ -92,7 +96,7 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 	
 	local function reset()
 		
-		hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize}}
+		hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{hiddenSize, 1}}
 		
 	end
 	
@@ -161,6 +165,8 @@ function RecurrentModels.GatedRecurrentUnitCell(parameterDictionary)
 	local function Model(parameterDictionary)
 
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
+		
+		inputTensor = AutomaticDifferentiationTensor.coerce{inputTensor}
 		
 		local updateGateZTensor = calculateZTensor(inputTensor, updateGateInputWeightTensor, hiddenStateTensor, updateGateHiddenWeightTensor, updateGateBiasTensor)
 
@@ -270,6 +276,8 @@ function RecurrentModels.LongShortTermMemoryCell(parameterDictionary)
 	local function Model(parameterDictionary)
 
 		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
+		
+		inputTensor = AutomaticDifferentiationTensor.coerce{inputTensor}
 
 		local inputGateZTensor = calculateZTensor(inputTensor, inputGateInputWeightTensor, hiddenStateTensor, inputGateHiddenWeightTensor, inputGateBiasTensor)
 
