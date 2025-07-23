@@ -79,10 +79,12 @@ end
 
 for i = 10, 100, 1 do
 	
-	local test3 = RNNCell{{{i}}} -- Notice that this is a "cell", hence any input 
+	local test3 = RNNCell{{{i}}} -- Notice that this is a "cell", hence you must only give a single timestep.
 	
 	print(test3)
 	
 end
 
 ```
+
+Whew! That took quite a bit. You may have noticed why we don't manually handle the hidden state tensors like other deep learning libraries and frameworks. This is because DataPredict
