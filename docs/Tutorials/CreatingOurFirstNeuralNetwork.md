@@ -100,7 +100,9 @@ local biasTensor = ADTensor.createRandomNormalTensor{biasTensorDimensionSizeArra
 
 local targetTensor = ADTensor.createRandomNormalTensor{targetTensorDimensionSizeArray}
 
-local WeightContainer = DataPredictAxon.WeightContainer.new{ -- This allows us to adjust the weights.
+local WeightContainer = DataPredictAxon.WeightContainer.new{} -- This allows us to adjust the weights.
+
+WeightContainer:setWeightTensorDataArray{
 
 	{weightTensor, 0.001}, -- The first one is the tensor that we want to train, the second is the learning rate for adjusting our tensor value.
 
