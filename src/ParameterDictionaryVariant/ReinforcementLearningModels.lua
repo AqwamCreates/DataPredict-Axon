@@ -628,6 +628,90 @@ function ReinforcementLearningModels.DeepExpectedDoubleStateActionRewardStateAct
 
 end
 
+function ReinforcementLearningModels.DeepExpectedDoubleStateActionRewardStateActionV2(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+	
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
+
+	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[4] or defaultAveragingRate
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[5] or defaultDiscountFactor
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+		
+		local numberOfGreedyActions = 0
+
+		local expectedQValue = 0
+
+		local PrimaryWeightTensorArray = WeightContainer:getWeightTensorArray{true}
+
+		local currentQValueTensor = Model{currentFeatureTensor}
+
+		local previousQValueTensor = Model{previousFeatureTensor}
+
+		local maxQValue = currentQValueTensor:findMaximumValue()
+
+		local unwrappedTargetTensor = currentQValueTensor[1]
+
+		local numberOfClasses = #unwrappedTargetTensor
+
+		for i = 1, numberOfClasses, 1 do
+
+			if (unwrappedTargetTensor[i] == maxQValue) then
+
+				numberOfGreedyActions = numberOfGreedyActions + 1
+
+			end
+
+		end
+
+		local nonGreedyActionProbability = epsilon / numberOfClasses
+
+		local greedyActionProbability = ((1 - epsilon) / numberOfGreedyActions) + nonGreedyActionProbability
+
+		for _, qValue in ipairs(unwrappedTargetTensor) do
+
+			if (qValue == maxQValue) then
+
+				expectedQValue = expectedQValue + (qValue * greedyActionProbability)
+
+			else
+
+				expectedQValue = expectedQValue + (qValue * nonGreedyActionProbability)
+
+			end
+
+		end
+
+		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * expectedQValue)
+
+		local lastValue = previousQValueTensor[1][actionIndex]
+
+		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
+
+		cost:differentiate()
+
+		WeightContainer:gradientAscent()
+
+		local TargetWeightTensorArray = WeightContainer:getWeightTensorArray{true}
+
+		TargetWeightTensorArray = rateAverageWeightTensorArray(averagingRate, TargetWeightTensorArray, PrimaryWeightTensorArray)
+
+		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
+
+		cost:destroy{true}
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+
+end
+
 function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
