@@ -59,7 +59,7 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 
 ### Learning AIs
 
-[Getting Started With Deep Reinforcement Learning](GettingStartedWithDeepReinforcementLearning.md)
+[Getting Started With Deep Reinforcement Learning](Tutorials/GettingStartedWithDeepReinforcementLearning.md)
 
 ## API Reference
 
