@@ -46,6 +46,8 @@ local defaultPolicyDelayAmount = 3
 
 local defaultAveragingRate = 0.995
 
+local defaultTargetPolicyFunction = "StableSoftmax"
+
 local defaultLambda = 0
 
 local defaultDiscountFactor = 0.95
@@ -120,6 +122,38 @@ local function calculateRewardToGo(rewardValueHistory, discountFactor)
 
 end
 
+local targetPolicyFunctionList = {
+
+	["Softmax"] = function (actionTensor) -- Apparently Lua doesn't really handle very small values such as math.exp(-1000), so I added a more stable computation exp(a) / exp(b) -> exp (a - b).
+
+		local exponentTensor = AutomaticDifferentiationTensor.exponent{actionTensor}
+
+		local sumExponentTensor = exponentTensor:sum{2}
+		
+		local targetActionTensor = exponentTensor / sumExponentTensor
+
+		return targetActionTensor
+
+	end,
+
+	["StableSoftmax"] = function (actionVector)
+
+		local highestActionValue = actionVector:findMaximumValue()
+
+		local subtractedZVector = actionVector - highestActionValue
+
+		local exponentTensor = AutomaticDifferentiationTensor.exponent{subtractedZVector}
+
+		local sumExponentTensor = exponentTensor:sum{2}
+
+		local targetActionTensor = exponentTensor / sumExponentTensor
+
+		return targetActionTensor
+
+	end,
+
+}
+
 function ReinforcementLearningModels.new(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
@@ -183,6 +217,86 @@ function ReinforcementLearningModels.MonteCarloControl(parameterDictionary)
 		WeightContainer:gradientAscent()
 
 		table.clear(featureTensorArray)
+
+		table.clear(rewardValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+
+end
+
+function ReinforcementLearningModels.OffPolicyMonteCarloControl(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+
+	local targetPolicyFunction = parameterDictionary.targetPolicyFunction or parameterDictionary[3] or defaultTargetPolicyFunction
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+
+	if (not Model) then error("No model.") end
+
+	if (not WeightContainer) then error("No weight container.") end
+
+	local targetPolicyFunction = targetPolicyFunctionList[targetPolicyFunction]
+
+	local actionTensorArray = {}
+
+	local rewardValueArray = {}
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local actionTensor = Model{previousFeatureTensor}
+
+		table.insert(actionTensorArray, actionTensor)
+
+		table.insert(rewardValueArray, rewardValue)
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue)
+		
+		local firstActionTensor = actionTensorArray[1]
+		
+		local actionTensorDimensionSizeArray = firstActionTensor:getDimensionSizeArray()
+
+		local cTensor =  AqwamTensorLibrary:createTensor(actionTensorDimensionSizeArray, 0) 
+
+		local weightTensor = AqwamTensorLibrary:createTensor{actionTensorDimensionSizeArray, 1}
+
+		local discountedReward = 0
+
+		for h = #actionTensorArray, 1, -1 do
+
+			discountedReward = rewardValueArray[h] + (discountFactor * discountedReward)
+
+			cTensor = cTensor + weightTensor
+
+			local actionTensor = actionTensorArray[h]
+
+			local lossTensor = (weightTensor / cTensor) * (discountedReward - actionTensor)
+
+			local targetActionTensor = targetPolicyFunction(actionTensor)
+
+			local actionRatioTensor = targetActionTensor / actionTensor
+
+			weightTensor = weightTensor * actionRatioTensor
+			
+			lossTensor:differentiate()
+
+		end
+		
+		WeightContainer:gradientAscent()
+		
+		cTensor:destroy{}
+		
+		weightTensor:destroy{}
+
+		table.clear(actionTensorArray)
 
 		table.clear(rewardValueArray)
 
