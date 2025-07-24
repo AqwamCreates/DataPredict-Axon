@@ -58,41 +58,55 @@ Action label is a label produced by the model. This label can be a part of decis
 
 * Classification classes: 1, 2, 3, 4, 5, 6
 
-## Setting Up Our Reinforcement Learning Model
+# Setting Up Our Reinforcement Learning Model
 
-There are two ways we can setup our models for our environment:
-
-* Classic Setup (Recommended for experts or people who wants more control over their models)
-
-* Quick Setup (Recommended for beginners)
-
-Below we will show you the difference between the two above. But first, let's define a number of variables and setup the first part of the model.
+First, let's define a number of variables and setup the first part of the model.
 
 ```lua
 
 local ClassesList = {1, 2}
 
-local NeuralNetwork = DataPredictNeural.Container.Sequential.new() -- Create the NeuralNetwork first.
+local ADTensor = DataPredictAxon.AutomaticDifferentiationTensor
 
-NeuralNetwork:setMultipleFunctionBlocks(
+-- Setting up our weights.
 
-  DataPredictNeural.WeightBlocks.Linear.new({dimensionSizeArray = {4, 2}}),
+local weightTensor = ADTensor.createRandomNormalTensor{{4, 2}}
 
-  DataPredictNeural.WeightBlocks.Bias.new({dimensionSizeArray = {1, 2}}),
+local biasTensor = ADTensor.createRandomNormalTensor{{1, 2}}
 
-  DataPredictNeural.ActivationFunctions.LeakyReLU.new()
+-- Creating the WeightContainer
 
-)
+local WeightContainer = DataPredictAxon.WeightContainer.new{}
 
-NeuralNetwork:setClassesList(ClassesList)
+WeightContainer:setWeightTensorDataArray{
 
-local DeepQLearning = DataPredict.Models.DeepQLearning.new() -- Then create the DeepQLearning.
+  {weightTensor, 0.001},
 
-DeepQLearning:setModel(NeuralNetwork) -- Then put the NeuralNetwork inside DeepQLearning.
+  {biasTensor, 0.001}
+
+} 
+
+-- Creating the neural network model.
+
+local ActivationLayers = DataPredictAxon.ActivationLayers
+
+local function Model(parameterDictionary) -- Make sure to only pass a table.
+
+  local inputTensor = parameterDictionary[1]
+
+  local weightedInputTensor = inputTensor:dotProduct(weightTensor)
+
+  local weightedInputTensorWithBiasTensor = weightedInputTensor + biasTensor
+
+  local outputTensor = ActivationLayers.LeakyRectifiedLinearUnit{weightedInputTensorWithBiasTensor}
+
+  return outputTensor
+
+end
 
 ```
 
-## Classic Setup
+## The Update Functions
 
 All the reinforcement learning models have two important functions: 
 
@@ -139,47 +153,3 @@ end
 ```
 
 As you can see, there are a lot of things that we must track of, but it gives you total freedom on what you want to do with the reinforcement learning models.
-
-## Quick Setup
-
-To reduce the amount of things we need to track, we can use CategoricalPolicy in "QuickSetups" section. 
-
-Note that you need to use the code from the [DataPredict](https://aqwamcreates.github.io/DataPredict/) library and must not be confused with DataPredict Neural library.
-
-```lua
-
-local DeepQLearningQuickSetup = DataPredict.QuickSetups.CategoricalPolicy.new()
-
-DeepQLearningQuickSetup:setModel(DeepQLearning)
-
-DeepQLearningQuickSetup:setClassesList(ClassesList)
-
-local environmentFeatureTensor = {{0, 0, 0, 0, 0}}
-
-local action = 1
-
-while true do
-
-  environmentFeatureTensor = fetchEnvironmentFeatureTensor(environmentFeatureTensor, action)
-
-  local reward = getReward(environmentFeatureTensor, action)
-
-  action = DeepQLearningQuickSetup:reinforce(environmentFeatureTensor, reward)
-
-end
-
-```
-
-As you can see, the CategoricalPolicy compresses a number of codes into reinforce() function.
-
-# Wrapping It All Up
-
-In this tutorial, you have learnt the starting point of the reinforcement learning neural networks. 
-
-These only cover the basics. You can find more information here:
-
-* [Deep Q-Learning](../API/Models/DeepQLearning.md)
-
-* [Deep SARSA](../API/Models/DeepStateActionRewardStateAction.md)
-
-* [Deep Expected SARSA](../API/Models/DeepExpectedStateActionRewardStateAction.md)
