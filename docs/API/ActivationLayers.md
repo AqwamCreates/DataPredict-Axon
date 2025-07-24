@@ -168,6 +168,24 @@ ActivationLayers.FastSoftmax{tensor: tensor, dimension: number}: AutomaticDiffer
 
 * AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
 
+### FastStableSoftmax
+
+```
+
+ActivationLayers.FastStableSoftmax{tensor: tensor, dimension: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+* dimension: The dimension at which the exponent values are summed. [Default: 1]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
 ### Sigmoid
 
 ```
@@ -321,6 +339,24 @@ ActivationLayers.Tanh{tensor: tensor}: AutomaticDifferentiationTensor
 ```
 
 ActivationLayers.Softmax{tensor: tensor, dimension: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* tensor: The tensor that will be transformed.
+
+* dimension: The dimension at which the exponent values are summed. [Default: 1]
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The automatic differentiation tensor that is created as a result of calling this function.
+
+### StableSoftmax
+
+```
+
+ActivationLayers.StableSoftmax{tensor: tensor, dimension: number}: AutomaticDifferentiationTensor
 
 ```
 
