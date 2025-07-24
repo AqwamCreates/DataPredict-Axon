@@ -30,7 +30,7 @@ RecurrentModels.RecurrentNeuralNetworkCell{inputSize: number, hiddenSize: number
 
 * setHiddenStateTensor: The function to set the hidden state tensor.
 
-### GatedRecurrentUnit()
+### GatedRecurrentUnitCell()
 
 ```
 
@@ -56,7 +56,7 @@ RecurrentModels.GatedRecurrentUnitCell{inputSize: number, hiddenSize: number, le
 
 * setHiddenStateTensor: The function to set the hidden state tensor.
 
-### GatedRecurrentUnit()
+### MinimalGatedUnitCell()
 
 ```
 
