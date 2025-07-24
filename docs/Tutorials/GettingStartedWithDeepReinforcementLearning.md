@@ -104,6 +104,10 @@ local function Model(parameterDictionary) -- Make sure to only pass a table.
 
 end
 
+-- Creating the deep reinforcement learning model.
+
+local DeepSARSA = DataPredictAxon.ReinforcementLearningModels.DeepStateActionRewardStateAction{Model = Model, WeightContainer = WeightContainer}
+
 ```
 
 ## The Update Functions
@@ -132,11 +136,11 @@ while true do
 
     local currentEnvironmentFeatureTensor = fetchEnvironmentFeatureTensor(previousEnvironmentFeatureTensor, action)
 
-    action = DeepQLearning:predict(currentEnvironmentFeatureTensor)[1][1]
+    local actionTensor = Model{currentEnvironmentFeatureTensor}
 
     local reward = getReward(currentEnvironmentFeatureTensor)
 
-    DeepQLearning:categoricalUpdate(previousEnvironmentFeatureTensor, reward, action, currentEnvironmentFeatureTensor, 0) -- update() is called whenever a step is made. The value of zero indicates that the current environment feature tensor is not a terminal state.
+    DeepSARSA:categoricalUpdate{previousEnvironmentFeatureTensor, reward, action, currentEnvironmentFeatureTensor, 0} -- update() is called whenever a step is made. The value of zero indicates that the current environment feature tensor is not a terminal state.
 
     previousEnvironmentFeatureTensor = environmentTensor
 
