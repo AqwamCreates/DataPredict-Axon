@@ -41,6 +41,8 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 
 [Creating Our First Neural Network](Tutorials/CreatingOurFirstNeuralNetwork.md)
 
+[Creating Our First Recurrent Neural Network](Tutorials/CreatingOurFirstRecurrentNeuralNetwork.md)
+
 [Saving And Loading Model Weights](Tutorials/SavingAndLoadingModelWeights.md)
 
 ### The Tensor Basics
@@ -52,6 +54,10 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 ### The Advanced Layers
 
 [Using Pooling Layers And Convolution Layers](Tutorials/UsingPoolingLayersAndConvolutionLayers.md)
+
+### Learning AIs
+
+[Getting Started With Deep Reinforcement Learning](GettingStartedWithDeepReinforcementLearning.md)
 
 ## API Reference
 
