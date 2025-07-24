@@ -8,7 +8,7 @@ Before we proceed this tutorial, you are required to read these two tutorials:
 
 * [General Tensor Conventions](GeneralTensorConventions.md)
 
-# Setting Up The Recurrent Neural Network Cell
+## Setting Up The Recurrent Neural Network Cell
 
 In the previous tutorial, you have seen that the we have to manually create our weight tensors and WeightContainer. Fortunately, because recurrent neural networks and its variants have specific configurations, this library provides you a modular way to create it.
 
