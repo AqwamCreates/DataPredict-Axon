@@ -54,9 +54,9 @@ function RecurrentModels.RecurrentNeuralNetworkCell(parameterDictionary)
 	
 	local hiddenSize = parameterDictionary.hiddenSize or parameterDictionary[2]
 	
-	local activationFunction = parameterDictionary.activationFunction or parameterDictionary[3] or "FastTanh"
+	local learningRate = parameterDictionary.learningRate or parameterDictionary[3] or defaultLearningRate
 	
-	local learningRate = parameterDictionary.learningRate or parameterDictionary[4] or defaultLearningRate
+	local activationFunction = parameterDictionary.activationFunction or parameterDictionary[4] or "FastTanh"
 	
 	local inputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
 	
