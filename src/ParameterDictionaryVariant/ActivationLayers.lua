@@ -404,6 +404,44 @@ function ActivationLayer.FastSoftmax(parameterDictionary)
 
 end
 
+function ActivationLayer.FastStableSoftmax(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local dimension = parameterDictionary.dimension or parameterDictionary[2] or 1
+
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+	
+	local maximumValue = AqwamTensorLibrary:findMaximumValue(pureTensor)
+	
+	local subtractedZTensor =  AqwamTensorLibrary:subtract(pureTensor, maximumValue)
+
+	local exponentTensor = AqwamTensorLibrary:applyFunction(math.exp, subtractedZTensor)
+
+	local sumExponentTensor = AqwamTensorLibrary:sum(exponentTensor, dimension)
+
+	local resultTensor = AqwamTensorLibrary:divide(exponentTensor, sumExponentTensor)
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+
+		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
+
+		local gradientTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
+
+		calculateChainRuleFirstDerivativeTensor(resultTensor, dimensionSizeArray, #dimensionSizeArray, 1, gradientTensor, dimension)
+
+		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
 function ActivationLayer.Sigmoid(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
@@ -519,6 +557,26 @@ function ActivationLayer.Softmax(parameterDictionary)
 	local dimension = parameterDictionary.dimension or parameterDictionary[2] or 1
 
 	local exponentTensor = AutomaticDifferentiationTensor.exponent{tensor}
+
+	local sumExponentTensor = exponentTensor:sum{dimension}
+
+	return exponentTensor / sumExponentTensor
+
+end
+
+function ActivationLayer.StableSoftmax(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local dimension = parameterDictionary.dimension or parameterDictionary[2] or 1
+
+	local highestActionValue = tensor:findMaximumValue()
+
+	local subtractedZVector = tensor - highestActionValue
+
+	local exponentTensor = AutomaticDifferentiationTensor.exponent{subtractedZVector}
 
 	local sumExponentTensor = exponentTensor:sum{dimension}
 
