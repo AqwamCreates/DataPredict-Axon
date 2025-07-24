@@ -22,7 +22,7 @@ RecurrentModels.RecurrentNeuralNetworkCell{inputSize: number, hiddenSize: number
 
 #### Returns:
 
-* Model: The model that is constructed using a set of parameters.
+* Model: The model that is constructed using the set of parameters.
 
 * WeightContainer: The generated WeightContainer object.
 
@@ -48,7 +48,7 @@ RecurrentModels.GatedRecurrentUnitCell{inputSize: number, hiddenSize: number, le
 
 #### Returns:
 
-* Model: The model that is constructed using a set of parameters.
+* Model: The model that is constructed using the set of parameters.
 
 * WeightContainer: The generated WeightContainer object.
 
@@ -74,7 +74,7 @@ RecurrentModels.MinimalGatedUnitCell{inputSize: number, hiddenSize: number, lear
 
 #### Returns:
 
-* Model: The model that is constructed using a set of parameters.
+* Model: The model that is constructed using the set of parameters.
 
 * WeightContainer: The generated WeightContainer object.
 
@@ -100,7 +100,7 @@ RecurrentModels.LongShortTermMemoryCell{inputSize: number, hiddenSize: number, l
 
 #### Returns:
 
-* Model: The model that is constructed using a set of parameters.
+* Model: The model that is constructed using the set of parameters.
 
 * WeightContainer: The generated WeightContainer object.
 
@@ -109,3 +109,21 @@ RecurrentModels.LongShortTermMemoryCell{inputSize: number, hiddenSize: number, l
 * setHiddenStateTensor: The function to set the hidden state tensor.
 
 * setCellStateTensor: The function to set the cell state tensor.
+
+### UncellModel()
+
+```
+
+RecurrentModels.UncellModel{Model: function, reverse: boolean}: function
+
+```
+
+#### Parameters:
+
+* Model: The model to be given time sequence batching capabilities.
+
+* reverse: Set whether or not to train and predict from last element of the sequence to the first one.
+
+#### Returns:
+
+* Model: The model that is constructed using the set of parameters.
