@@ -136,44 +136,100 @@ function ReinforcementLearningModels.new(parameterDictionary)
 
 end
 
-function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
-	
+function ReinforcementLearningModels.MonteCarloControl(parameterDictionary)
+
 	parameterDictionary = parameterDictionary or {}
-	
+
 	local Model = parameterDictionary.Model or parameterDictionary[1]
-	
+
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
-	
+
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
-	
+
+	local featureTensorArray = {}
+
+	local rewardValueArray = {}
+
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		table.insert(featureTensorArray, previousFeatureTensor)
+
+		table.insert(rewardValueArray, rewardValue)
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue)
+
+		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
+
+		for h, featureTensor in ipairs(featureTensorArray) do
+
+			local averageRewardToGo = rewardToGoArray[h] / h
+
+			local actionTensor = Model{featureTensor}
+			
+			local costTensor = CostFunctions.FastMeanSquaredError{actionTensor, averageRewardToGo}
+			
+			costTensor:differentiate()
+
+			costTensor:destroy{true}
+
+		end
 		
+		WeightContainer:gradientAscent()
+
+		table.clear(featureTensorArray)
+
+		table.clear(rewardValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+
+end
+
+function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+
+	if (not Model) then error("No model.") end
+
+	if (not WeightContainer) then error("No weight container.") end
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
 		local previousQValueTensor = Model{previousFeatureTensor}
-		
+
 		local currentQValueTensor = Model{currentFeatureTensor}
-		
+
 		local maxQValue = currentQValueTensor:findMaximumValue()
-		
+
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
-		
+
 		local lastValue = previousQValueTensor[1][actionIndex]
-		
+
 		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
-		
+
 		cost:differentiate()
 
 		WeightContainer:gradientAscent()
-		
+
 		cost:destroy{true}
-		
+
 	end
-	
+
 	return ReinforcementLearningModels.new{categoricalUpdateFunction}
-	
+
 end
 
 function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
@@ -185,31 +241,31 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
-	
+
 	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[4] or {}
-	
+
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
 	WeightTensorArrayArray[2] = WeightTensorArrayArray[2] or WeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
 
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local randomProbability = math.random()
-		
+
 		local updateSecondWeightTensorArray = (randomProbability >= 0.5)
-		
+
 		local selectedWeightTensorArrayNumberForTargetVector = (updateSecondWeightTensorArray and 1) or 2
 
 		local selectedWeightTensorArrayNumberForUpdate = (updateSecondWeightTensorArray and 2) or 1
-		
+
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
 		local previousQValueTensor = Model{previousFeatureTensor}
-		
+
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForTargetVector]}
 
 		local currentQValueTensor = Model{currentFeatureTensor}
@@ -221,13 +277,13 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 		local lastValue = previousQValueTensor[1][actionIndex]
 
 		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
-		
+
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
 		cost:differentiate()
 
 		WeightContainer:gradientAscent()
-		
+
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
 		cost:destroy{true}
@@ -245,21 +301,21 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 	local Model = parameterDictionary.Model or parameterDictionary[1]
 
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
-	
+
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[3] or defaultAveragingRate
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
 
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local PrimaryWeightTensorArray = WeightContainer:getWeightTensorArray{true}
 
 		local currentQValueTensor = Model{currentFeatureTensor}
-		
+
 		local maxQValue = currentQValueTensor:findMaximumValue()
 
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
@@ -269,9 +325,9 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 		local lastValue = previousQValueTensor[1][actionIndex]
 
 		local temporalDifferenceError = targetValue - lastValue
-		
+
 		temporalDifferenceError:differentiate()
-		
+
 		WeightContainer:gradientAscent()
 
 		local TargetWeightTensorArray = WeightContainer:getWeightTensorArray{true}
@@ -303,13 +359,13 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
 	WeightTensorArrayArray[2] = WeightTensorArrayArray[2] or WeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
 
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local maxQValueArray = {}
 
 		for i = 1, 2, 1 do
@@ -317,15 +373,15 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 			WeightContainer:setWeightTensorArray{WeightTensorArrayArray[i], true}
 
 			local currentQValueTensor = Model{currentFeatureTensor}
-			
+
 			local currentMaxQValue = currentQValueTensor:findMaximumValue()
 
 			table.insert(maxQValueArray, currentMaxQValue)
 
 		end
-		
+
 		local minimumCurrentMaxQValue = AutomaticDifferentiationTensor.minimum(maxQValueArray)
-		
+
 		for i = 1, 2, 1 do
 
 			WeightContainer:setWeightTensorArray{WeightTensorArrayArray[i], true}
@@ -335,9 +391,9 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 			local previousQValue = previousQValueTensor[1][actionIndex]
 
 			local cost = CostFunctions.FastMeanSquaredError{minimumCurrentMaxQValue, previousQValue}
-			
+
 			cost:differentiate()
-			
+
 			WeightContainer:gradientAscent()
 
 		end
@@ -357,7 +413,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
@@ -375,7 +431,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 		costTensor:differentiate()
 
 		WeightContainer:gradientAscent()
-		
+
 		costTensor:destroy{true}
 
 	end
@@ -399,7 +455,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
 	WeightTensorArrayArray[2] = WeightTensorArrayArray[2] or WeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
@@ -453,7 +509,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[3] or defaultAveragingRate
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
@@ -465,7 +521,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 		local currentQValueTensor = Model{currentFeatureTensor}
 
 		local previousQValueTensor = Model{previousFeatureTensor}
-		
+
 		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
 
 		local costTensor = CostFunctions.FastMeanSquaredError{targetQValueTensor, previousQValueTensor}
@@ -495,19 +551,19 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 	local Model = parameterDictionary.Model or parameterDictionary[1]
 
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
-	
+
 	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
 
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local numberOfGreedyActions = 0
-		
+
 		local expectedQValue = 0
 
 		local previousQValueTensor = Model{previousFeatureTensor}
@@ -515,17 +571,17 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 		local currentQValueTensor = Model{currentFeatureTensor}
 
 		local maxQValue = currentQValueTensor:findMaximumValue()
-		
+
 		local unwrappedTargetTensor = currentQValueTensor[1]
-		
+
 		local numberOfClasses = #unwrappedTargetTensor
 
 		for i = 1, numberOfClasses, 1 do
 
 			if (unwrappedTargetTensor[i] == maxQValue) then
-				
+
 				numberOfGreedyActions = numberOfGreedyActions + 1
-				
+
 			end
 
 		end
@@ -573,7 +629,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 	local Model = parameterDictionary.Model or parameterDictionary[1]
 
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
-	
+
 	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
@@ -583,13 +639,13 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
 	WeightTensorArrayArray[2] = WeightTensorArrayArray[2] or WeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
 
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local numberOfGreedyActions = 0
 
 		local expectedQValue = 0
@@ -673,19 +729,19 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 	local Model = parameterDictionary.Model or parameterDictionary[1]
 
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
-	
+
 	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
 
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[4] or defaultAveragingRate
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[5] or defaultDiscountFactor
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
 
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local numberOfGreedyActions = 0
 
 		local expectedQValue = 0
@@ -763,7 +819,7 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
-	
+
 	if (not Model) then error("No model.") end
 
 	if (not WeightContainer) then error("No weight container.") end
@@ -775,9 +831,9 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		local actionTensor = Model{previousFeatureTensor}
-		
+
 		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
-		
+
 		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
 
 		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
@@ -785,33 +841,33 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 		table.insert(rewardValueArray, rewardValue)
 
 	end
-	
+
 	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local actionMeanTensor, actionStandardDeviationTensor = Model{previousFeatureTensor}
-		
+
 		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
-		
+
 		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
 
 		table.insert(rewardValueArray, rewardValue)
-		
+
 	end
-	
+
 	local episodeUpdateFunction = function(terminalStateValue)
 
 		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
 
 		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
-			
+
 			local lossTensor = actionProbabilityTensor * rewardToGoArray[h]
 
 			lossTensor:differentiate()
-			
+
 			lossTensor:destroy{true}
-			
+
 		end
-		
+
 		WeightContainer:gradientAscent()
 
 		table.clear(actionProbabilityTensorArray)
@@ -835,25 +891,25 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
 
 	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
-	
+
 	local AdvantageFunction = parameterDictionary.AdvantageFunction or parameterDictionary[5]
-	
+
 	local lambda = parameterDictionary.lambda or parameterDictionary[6] or defaultLambda
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[7] or defaultDiscountFactor
-	
+
 	if (not ActorModel) then error("No actor model.") end
-	
+
 	if (not ActorWeightContainer) then error("No actor weight container.") end
-	
+
 	if (not CriticModel) then error("No critic model.") end
 
 	if (not CriticWeightContainer) then error("No actor weight container.") end
-	
+
 	if (not AdvantageFunction) then error("No advantage function.") end
 
 	local actionProbabilityTensorArray = {}
-	
+
 	local advantageValueArray = {}
 
 	local rewardValueArray = {}
@@ -865,7 +921,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 		local actionTensor = ActorModel{previousFeatureTensor}
 
 		local criticValue = CriticModel{previousFeatureTensor}
-		
+
 		local advantageValue = AdvantageFunction{previousFeatureTensor}
 
 		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
@@ -873,7 +929,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
 
 		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
-		
+
 		table.insert(advantageValueArray, advantageValue)
 
 		table.insert(rewardValueArray, rewardValue)
@@ -887,13 +943,13 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 		local actionMeanTensor, actionStandardDeviationTensor = ActorModel{previousFeatureTensor}
 
 		local criticValue = CriticModel{previousFeatureTensor}
-		
+
 		local advantageValue = AdvantageFunction{previousFeatureTensor}
 
 		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
 
 		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
-		
+
 		table.insert(advantageValueArray, advantageValue)
 
 		table.insert(rewardValueArray, rewardValue)
@@ -905,7 +961,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 	local episodeUpdateFunction = function(terminalStateValue)
 
 		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
-		
+
 		if (lambda ~= 0) then
 
 			local generalizedAdvantageEstimationValue = 0
@@ -945,7 +1001,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 		CriticWeightContainer:gradientDescent()
 
 		table.clear(actionProbabilityTensorArray)
-		
+
 		table.clear(advantageValueArray)
 
 		table.clear(rewardValueArray)
@@ -965,13 +1021,13 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
 
 	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
-	
+
 	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
 
 	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[5] or defaultDiscountFactor
-	
+
 	if (not ActorModel) then error("No actor model.") end
 
 	if (not ActorWeightContainer) then error("No actor weight container.") end
@@ -983,13 +1039,13 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 	local actionProbabilityTensorArray = {}
 
 	local rewardValueArray = {}
-	
+
 	local criticValueArray = {}
 
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		local actionTensor = ActorModel{previousFeatureTensor}
-		
+
 		local criticValue = CriticModel{previousFeatureTensor}
 
 		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
@@ -999,13 +1055,13 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
 
 		table.insert(rewardValueArray, rewardValue)
-		
+
 		table.insert(criticValueArray, criticValue)
 
 	end
-	
+
 	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local actionMeanTensor, actionStandardDeviationTensor = ActorModel{previousFeatureTensor}
 
 		local criticValue = CriticModel{previousFeatureTensor}
@@ -1025,29 +1081,29 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
 
 		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
-			
+
 			local criticCost = CostFunctions.FastMeanSquaredError{rewardToGoArray[h], criticValueArray[h]}
-			
+
 			local actorLossTensor = actionProbabilityTensor * criticCost
-			
+
 			criticCost:differentiate()
 
 			actorLossTensor:differentiate()
-			
+
 			criticCost:destroy{true}
-			
+
 			actorLossTensor:destroy{true}
 
 		end
 
 		ActorWeightContainer:gradientAscent()
-		
+
 		CriticWeightContainer:gradientDescent()
 
 		table.clear(actionProbabilityTensorArray)
 
 		table.clear(rewardValueArray)
-		
+
 		table.clear(criticValueArray)
 
 	end
@@ -1067,11 +1123,11 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
 
 	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
-	
+
 	local lambda = parameterDictionary.lambda or parameterDictionary[5] or defaultLambda
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6] or defaultDiscountFactor
-	
+
 	if (not ActorModel) then error("No actor model.") end
 
 	if (not ActorWeightContainer) then error("No actor weight container.") end
@@ -1089,11 +1145,11 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 		local actionTensor = ActorModel{previousFeatureTensor}
 
 		local previousCriticValue = CriticModel{previousFeatureTensor}
-		
+
 		local currentCriticValue = CriticModel{currentFeatureTensor}
 
 		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
-		
+
 		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
 
 		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
@@ -1103,7 +1159,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 		table.insert(advantageValueArray, advantageValue)
 
 	end
-	
+
 	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		local actionMeanTensor, actionStandardDeviationTensor = ActorModel{previousFeatureTensor}
@@ -1113,7 +1169,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 		local currentCriticValue = CriticModel{currentFeatureTensor}
 
 		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
-		
+
 		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
 
 		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
@@ -1123,7 +1179,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 	end
 
 	local episodeUpdateFunction = function(terminalStateValue)
-		
+
 		if (lambda ~= 0) then
 
 			local generalizedAdvantageEstimationValue = 0
@@ -1143,15 +1199,15 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 		end
 
 		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
-			
+
 			local advantageValue = advantageValueArray[h]
-			
+
 			local actorLossTensor = actionProbabilityTensor * advantageValue
-			
+
 			advantageValue:differentiate()
 
 			actorLossTensor:differentiate()
-			
+
 			advantageValue:destroy{true}
 
 			actorLossTensor:destroy{true}
@@ -1183,15 +1239,15 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
 
 	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
-	
+
 	local lambda = parameterDictionary.lambda or parameterDictionary[6] or defaultLambda
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[7] or defaultDiscountFactor
-	
+
 	local currentActorWeightTensorArray = parameterDictionary.currentActorWeightTensorArray or parameterDictionary[8] or ActorWeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
 	local oldActorWeightTensorArray = parameterDictionary.oldActorWeightTensorArray or parameterDictionary[9] or ActorWeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
-	
+
 	if (not ActorModel) then error("No actor model.") end
 
 	if (not ActorWeightContainer) then error("No actor weight container.") end
@@ -1201,27 +1257,27 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 	if (not CriticWeightContainer) then error("No actor weight container.") end
 
 	local ratioActionProbabilityTensorArray = {}
-	
+
 	local advantageValueArray = {}
-	
+
 	local criticValueArray = {}
-	
+
 	local rewardValueArray = {}
-	
+
 	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		ActorWeightContainer:setWeightTensorArray{currentActorWeightTensorArray, true}
-		
+
 		local currentPolicyActionTensor = ActorModel{previousFeatureTensor}
-		
+
 		local currentPolicyActionProbabilityTensor = calculateCategoricalProbability(currentPolicyActionTensor)
-		
+
 		ActorWeightContainer:setWeightTensorArray{oldActorWeightTensorArray, true}
-		
+
 		local oldPolicyActionTensor = ActorModel{previousFeatureTensor}
-		
+
 		local oldPolicyActionProbabilityTensor = calculateCategoricalProbability(oldPolicyActionTensor)
-		
+
 		local ratioActionProbabilityTensor = currentPolicyActionProbabilityTensor / oldPolicyActionProbabilityTensor
 
 		local previousCriticValue = CriticModel{previousFeatureTensor}
@@ -1233,13 +1289,13 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 		table.insert(ratioActionProbabilityTensorArray, ratioActionProbabilityTensor)
 
 		table.insert(advantageValueArray, advantageValue)
-		
+
 		table.insert(criticValueArray, previousCriticValue)
-		
+
 		table.insert(rewardValueArray, rewardValue)
 
 	end
-	
+
 	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		ActorWeightContainer:setWeightTensorArray{currentActorWeightTensorArray, true}
@@ -1273,9 +1329,9 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 	end
 
 	local episodeUpdateFunction = function(terminalStateValue)
-		
+
 		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
-		
+
 		if (lambda ~= 0) then
 
 			local generalizedAdvantageEstimationValue = 0
@@ -1295,7 +1351,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 		end
 
 		for h, ratioActionProbabilityTensor in ipairs(ratioActionProbabilityTensorArray) do
-			
+
 			local criticCost = CostFunctions.FastMeanSquaredError{criticValueArray[h], rewardValueArray[h]}
 
 			local actorLossTensor = ratioActionProbabilityTensor * advantageValueArray[h]
@@ -1317,9 +1373,9 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 		table.clear(ratioActionProbabilityTensorArray)
 
 		table.clear(advantageValueArray)
-		
+
 		table.clear(criticValueArray)
-		
+
 		table.clear(rewardValueArray)
 
 	end
@@ -1339,9 +1395,9 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
 
 	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
-	
+
 	local clipRatio = parameterDictionary.clipRatio or parameterDictionary[5] or defaultClipRatio
-	
+
 	local lambda = parameterDictionary.lambda or parameterDictionary[6] or defaultLambda
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6] or defaultDiscountFactor
@@ -1349,7 +1405,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 	local currentActorWeightTensorArray = parameterDictionary.currentActorWeightTensorArray or parameterDictionary[7] or ActorWeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
 	local oldActorWeightTensorArray = parameterDictionary.oldActorWeightTensorArray or parameterDictionary[8] or ActorWeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
-	
+
 	if (not ActorModel) then error("No actor model.") end
 
 	if (not ActorWeightContainer) then error("No actor weight container.") end
@@ -1365,7 +1421,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 	local criticValueArray = {}
 
 	local rewardValueArray = {}
-	
+
 	local lowerClipRatioValue = 1 - clipRatio
 
 	local upperClipRatioValue = 1 + clipRatio
@@ -1401,7 +1457,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 		table.insert(rewardValueArray, rewardValue)
 
 	end
-	
+
 	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		ActorWeightContainer:setWeightTensorArray{currentActorWeightTensorArray, true}
@@ -1437,7 +1493,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 	local episodeUpdateFunction = function(terminalStateValue)
 
 		local rewardToGoArray = calculateRewardToGo(rewardValueArray, discountFactor)
-		
+
 		if (lambda ~= 0) then
 
 			local generalizedAdvantageEstimationValue = 0
@@ -1457,15 +1513,15 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 		end
 
 		for h, ratioActionProbabilityTensor in ipairs(ratioActionProbabilityTensorArray) do
-			
+
 			local criticCost = CostFunctions.FastMeanSquaredError{criticValueArray[h], rewardValueArray[h]}
-			
+
 			local clippedRatioActionProbabilityTensor = AutomaticDifferentiationTensor.clamp{ratioActionProbabilityTensor, lowerClipRatioValue, upperClipRatioValue}
-			
+
 			local actorLossTensorPart1 = ratioActionProbabilityTensor * advantageValueArray[h]
-			
+
 			local actorLossTensorPart2 = clippedRatioActionProbabilityTensor * advantageValueArray[h]
-			
+
 			local actorLossTensor = AutomaticDifferentiationTensor.minimum{actorLossTensorPart1, actorLossTensorPart2}
 
 			criticCost:differentiate()
@@ -1499,7 +1555,7 @@ end
 function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
-	
+
 	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
 
 	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
@@ -1507,7 +1563,7 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
 
 	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
-	
+
 	local alpha = parameterDictionary.alpha or parameterDictionary[5] or defaultAlpha
 
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[6] or defaultAveragingRate
@@ -1519,7 +1575,7 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 	CriticWeightTensorArrayArray[1] = CriticWeightTensorArrayArray[1] or CriticWeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
 	CriticWeightTensorArrayArray[2] = CriticWeightTensorArrayArray[2] or CriticWeightContainer:getWeightTensorArray{} -- To ensure that a copy is made to avoid gradient contribution to the current actor weight tensors.
-	
+
 	if (not ActorModel) then error("No actor model.") end
 
 	if (not ActorWeightContainer) then error("No actor weight container.") end
@@ -1527,7 +1583,7 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 	if (not CriticModel) then error("No critic model.") end
 
 	if (not CriticWeightContainer) then error("No actor weight container.") end
-	
+
 	local function update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		local PreviousCriticWeightTensorArrayArray = {}
@@ -1573,9 +1629,9 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 			local previousCriticValue = CriticModel{previousFeatureTensor}
 
 			previousCriticValueArray[i] = previousCriticValue
-			
+
 			local criticCost = CostFunctions.FastMeanSquaredError{previousCriticValue, yValue}
-			
+
 			criticCost:differentiate()
 
 			CriticWeightContainer:gradientAscent()
@@ -1589,13 +1645,13 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 		local minimumCurrentCriticValue = AutomaticDifferentiationTensor.minimum(previousCriticValueArray)
 
 		local actorCost = alpha * previousLogActionProbabilityTensor
-		
+
 		actorCost = CostFunctions.MeanSquaredError{minimumCurrentCriticValue, actorCost}
-		
+
 		actorCost:differentiate()
 
 		ActorWeightContainer:gradientAscent()
-		
+
 		actorCost:destroy{true}
 
 	end
@@ -1613,11 +1669,11 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 		local previousLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{previousActionProbabilityTensor}
 
 		local currentLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{currentActionProbabilityTensor}
-		
+
 		update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 
 	end
-	
+
 	local diagonalGaussianUpdate = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		local previousActionMeanTensor, previousStandardDeviationTensor = ActorModel{previousFeatureTensor}
@@ -1651,7 +1707,7 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[5] or defaultAveragingRate
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[6] or defaultDiscountFactor
-	
+
 	if (not ActorModel) then error("No actor model.") end
 
 	if (not ActorWeightContainer) then error("No actor weight container.") end
@@ -1661,11 +1717,11 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 	if (not CriticWeightContainer) then error("No actor weight container.") end
 
 	local diagonalGaussianUpdate = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
-		
+
 		local ActorWeightTensorArray = ActorWeightContainer:getWeightTensorArray{}
-		
+
 		local CriticWeightTensorArray = CriticWeightContainer:getWeightTensorArray{}
-		
+
 		local previousActionMeanTensor, previousActionStandardDeviationTensor = ActorModel{previousFeatureTensor}
 
 		local currentActionMeanTensor, currentActionStandardDeviationTensor = ActorModel{currentFeatureTensor}
@@ -1683,19 +1739,19 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 		local currentQValue = CriticModel{previousCriticActionInputTensor}[1][1]
 
 		local negatedtemporalDifferenceError = currentQValue - yValue
-		
+
 		negatedtemporalDifferenceError:differentiate()
 
 		ActorWeightContainer:gradientAscent()
 
 		local previousCriticActionMeanInputTensor = AutomaticDifferentiationTensor.concatenate(previousFeatureTensor, previousActionMeanTensor, 2)
-		
+
 		previousCriticActionMeanInputTensor:differentiate()
 
 		CriticWeightContainer:gradientDescent()
-		
+
 		negatedtemporalDifferenceError:destroy{}
-		
+
 		previousCriticActionMeanInputTensor:destroy{}
 
 		local TargetActorWeightTensorArray = ActorWeightContainer:getWeightTensorArray{true}
@@ -1729,15 +1785,15 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
 
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[5] or defaultAveragingRate
-	
+
 	local noiseClippingFactor = parameterDictionary.noiseClippingFactor or parameterDictionary[6] or defaultNoiseClippingFactor
 
 	local policyDelayAmount = parameterDictionary.policyDelayAmount or parameterDictionary[7] or defaultPolicyDelayAmount
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[8] or defaultDiscountFactor
-	
+
 	local CriticWeightTensorArrayArray = parameterDictionary.CriticWeightTensorArrayArray or {}
-	
+
 	if (not ActorModel) then error("No actor model.") end
 
 	if (not ActorWeightContainer) then error("No actor weight container.") end
@@ -1745,7 +1801,7 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 	if (not CriticModel) then error("No critic model.") end
 
 	if (not CriticWeightContainer) then error("No actor weight container.") end
-	
+
 	local TargetCriticWeightTensorArrayArray = {}
 
 	local currentNumberOfUpdate = 0
@@ -1755,7 +1811,7 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 		local noiseClipFunction = function(value) return math.clamp(value, -noiseClippingFactor, noiseClippingFactor) end
 
 		local clippedCurrentActionNoiseTensor = AqwamTensorLibrary:applyFunction(noiseClipFunction, actionNoiseTensor)
-		
+
 		local previousActionMeanTensor, previousActionStandardDeviationTensor = ActorModel{previousFeatureTensor}
 
 		local previousActionTensor = (previousActionStandardDeviationTensor * actionNoiseTensor) + previousActionMeanTensor
@@ -1825,7 +1881,7 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 			local previousCriticValue = CriticModel{previousCriticActionMeanInputTensor}[1][1] 
 
 			local criticCost = previousCriticValue - yValue
-			
+
 			criticCost:differentiate()
 
 			CriticWeightContainer:gradientDescent()
@@ -1835,7 +1891,7 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 		end
 
 		currentNumberOfUpdate = currentNumberOfUpdate + 1
-		
+
 		if ((currentNumberOfUpdate % policyDelayAmount) == 0) then
 
 			local actionTensor = (previousActionStandardDeviationTensor * actionNoiseTensor) + previousActionMeanTensor
@@ -1867,17 +1923,17 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 end
 
 function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
-	
+
 	local categoricalUpdateFunction = self.categoricalUpdateFunction
-	
+
 	if (not categoricalUpdateFunction) then
-		
+
 		error("The reinforcement learning model does not support categorical updates.")
-		
+
 	end
-	
+
 	parameterDictionary = parameterDictionary or {}
-	
+
 	local previousFeatureTensor = parameterDictionary.previousFeatureTensor or parameterDictionary[1]
 
 	local actionIndex = parameterDictionary.actionIndex or parameterDictionary[2]
@@ -1885,15 +1941,15 @@ function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
 	local rewardValue = parameterDictionary.rewardValue or parameterDictionary[3]
 
 	local currentFeatureTensor = parameterDictionary.currentFeatureTensor or parameterDictionary[4]
-	
+
 	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[5]
-	
+
 	previousFeatureTensor = AutomaticDifferentiationTensor.coerce{previousFeatureTensor}
-	
+
 	currentFeatureTensor = AutomaticDifferentiationTensor.coerce{currentFeatureTensor}
-	
+
 	return categoricalUpdateFunction(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
-	
+
 end
 
 function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
@@ -1909,7 +1965,7 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
 	parameterDictionary = parameterDictionary or {}
 
 	local previousFeatureTensor = parameterDictionary.previousFeatureTensor or parameterDictionary[1]
-	
+
 	local actionNoiseTensor = parameterDictionary.actionNoiseTensor or parameterDictionary[2]
 
 	local rewardValue = parameterDictionary.rewardValue or parameterDictionary[3]
@@ -1917,9 +1973,9 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
 	local currentFeatureTensor = parameterDictionary.currentFeatureTensor or parameterDictionary[4]
 
 	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[5]
-	
+
 	previousFeatureTensor = AutomaticDifferentiationTensor.coerce{previousFeatureTensor}
-	
+
 	actionNoiseTensor = AutomaticDifferentiationTensor.coerce{actionNoiseTensor}
 
 	currentFeatureTensor = AutomaticDifferentiationTensor.coerce{currentFeatureTensor}
@@ -1929,17 +1985,17 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
 end
 
 function ReinforcementLearningModels:episodeUpdate(parameterDictionary)
-	
+
 	local episodeUpdateFunction = self.episodeUpdateFunction
-	
+
 	if (not episodeUpdateFunction) then return end
-	
+
 	parameterDictionary = parameterDictionary or {}
-	
+
 	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[1] or 1
-	
+
 	return episodeUpdateFunction(terminalStateValue)
-	
+
 end
 
 return ReinforcementLearningModels
