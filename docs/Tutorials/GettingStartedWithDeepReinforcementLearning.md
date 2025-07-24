@@ -140,9 +140,11 @@ while true do
 
     local reward = getReward(currentEnvironmentFeatureTensor)
 
-    DeepSARSA:categoricalUpdate{previousEnvironmentFeatureTensor, reward, action, currentEnvironmentFeatureTensor, 0} -- update() is called whenever a step is made. The value of zero indicates that the current environment feature tensor is not a terminal state.
+    -- update() is called whenever a step is made. The value of zero indicates that the current environment feature tensor is not a terminal state.
 
-    previousEnvironmentFeatureTensor = environmentTensor
+    DeepSARSA:categoricalUpdate{previousEnvironmentFeatureTensor, reward, action, currentEnvironmentFeatureTensor, 0} 
+
+    previousEnvironmentFeatureTensor = currentEnvironmentFeatureTensor
 
     local hasGameEnded = checkIfGameHasEnded(environmentTensor)
 
@@ -150,7 +152,9 @@ while true do
 
   end
 
-  QLearningNeuralNetwork:episodeUpdate(1) -- episodeUpdate() is used whenever an episode ends. An episode is the total number of steps that determines when the model should stop training. The value of one indicates that the current environment feature tensor is a terminal state.
+  -- episodeUpdate() is used whenever an episode ends. An episode is the total number of steps that determines when the model should stop training. The value of one indicates that the current environment feature tensor is a terminal state.
+
+  QLearningNeuralNetwork:episodeUpdate(1) 
 
 end
 
