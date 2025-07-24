@@ -21,3 +21,5 @@
 [Optimizers](API/Optimizers.md)
 
 [ValueSchedulers](API/ValueSchedulers.md)
+
+[RecurrentModels](API/RecurrentModels.md)
