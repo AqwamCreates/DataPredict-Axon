@@ -1888,6 +1888,10 @@ function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
 	
 	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[5]
 	
+	previousFeatureTensor = AutomaticDifferentiationTensor.coerce{previousFeatureTensor}
+	
+	currentFeatureTensor = AutomaticDifferentiationTensor.coerce{currentFeatureTensor}
+	
 	return categoricalUpdateFunction(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 	
 end
@@ -1913,6 +1917,12 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
 	local currentFeatureTensor = parameterDictionary.currentFeatureTensor or parameterDictionary[4]
 
 	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[5]
+	
+	previousFeatureTensor = AutomaticDifferentiationTensor.coerce{previousFeatureTensor}
+	
+	actionNoiseTensor = AutomaticDifferentiationTensor.coerce{actionNoiseTensor}
+
+	currentFeatureTensor = AutomaticDifferentiationTensor.coerce{currentFeatureTensor}
 
 	return diagonalGaussianUpdateFunction(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
 
