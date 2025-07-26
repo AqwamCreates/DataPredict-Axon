@@ -522,7 +522,7 @@ ReinforcementLearningModels.DeepDeterministicPolicyGradient{ActorModel: function
 
 ```
 
-ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient{ActorModel: function, ActorWeightContainer: WeightContainer, CriticModel: function, CriticWeightContainer: WeightContainer, averagingRate: number, noiseClippingFactor: number, policyDelayAmount: number, discountFactor: number}: ReinforcementLearningModel
+ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient{ActorModel: function, ActorWeightContainer: WeightContainer, CriticModel: function, CriticWeightContainer: WeightContainer, noiseClippingFactor: number, policyDelayAmount: number, averagingRate: number, discountFactor: number}: ReinforcementLearningModel
 
 ```
 
@@ -536,11 +536,11 @@ ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient{ActorMode
 
 * CriticWeightContainer: The weight container to be used to update the critic model's weight tensors.
 
-* averagingRate: The higher the value, the faster the weights changes. The value must be set between 0 and 1. [Default: 0.995]
-
 * noiseClippingFactor: The amount of noise that is allowed in the action noise tensor. [Default: 0.5]
 
 * policyDelayAmount: How many times should the actor model wait before updating based on the number of update function calls. [Default: 3]
+
+* averagingRate: The higher the value, the faster the weights changes. The value must be set between 0 and 1. [Default: 0.995]
 
 * discountFactor: The higher the value, the more likely it focuses on long-term outcomes. The value must be set between 0 and 1. [Default: 0.95]
 
