@@ -551,7 +551,7 @@ ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient{ActorMode
 Updates the model parameters using categoricalUpdateFunction().
 
 ```
-ReinforcementLearningBaseModel:categoricalUpdate{previousFeatureTensor: featureTensor, action: number/string, rewardValue: number, currentFeatureTensor: featureTensor, terminalStateValue: number}
+ReinforcementLearningBaseModel:categoricalUpdate{previousFeatureTensor: tensor, action: number/string, rewardValue: number, currentFeatureTensor: tensor, terminalStateValue: number}
 ```
 
 #### Parameters:
@@ -571,7 +571,7 @@ ReinforcementLearningBaseModel:categoricalUpdate{previousFeatureTensor: featureT
 Updates the model parameters using diagonalGaussianUpdateFunction().
 
 ```
-ReinforcementLearningBaseModel:diagonalGaussianUpdate(previousFeatureTensor: featureTensor, actionNoiseTensor: tensor, rewardValue: number, currentFeatureTensor: featureTensor, terminalStateValue: number)
+ReinforcementLearningBaseModel:diagonalGaussianUpdate(previousFeatureTensor: tensor, actionNoiseTensor: tensor, rewardValue: number, currentFeatureTensor: tensor, terminalStateValue: number)
 ```
 
 #### Parameters:
