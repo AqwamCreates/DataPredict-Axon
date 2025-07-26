@@ -551,7 +551,7 @@ ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient{ActorMode
 Updates the model parameters using categoricalUpdateFunction().
 
 ```
-ReinforcementLearningBaseModel:categoricalUpdate{previousFeatureTensor: tensor, action: number/string, rewardValue: number, currentFeatureTensor: tensor, terminalStateValue: number}
+ReinforcementLearningModels:categoricalUpdate{previousFeatureTensor: tensor, action: number/string, rewardValue: number, currentFeatureTensor: tensor, terminalStateValue: number}
 ```
 
 #### Parameters:
@@ -571,7 +571,7 @@ ReinforcementLearningBaseModel:categoricalUpdate{previousFeatureTensor: tensor, 
 Updates the model parameters using diagonalGaussianUpdateFunction().
 
 ```
-ReinforcementLearningBaseModel:diagonalGaussianUpdate(previousFeatureTensor: tensor, actionNoiseTensor: tensor, rewardValue: number, currentFeatureTensor: tensor, terminalStateValue: number)
+ReinforcementLearningModels:diagonalGaussianUpdate(previousFeatureTensor: tensor, actionNoiseTensor: tensor, rewardValue: number, currentFeatureTensor: tensor, terminalStateValue: number)
 ```
 
 #### Parameters:
@@ -591,25 +591,13 @@ ReinforcementLearningBaseModel:diagonalGaussianUpdate(previousFeatureTensor: ten
 Updates the model parameters using episodeUpdateFunction().
 
 ```
-ReinforcementLearningBaseModel:episodeUpdate()
+ReinforcementLearningModels:episodeUpdate()
 ```
-
-### setResetFunction()
-
-Sets a new function on reset alongside with the current reset() function. 
-
-```
-ReinforcementLearningBaseModel:setResetFunction(resetFunction)
-```
-
-#### Parameters:
-
-* resetFunction: The function to run when reset() is called.
 
 ### reset()
 
 Reset model's stored values (excluding the parameters).
 
 ```
-ReinforcementLearningBaseModel:reset()
+ReinforcementLearningModels:reset()
 ```
