@@ -22,4 +22,6 @@
 
 [ValueSchedulers](API/ValueSchedulers.md)
 
+[ReinforcementLearningModels](API/ReinforcementLearningModels.md)
+
 [RecurrentModels](API/RecurrentModels.md)
