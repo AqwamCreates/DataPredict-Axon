@@ -336,7 +336,7 @@ ReinforcementLearningModels.REINFORCE{Model: function, WeightContainer: WeightCo
 
 ```
 
-ReinforcementLearningModels.VanillaPolicyGradient{ActorModel: function, ActorWeightContainer: WeightContainer, CriticModel: function, CriticWeightContainer: WeightContainer, discountFactor:  number}: ReinforcementLearningModel
+ReinforcementLearningModels.VanillaPolicyGradient{ActorModel: function, ActorWeightContainer: WeightContainer, CriticModel: function, CriticWeightContainer: WeightContainer, AdvantageFunction: function, lambda: number, discountFactor: number}: ReinforcementLearningModel
 
 ```
 
@@ -349,6 +349,8 @@ ReinforcementLearningModels.VanillaPolicyGradient{ActorModel: function, ActorWei
 * CriticModel: The critic model to be used for outputing critic values.
 
 * CriticWeightContainer: The weight container to be used to update the critic model's weight tensors.
+
+* AdvantageFunction: The advantage function to update the actor model with.
 
 * lambda: At 0, the model acts like the Temporal Difference algorithm. At 1, the model acts as Monte Carlo algorithm. Between 0 and 1, the model acts as both. [Default: 0]
 
