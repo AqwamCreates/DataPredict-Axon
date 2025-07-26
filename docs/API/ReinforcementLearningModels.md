@@ -36,7 +36,7 @@ ReinforcementLearningModels.MonteCarloControl{Model: function, WeightContainer: 
 
 * Model: The model to be used for outputing actions.
 
-* WeightContainer: The weight container to be used to update the weight tensors.
+* WeightContainer: The weight container to be used to update the model's weight tensors.
 
 * discountFactor: The higher the value, the more likely it focuses on long-term outcomes. The value must be set between 0 and 1. [Default: 0.95]
 
@@ -56,7 +56,7 @@ ReinforcementLearningModels.OffPolicyMonteCarloControl{Model: function, WeightCo
 
 * Model: The model to be used for outputing actions.
 
-* WeightContainer: The weight container to be used to update the weight tensors.
+* WeightContainer: The weight container to be used to update the model's weight tensors.
 
 * targetPolicyFunction: A function that defines the target policy used to select actions. The policy should be based on the current Q-values (or state-action values). This function determines how the agent chooses actions based on its current knowledge. Available options include:
 
