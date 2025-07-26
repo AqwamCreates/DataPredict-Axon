@@ -2,7 +2,7 @@
 
 ## Functions
 
-### Constructors
+### FastSigmoid
 
 ```
 
