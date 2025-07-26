@@ -165,6 +165,8 @@ function ReinforcementLearningModels.new(parameterDictionary)
 	self.diagonalGaussianUpdateFunction = parameterDictionary.diagonalGaussianUpdateFunction or parameterDictionary[2]
 
 	self.episodeUpdateFunction = parameterDictionary.episodeUpdateFunction or parameterDictionary[3]
+	
+	self.resetFunction = parameterDictionary.resetFunction or parameterDictionary[4]
 
 	return self
 
@@ -221,8 +223,16 @@ function ReinforcementLearningModels.MonteCarloControl(parameterDictionary)
 		table.clear(rewardValueArray)
 
 	end
+	
+	local resetFunction = function()
+		
+		table.clear(featureTensorArray)
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+		table.clear(rewardValueArray)
+		
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -301,8 +311,16 @@ function ReinforcementLearningModels.OffPolicyMonteCarloControl(parameterDiction
 		table.clear(rewardValueArray)
 
 	end
+	
+	local resetFunction = function()
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction}
+		table.clear(actionTensorArray)
+
+		table.clear(rewardValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -989,8 +1007,16 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 		table.clear(rewardValueArray)
 
 	end
+	
+	local resetFunction = function()
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
+		table.clear(actionProbabilityTensorArray)
+
+		table.clear(rewardValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -1123,8 +1149,20 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 		table.clear(criticValueArray)
 
 	end
+	
+	local resetFunction = function()
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
+		table.clear(actionProbabilityTensorArray)
+
+		table.clear(advantageValueArray)
+
+		table.clear(rewardValueArray)
+
+		table.clear(criticValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -1221,8 +1259,18 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 		table.clear(criticValueArray)
 
 	end
+	
+	local resetFunction = function()
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
+		table.clear(actionProbabilityTensorArray)
+
+		table.clear(rewardValueArray)
+
+		table.clear(criticValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -1337,8 +1385,16 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 		table.clear(advantageValueArray)
 
 	end
+	
+	local resetFunction = function()
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
+		table.clear(actionProbabilityTensorArray)
+
+		table.clear(advantageValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -1493,8 +1549,20 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 		table.clear(rewardValueArray)
 
 	end
+	
+	local resetFunction = function()
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
+		table.clear(ratioActionProbabilityTensorArray)
+
+		table.clear(advantageValueArray)
+
+		table.clear(criticValueArray)
+
+		table.clear(rewardValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -1661,8 +1729,20 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 		table.clear(rewardValueArray)
 
 	end
+	
+	local resetFunction = function()
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction}
+		table.clear(ratioActionProbabilityTensorArray)
+
+		table.clear(advantageValueArray)
+
+		table.clear(criticValueArray)
+
+		table.clear(rewardValueArray)
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -2109,6 +2189,16 @@ function ReinforcementLearningModels:episodeUpdate(parameterDictionary)
 	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[1] or 1
 
 	return episodeUpdateFunction(terminalStateValue)
+
+end
+
+function ReinforcementLearningModels:reset(parameterDictionary)
+
+	local resetFunction = self.resetFunction
+
+	if (not resetFunction) then return end
+
+	return resetFunction()
 
 end
 
