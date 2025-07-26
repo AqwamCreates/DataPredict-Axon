@@ -1977,12 +1977,12 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
 
 	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
+	
+	local noiseClippingFactor = parameterDictionary.noiseClippingFactor or parameterDictionary[5] or defaultNoiseClippingFactor
+	
+	local policyDelayAmount = parameterDictionary.policyDelayAmount or parameterDictionary[6] or defaultPolicyDelayAmount
 
-	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[5] or defaultAveragingRate
-
-	local noiseClippingFactor = parameterDictionary.noiseClippingFactor or parameterDictionary[6] or defaultNoiseClippingFactor
-
-	local policyDelayAmount = parameterDictionary.policyDelayAmount or parameterDictionary[7] or defaultPolicyDelayAmount
+	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[7] or defaultAveragingRate
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[8] or defaultDiscountFactor
 
