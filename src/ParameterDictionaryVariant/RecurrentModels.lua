@@ -460,7 +460,7 @@ function RecurrentModels.SimpleRecurrentUnitCell(parameterDictionary)
 
 	local function setCellStateTensor(parameterDictionary)
 
-		cellStateTensor = parameterDictionary.hiddenStateTensor or parameterDictionary[1]
+		cellStateTensor = parameterDictionary.cellStateTensor or parameterDictionary[1]
 
 	end
 
