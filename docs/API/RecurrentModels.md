@@ -136,6 +136,32 @@ RecurrentModels.LongShortTermMemoryCell{inputSize: number, hiddenSize: number, l
 
 * setCellStateTensor: The function to set the cell state tensor.
 
+### PeepholeLongShortTermMemoryCell()
+
+```
+
+RecurrentModels.PeepholeLongShortTermMemoryCell{inputSize: number, hiddenSize: number, learningRate: number}: function, WeightContainer, function
+
+```
+
+#### Parameters:
+
+* inputSize: The number of features it takes as inputs.
+
+* hiddenSize: The number of features it will produce.
+
+* learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
+
+#### Returns:
+
+* Model: The model that is constructed using the set of parameters.
+
+* WeightContainer: The generated WeightContainer object.
+
+* reset: The function to reset the hidden state.
+
+* setCellStateTensor: The function to set the cell state tensor.
+
 ### UncellModel()
 
 ```
