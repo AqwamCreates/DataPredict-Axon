@@ -108,6 +108,32 @@ RecurrentModels.LightRecurrentUnitCell{inputSize: number, hiddenSize: number, le
 
 * setHiddenStateTensor: The function to set the hidden state tensor.
 
+### SimpleRecurrentUnitCell()
+
+```
+
+RecurrentModels.SimpleRecurrentUnitCell{inputSize: number, hiddenSize: number, learningRate: number}: function, WeightContainer, function, function
+
+```
+
+#### Parameters:
+
+* inputSize: The number of features it takes as inputs.
+
+* hiddenSize: The number of features it will produce.
+
+* learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
+
+#### Returns:
+
+* Model: The model that is constructed using the set of parameters.
+
+* WeightContainer: The generated WeightContainer object.
+
+* reset: The function to reset the hidden state.
+
+* setCellStateTensor: The function to set the cell state tensor.
+
 ### LongShortTermMemoryCell()
 
 ```
