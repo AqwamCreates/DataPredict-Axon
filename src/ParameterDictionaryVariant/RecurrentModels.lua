@@ -507,7 +507,7 @@ function RecurrentModels.PeepholeLongShortTermMemoryCell(parameterDictionary)
 
 		local outputGateTensor = ActivationLayers.FastSigmoid{outputGateZTensor}
 		
-		local cellStateTensorPart1 = ActivationLayers.FastSigmoid{inputTensor:dotProduct(cellInputWeightTensor) + cellBiasTensor}
+		local cellStateTensorPart1 = ActivationLayers.FastSigmoid{inputTensor:dotProduct{cellInputWeightTensor} + cellBiasTensor}
 		
 		cellStateTensor = (forgetGateTensor * cellStateTensor) + (inputGateTensor * cellStateTensorPart1)
 			
