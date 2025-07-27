@@ -395,11 +395,9 @@ function RecurrentModels.LongShortTermMemoryCell(parameterDictionary)
 
 		cellStateTensor = (forgetGateTensor * cellStateTensor) + (inputGateTensor * cellStateTensor)
 
-		local activatedCellStateTensor = ActivationLayers.FastTanh{cellStateTensor}
+		hiddenStateTensor = outputGateTensor * ActivationLayers.FastTanh{cellStateTensor}
 
-		hiddenStateTensor = outputGateTensor * activatedCellStateTensor
-
-		return activatedCellStateTensor
+		return hiddenStateTensor
 
 	end
 
