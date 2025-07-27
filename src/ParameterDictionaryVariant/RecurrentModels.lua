@@ -382,6 +382,92 @@ function RecurrentModels.LightGatedRecurrentUnitCell(parameterDictionary)
 
 end
 
+function RecurrentModels.SimpleRecurrentUnitCell(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
+
+	local hiddenSize = parameterDictionary.hiddenSize or parameterDictionary[2]
+
+	local learningRate = parameterDictionary.learningRate or parameterDictionary[3] or defaultLearningRate
+	
+	local forgetGateInputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+	
+	local forgetGateCellStateMultiplerTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+	
+	local forgetGateBiasTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{1, hiddenSize}}
+	
+	local cellInputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+	
+	local resetGateInputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+	
+	local resetGateCellStateMultiplerTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+	
+	local resetGateBiasTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{1, hiddenSize}}
+
+	local WeightContainer = WeightContainer.new{}
+
+	WeightContainer:setWeightTensorDataArray{
+
+		{forgetGateInputWeightTensor, learningRate},
+
+		{forgetGateCellStateMultiplerTensor, learningRate},
+
+		{forgetGateBiasTensor, learningRate},
+
+		{cellInputWeightTensor, learningRate},
+		
+		{resetGateInputWeightTensor, learningRate},
+		
+		{resetGateCellStateMultiplerTensor, learningRate},
+		
+		{resetGateBiasTensor, learningRate},
+
+	}
+
+	local cellStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
+
+	local function Model(parameterDictionary)
+
+		parameterDictionary = parameterDictionary or {}
+
+		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
+
+		inputTensor = AutomaticDifferentiationTensor.coerce{inputTensor}
+		
+		local zForgetGateTensor = inputTensor:dotProduct{forgetGateInputWeightTensor} + (forgetGateCellStateMultiplerTensor * cellStateTensor) + forgetGateBiasTensor
+		
+		local forgetGateTensor = ActivationLayers.FastSigmoid{zForgetGateTensor}
+		
+		cellStateTensor = (forgetGateTensor * cellStateTensor) + ((1 - forgetGateTensor) * inputTensor:dotProduct{cellInputWeightTensor})
+		
+		local zResetGateTensor = inputTensor:dotProduct{resetGateInputWeightTensor} + (resetGateCellStateMultiplerTensor * cellStateTensor) + resetGateBiasTensor
+		
+		local resetGateTensor = ActivationLayers.FastSigmoid{zResetGateTensor}
+		
+		local hiddenStateTensor = (resetGateTensor * cellStateTensor) + ((1 - resetGateTensor) * inputTensor)
+
+		return hiddenStateTensor
+
+	end
+
+	local function reset()
+
+		cellStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
+
+	end
+
+	local function setCellStateTensor(parameterDictionary)
+
+		cellStateTensor = parameterDictionary.cellStateTensor or parameterDictionary[1]
+
+	end
+
+	return Model, WeightContainer, reset, setCellStateTensor
+
+end
+
 function RecurrentModels.LongShortTermMemoryCell(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
