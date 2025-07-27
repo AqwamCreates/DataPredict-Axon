@@ -399,9 +399,13 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 		local scale = 1 / numberOfData
 		
 		local functionToApply = function(x)
-			if x > 0 then return 1
-			elseif x < 0 then return -1
+			
+			if (x > 0) then return 1
+				
+			elseif (x < 0) then return -1
+				
 			else return 0 end
+			
 		end
 		
 		lossTensor = AqwamTensorLibrary:applyFunction(functionToApply, lossTensor)
