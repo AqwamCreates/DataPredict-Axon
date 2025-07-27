@@ -432,7 +432,9 @@ function RecurrentModels.PeepholeLongShortTermMemoryCell(parameterDictionary)
 	parameterDictionary = parameterDictionary or {}
 
 	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
+	
 	local hiddenSize = parameterDictionary.hiddenSize or parameterDictionary[2]
+	
 	local learningRate = parameterDictionary.learningRate or parameterDictionary[3] or defaultLearningRate
 
 	local inputGateInputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
