@@ -302,6 +302,86 @@ function RecurrentModels.MinimalGatedUnitCell(parameterDictionary)
 
 end
 
+function RecurrentModels.LightGatedRecurrentUnitCell(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local inputSize = parameterDictionary.inputSize or parameterDictionary[1]
+
+	local hiddenSize = parameterDictionary.hiddenSize or parameterDictionary[2]
+
+	local learningRate = parameterDictionary.learningRate or parameterDictionary[3] or defaultLearningRate
+	
+	local zInputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+
+	local zHiddenWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{hiddenSize, hiddenSize}}
+	
+	local hInputWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{inputSize, hiddenSize}}
+	
+	local hHiddenWeightTensor = AutomaticDifferentiationTensor.createRandomUniformTensor{{hiddenSize, hiddenSize}}
+
+	local WeightContainer = WeightContainer.new{}
+
+	WeightContainer:setWeightTensorDataArray{
+
+		{zInputWeightTensor, learningRate},
+
+		{zHiddenWeightTensor, learningRate},
+
+		{hInputWeightTensor, learningRate},
+
+		{hHiddenWeightTensor, learningRate},
+
+	}
+
+	local hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
+
+	local function Model(parameterDictionary)
+
+		parameterDictionary = parameterDictionary or {}
+
+		local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
+
+		inputTensor = AutomaticDifferentiationTensor.coerce{inputTensor}
+		
+		local zWeightedInputTensor = inputTensor:dotProduct{zInputWeightTensor}
+		
+		local zWeightedHiddenTensor = hiddenStateTensor:dotProduct{zHiddenWeightTensor}
+		
+		local batchNormalizationZWeightedInputTensor = zWeightedInputTensor:zScoreNormalization{1}
+		
+		local hWeightedInputTensor = inputTensor:dotProduct{hInputWeightTensor}
+		
+		local hWeightedHiddenTensor = hiddenStateTensor:dotProduct{hHiddenWeightTensor}
+
+		local batchNormalizationHWeightedInputTensor = hWeightedInputTensor:zScoreNormalization{1}
+		
+		local zTensor = ActivationLayers.FastSigmoid{zWeightedInputTensor + zWeightedHiddenTensor}
+		
+		local hTensor = ActivationLayers.FastRectifiedLinearUnit{hWeightedInputTensor + hWeightedHiddenTensor}
+		
+		hiddenStateTensor = (zTensor * hiddenStateTensor) + (1 - zTensor) * hTensor
+
+		return hiddenStateTensor
+
+	end
+
+	local function reset()
+
+		hiddenStateTensor = AutomaticDifferentiationTensor.createTensor{{1, hiddenSize}}
+
+	end
+
+	local function setHiddenStateTensor(parameterDictionary)
+
+		hiddenStateTensor = parameterDictionary.hiddenStateTensor or parameterDictionary[1]
+
+	end
+
+	return Model, WeightContainer, reset, setHiddenStateTensor
+
+end
+
 function RecurrentModels.LongShortTermMemoryCell(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
