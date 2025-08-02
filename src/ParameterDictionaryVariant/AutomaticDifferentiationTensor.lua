@@ -732,6 +732,30 @@ function AHAAutomaticDifferentiationTensor:findMinimumValue()
 
 end
 
+function AHAAutomaticDifferentiationTensor:findMaximumValueDimensionIndexArray()
+
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+
+	local inputTensorArray = {self}
+	
+	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+	
+	return AHAAutomaticDifferentiationTensor:findMaximumValueDimensionIndexArray(selfTensorValue)
+
+end
+
+function AHAAutomaticDifferentiationTensor:findMinimumValueDimensionIndexArray()
+
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+
+	local inputTensorArray = {self}
+
+	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+
+	return AHAAutomaticDifferentiationTensor:findMinimumValueDimensionIndexArray(selfTensorValue)
+
+end
+
 --------------------------------------------------------------------------------------
 
 function AHAAutomaticDifferentiationTensor:__eq(otherTensor)
