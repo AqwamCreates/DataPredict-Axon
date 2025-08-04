@@ -364,6 +364,50 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 
 end
 
+function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+
+	if (not Model) then error("No model.") end
+
+	if (not WeightContainer) then error("No weight container.") end
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local previousAdvantageValueTensor, previousVValueTensor = Model{previousFeatureTensor}
+
+		local currentAdvantageValueTensor, currentVValueTensor = Model{currentFeatureTensor}
+		
+		local meanPreviousAdvantageValue = previousAdvantageValueTensor:mean{2}
+		
+		local currentQValue = previousVValueTensor + (previousAdvantageValueTensor - meanPreviousAdvantageValue)
+
+		local maxQValue = currentAdvantageValueTensor:findMaximumValue()
+
+		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
+
+		local lastValue = previousAdvantageValueTensor[1][actionIndex]
+
+		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
+
+		cost:differentiate()
+
+		WeightContainer:gradientAscent()
+
+		cost:destroy{true}
+
+	end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+
+end
+
 function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
