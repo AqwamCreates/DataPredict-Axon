@@ -39,31 +39,31 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 
 ### Installation
 
-[Installation For Roblox](Tutorials/InstallationForRoblox.md)
+* [Installation For Roblox](Tutorials/InstallationForRoblox.md)
 
 ### The Model Basics
 
-[Creating Our First Neural Network](Tutorials/CreatingOurFirstNeuralNetwork.md)
+* [Creating Our First Neural Network](Tutorials/CreatingOurFirstNeuralNetwork.md)
 
-[Saving And Loading Model Weights](Tutorials/SavingAndLoadingModelWeights.md)
+* [Saving And Loading Model Weights](Tutorials/SavingAndLoadingModelWeights.md)
 
 ### The Tensor Basics
 
-[General Tensor Conventions](Tutorials/GeneralTensorConventions.md)
+* [General Tensor Conventions](Tutorials/GeneralTensorConventions.md)
 
-[Spatial Dimension Kernel And Stride](Tutorials/SpatialDimensionKernelAndStride.md)
+* [Spatial Dimension Kernel And Stride](Tutorials/SpatialDimensionKernelAndStride.md)
 
 ### The Advanced Layers
 
-[Using Pooling Layers And Convolution Layers](Tutorials/UsingPoolingLayersAndConvolutionLayers.md)
+* [Using Pooling Layers And Convolution Layers](Tutorials/UsingPoolingLayersAndConvolutionLayers.md)
 
 ### The Advanced Models
 
-[Creating Our First Recurrent Neural Network](Tutorials/CreatingOurFirstRecurrentNeuralNetwork.md)
+* [Creating Our First Recurrent Neural Network](Tutorials/CreatingOurFirstRecurrentNeuralNetwork.md)
 
 ### Learning AIs
 
-[Getting Started With Deep Reinforcement Learning](Tutorials/GettingStartedWithDeepReinforcementLearning.md)
+* [Getting Started With Deep Reinforcement Learning](Tutorials/GettingStartedWithDeepReinforcementLearning.md)
 
 ## API Reference
 
