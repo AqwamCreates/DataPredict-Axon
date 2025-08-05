@@ -67,24 +67,24 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 
 ## API Reference
 
-[API Reference](API.md)
+* [API Reference](API.md)
 
 ### Repository
 
-[DataPredict Axon Library](https://github.com/AqwamCreates/DataPredict-Axon)
+* [DataPredict Axon Library](https://github.com/AqwamCreates/DataPredict-Axon)
 
-[DataPredict Neural Library](https://github.com/AqwamCreates/DataPredict-Neural)
+* [DataPredict Neural Library](https://github.com/AqwamCreates/DataPredict-Neural)
 
-[DataPredict Library](https://github.com/AqwamCreates/DataPredict)
+* [DataPredict Library](https://github.com/AqwamCreates/DataPredict)
 
-[TensorL Library](https://github.com/AqwamCreates/TensorL)
+* [TensorL Library](https://github.com/AqwamCreates/TensorL)
 
-[TensorL-3D Library](https://github.com/AqwamCreates/TensorL-3D)
+* [TensorL-3D Library](https://github.com/AqwamCreates/TensorL-3D)
 
 ## Version History
 
-[Release](VersionHistory/ReleaseVersionHistory.md)
+* [Release](VersionHistory/ReleaseVersionHistory.md)
 
-[Beta](VersionHistory/BetaVersionHistory.md)
+* [Beta](VersionHistory/BetaVersionHistory.md)
 
-[All](VersionHistory/AllVersionsHistory.md)
+* [All](VersionHistory/AllVersionsHistory.md)
