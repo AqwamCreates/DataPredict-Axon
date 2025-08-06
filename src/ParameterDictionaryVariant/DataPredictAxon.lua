@@ -30,7 +30,7 @@ local DataPredictAxon = {}
 
 DataPredictAxon.AutomaticDifferentiationTensor = require(script.AutomaticDifferentiationTensor)
 
-DataPredictAxon.ActivationFunctionLayers = require(script.ActivationFunctionLayers)
+DataPredictAxon.ActivationLayers = require(script.ActivationLayers)
 
 DataPredictAxon.CostFunctions = require(script.CostFunctions)
 
@@ -47,5 +47,13 @@ DataPredictAxon.EncodingLayers = require(script.EncodingLayers)
 DataPredictAxon.WeightContainer = require(script.WeightContainer)
 
 DataPredictAxon.Optimizers = require(script.Optimizers)
+
+DataPredictAxon.ValueSchedulers = require(script.ValueSchedulers)
+
+DataPredictAxon.Regularizers = require(script.Regularizers)
+
+DataPredictAxon.ReinforcementLearningModels = require(script.ReinforcementLearningModels)
+
+DataPredictAxon.RecurrentModels = require(script.RecurrentModels)
 
 return DataPredictAxon
