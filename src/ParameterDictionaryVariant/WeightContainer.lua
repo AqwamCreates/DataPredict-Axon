@@ -155,8 +155,6 @@ function WeightContainer:gradientDescent()
 		if (firstDerivativeTensor) then
 			
 			local tensor = automaticDifferentiationTensor:getTensor{true}
-
-			local optimizedFirstDerivativeTensor
 			
 			if (Regularizer) then
 
@@ -168,21 +166,21 @@ function WeightContainer:gradientDescent()
 
 			if (Optimizer) then
 
-				optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
+				firstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
 
 			else
 
-				optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
+				firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
 
 			end
 
 			if (updateWeightTensorInPlace) then
 
-				performInPlaceUpdate(performInPlaceSubtraction, tensor, optimizedFirstDerivativeTensor)
+				performInPlaceUpdate(performInPlaceSubtraction, tensor, firstDerivativeTensor)
 
 			else
 
-				tensor = AqwamTensorLibrary:subtract(tensor, optimizedFirstDerivativeTensor)
+				tensor = AqwamTensorLibrary:subtract(tensor, firstDerivativeTensor)
 
 				automaticDifferentiationTensor:setTensor{tensor, true}
 
@@ -227,8 +225,6 @@ function WeightContainer:gradientAscent()
 		if (firstDerivativeTensor) then
 
 			local tensor = automaticDifferentiationTensor:getTensor{true}
-
-			local optimizedFirstDerivativeTensor
 			
 			if (Regularizer) then
 
@@ -240,21 +236,21 @@ function WeightContainer:gradientAscent()
 
 			if (Optimizer) then
 
-				optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
+				firstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
 
 			else
 
-				optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
+				firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
 
 			end
 
 			if (updateWeightTensorInPlace) then
 
-				performInPlaceUpdate(performInPlaceAddition, tensor, optimizedFirstDerivativeTensor)
+				performInPlaceUpdate(performInPlaceAddition, tensor, firstDerivativeTensor)
 
 			else
 
-				tensor = AqwamTensorLibrary:add(tensor, optimizedFirstDerivativeTensor)
+				tensor = AqwamTensorLibrary:add(tensor, firstDerivativeTensor)
 
 				automaticDifferentiationTensor:setTensor{tensor, true}
 
