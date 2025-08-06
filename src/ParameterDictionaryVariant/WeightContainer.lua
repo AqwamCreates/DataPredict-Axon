@@ -147,6 +147,8 @@ function WeightContainer:gradientDescent()
 		local learningRate =  WeightTensorDataArray.learningRate or WeightTensorDataArray[2] or defaultLearningRate
 
 		local Optimizer = WeightTensorDataArray.Optimizer or WeightTensorDataArray[3]
+		
+		local Regularizer = WeightTensorDataArray.Regularizer or WeightTensorDataArray[4]
 
 		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor{true}
 		
@@ -155,6 +157,14 @@ function WeightContainer:gradientDescent()
 			local tensor = automaticDifferentiationTensor:getTensor{true}
 
 			local optimizedFirstDerivativeTensor
+			
+			if (Regularizer) then
+
+				local regularizationTensor = Regularizer:calculate{tensor}
+
+				firstDerivativeTensor = AqwamTensorLibrary:add(firstDerivativeTensor, regularizationTensor)
+
+			end
 
 			if (Optimizer) then
 
@@ -209,6 +219,8 @@ function WeightContainer:gradientAscent()
 		local learningRate = WeightTensorDataArray.learningRate or WeightTensorDataArray[2] or defaultLearningRate
 
 		local Optimizer = WeightTensorDataArray.Optimizer or WeightTensorDataArray[3]
+		
+		local Regularizer = WeightTensorDataArray.Regularizer or WeightTensorDataArray[4]
 
 		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor{true}
 		
@@ -217,6 +229,14 @@ function WeightContainer:gradientAscent()
 			local tensor = automaticDifferentiationTensor:getTensor{true}
 
 			local optimizedFirstDerivativeTensor
+			
+			if (Regularizer) then
+
+				local regularizationTensor = Regularizer:calculate{tensor}
+
+				firstDerivativeTensor = AqwamTensorLibrary:add(firstDerivativeTensor, regularizationTensor)
+
+			end
 
 			if (Optimizer) then
 
