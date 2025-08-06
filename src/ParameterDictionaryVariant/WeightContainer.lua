@@ -147,32 +147,40 @@ function WeightContainer:gradientDescent()
 		local learningRate =  WeightTensorDataArray.learningRate or WeightTensorDataArray[2] or defaultLearningRate
 
 		local Optimizer = WeightTensorDataArray.Optimizer or WeightTensorDataArray[3]
+		
+		local Regularizer = WeightTensorDataArray.Regularizer or WeightTensorDataArray[4]
 
 		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor{true}
 		
 		if (firstDerivativeTensor) then
 			
 			local tensor = automaticDifferentiationTensor:getTensor{true}
+			
+			if (Regularizer) then
 
-			local optimizedFirstDerivativeTensor
+				local regularizationTensor = Regularizer:calculate{tensor}
+
+				firstDerivativeTensor = AqwamTensorLibrary:add(firstDerivativeTensor, regularizationTensor)
+
+			end
 
 			if (Optimizer) then
 
-				optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
+				firstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
 
 			else
 
-				optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
+				firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
 
 			end
 
 			if (updateWeightTensorInPlace) then
 
-				performInPlaceUpdate(performInPlaceSubtraction, tensor, optimizedFirstDerivativeTensor)
+				performInPlaceUpdate(performInPlaceSubtraction, tensor, firstDerivativeTensor)
 
 			else
 
-				tensor = AqwamTensorLibrary:subtract(tensor, optimizedFirstDerivativeTensor)
+				tensor = AqwamTensorLibrary:subtract(tensor, firstDerivativeTensor)
 
 				automaticDifferentiationTensor:setTensor{tensor, true}
 
@@ -209,32 +217,40 @@ function WeightContainer:gradientAscent()
 		local learningRate = WeightTensorDataArray.learningRate or WeightTensorDataArray[2] or defaultLearningRate
 
 		local Optimizer = WeightTensorDataArray.Optimizer or WeightTensorDataArray[3]
+		
+		local Regularizer = WeightTensorDataArray.Regularizer or WeightTensorDataArray[4]
 
 		local firstDerivativeTensor = automaticDifferentiationTensor:getTotalFirstDerivativeTensor{true}
 		
 		if (firstDerivativeTensor) then
 
 			local tensor = automaticDifferentiationTensor:getTensor{true}
+			
+			if (Regularizer) then
 
-			local optimizedFirstDerivativeTensor
+				local regularizationTensor = Regularizer:calculate{tensor}
+
+				firstDerivativeTensor = AqwamTensorLibrary:add(firstDerivativeTensor, regularizationTensor)
+
+			end
 
 			if (Optimizer) then
 
-				optimizedFirstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
+				firstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
 
 			else
 
-				optimizedFirstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
+				firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensor)
 
 			end
 
 			if (updateWeightTensorInPlace) then
 
-				performInPlaceUpdate(performInPlaceAddition, tensor, optimizedFirstDerivativeTensor)
+				performInPlaceUpdate(performInPlaceAddition, tensor, firstDerivativeTensor)
 
 			else
 
-				tensor = AqwamTensorLibrary:add(tensor, optimizedFirstDerivativeTensor)
+				tensor = AqwamTensorLibrary:add(tensor, firstDerivativeTensor)
 
 				automaticDifferentiationTensor:setTensor{tensor, true}
 
