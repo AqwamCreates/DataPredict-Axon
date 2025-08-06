@@ -52,6 +52,8 @@ end
 
 function Regularizer.ElasticNet(parameterDictionary)
 	
+	parameterDictionary = parameterDictionary or {}
+	
 	local lambda = parameterDictionary.lambda or parameterDictionary[1] or defaultLambda
 	
 	local CalculateFunction = function(weightTensor)
@@ -71,6 +73,8 @@ function Regularizer.ElasticNet(parameterDictionary)
 end
 
 function Regularizer.Lasso(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[1] or defaultLambda
 
@@ -87,6 +91,8 @@ function Regularizer.Lasso(parameterDictionary)
 end
 
 function Regularizer.Ridge(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[1] or defaultLambda
 
