@@ -20,6 +20,8 @@
 
 [Optimizers](API/Optimizers.md)
 
+[Regularizers](API/Regularizers.md)
+
 [ValueSchedulers](API/ValueSchedulers.md)
 
 [ReinforcementLearningModels](API/ReinforcementLearningModels.md)
