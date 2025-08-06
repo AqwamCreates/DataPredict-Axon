@@ -100,7 +100,9 @@ function Regularizer.Ridge(parameterDictionary)
 
 end
 
-function Regularizer:calculate(weightTensor)
+function Regularizer:calculate(parameterDictionary)
+	
+	local weightTensor = parameterDictionary.weightTensor or parameterDictionary[1]
 
 	if (self.CalculateFunction) then return self.CalculateFunction(weightTensor) end
 
@@ -112,9 +114,9 @@ function Regularizer:getLambda()
 
 end
 
-function Regularizer:setLambda(lambda)
+function Regularizer:setLambda(parameterDictionary)
 
-	self.lambda = lambda
+	self.lambda = parameterDictionary.lambda or parameterDictionary[1]
 
 end
 
