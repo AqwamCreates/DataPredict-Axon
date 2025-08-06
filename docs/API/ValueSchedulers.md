@@ -12,7 +12,7 @@ ValueScheduler.new{CalculateFunction: function, valueSchedulerInternalParameterA
 
 #### Parameters:
 
-* CalculateFunction: The tensor that will be transformed.
+* CalculateFunction: The calculate function to be set.
 
 * valueSchedulerInternalParameterArray: The value scheduler internal parameters that is used by the value scheduler.
 
