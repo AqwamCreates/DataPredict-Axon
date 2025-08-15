@@ -50,6 +50,7 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 * [Saving And Loading Model Weights](Tutorials/SavingAndLoadingModelWeights.md)
 
 ### The Tensor Basics
+
 * [General Tensor Conventions](Tutorials/GeneralTensorConventions.md)
 
 * [Spatial Dimension Kernel And Stride](Tutorials/SpatialDimensionKernelAndStride.md)
