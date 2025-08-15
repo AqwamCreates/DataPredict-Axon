@@ -621,6 +621,18 @@ AutomaticDifferentiationTensors:differentiate{firstDerivativeTensor: tensor}
 
 * firstDerivativeTensor: The tensor to be used for calculating chain rule first derivative tensors.
 
+### detach()
+
+```
+
+AutomaticDifferentiationTensor:detach{}: AutomaticDifferentiationTensor
+
+```
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
 ### copy()
 
 ```
