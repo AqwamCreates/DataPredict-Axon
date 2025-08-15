@@ -1628,7 +1628,7 @@ function AHAAutomaticDifferentiationTensor:transpose(parameterDictionary)
 
 		local tensor = inputTensorArray[1]
 
-		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then tensor:differentiate(AqwamTensorLibrary:transpose(firstDerivativeTensor, dimensionArray)) end
+		if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then tensor:differentiate{AqwamTensorLibrary:transpose(firstDerivativeTensor, dimensionArray)} end
 
 	end
 
@@ -2122,6 +2122,14 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 
 	self.totalFirstDerivativeTensor = totalFirstDerivativeTensor
 
+end
+
+function AHAAutomaticDifferentiationTensor:detach()
+	
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	
+	return AHAAutomaticDifferentiationTensor.new{self.tensor, nil, self.inputTensorArray}
+	
 end
 
 function AHAAutomaticDifferentiationTensor:getDimensionSizeArray()
