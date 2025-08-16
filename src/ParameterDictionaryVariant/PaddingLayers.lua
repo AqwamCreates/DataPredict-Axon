@@ -158,8 +158,6 @@ function PaddingLayers.FastZeroPadding(parameterDictionary)
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 		
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -185,6 +183,8 @@ function PaddingLayers.FastZeroPadding(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -263,8 +263,6 @@ function PaddingLayers.FastConstantPadding(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 	
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -305,6 +303,8 @@ function PaddingLayers.FastConstantPadding(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -401,8 +401,6 @@ function PaddingLayers.FastCircularPadding(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -461,6 +459,8 @@ function PaddingLayers.FastCircularPadding(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -545,8 +545,6 @@ function PaddingLayers.FastReplicationPadding(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -643,6 +641,8 @@ function PaddingLayers.FastReplicationPadding(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -761,8 +761,6 @@ function PaddingLayers.FastReflectionPadding(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -861,6 +859,8 @@ function PaddingLayers.FastReflectionPadding(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
