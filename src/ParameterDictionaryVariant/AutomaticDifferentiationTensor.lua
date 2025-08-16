@@ -616,7 +616,7 @@ function AHAAutomaticDifferentiationTensor.clamp(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(math.clamp, pureTensor, pureLowerBoundTensor, pureUpperBoundTensor)
 	
-	local PartialFirstDerivativeFunction = nil
+	local PartialFirstDerivativeFunction
 	
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
@@ -684,7 +684,7 @@ function AHAAutomaticDifferentiationTensor.maximum(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(math.max, table.unpack(expandedPureTensorArray))
 	
-	local PartialFirstDerivativeFunction = nil
+	local PartialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
@@ -770,7 +770,7 @@ function AHAAutomaticDifferentiationTensor.minimum(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(math.min, table.unpack(expandedPureTensorArray))
 	
-	local PartialFirstDerivativeFunction = nil
+	local PartialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
