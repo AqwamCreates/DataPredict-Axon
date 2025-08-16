@@ -162,33 +162,41 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
-		
-		local weightTensor = inputTensorArray[2]
-		
-		local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
-		
-		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
-			
-			local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
-			
-			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
-			
-			for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
-				
-				createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
-				
-					local weight2DTensor = pureWeightTensor[kernelIndex]
+	local PartialFirstDerivativeFunction
 
-					for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-						for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-							local firstDerivativeValue = firstDerivativeTensor[a][kernelIndex][c]
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+		
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-							local originDimensionIndex = ((c - 1) * strideDimensionSize)
+			local tensor = inputTensorArray[1]
+
+			local weightTensor = inputTensorArray[2]
+
+			local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+
+			if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
+
+				local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+
+				local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+
+				for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
+
+					createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
+
+						local weight2DTensor = pureWeightTensor[kernelIndex]
+
+						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
+
+							for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+
+								local firstDerivativeValue = firstDerivativeTensor[a][kernelIndex][c]
+
+								local originDimensionIndex = ((c - 1) * strideDimensionSize)
 
 							--[[
 								
@@ -197,63 +205,17 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 								
 							--]]
 
-							local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeValue, weight2DTensor)
+								local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeValue, weight2DTensor)
 
-							for channelIndex = 1, channelSize, 1 do
+								for channelIndex = 1, channelSize, 1 do
 
-								for i = 1, kernelDimensionSize, 1 do
+									for i = 1, kernelDimensionSize, 1 do
 
-									chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndex + i] = chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndex + i] + subChainRuleFirstDerivativeTensor[channelIndex][i]
+										chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndex + i] = chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndex + i] + subChainRuleFirstDerivativeTensor[channelIndex][i]
+
+									end
 
 								end
-
-							end
-
-						end
-
-					end
-
-				end)
-				
-			end
-			
-			runCoroutinesUntilFinished(coroutineArray)
-
-			tensor:differentiate{chainRuleFirstDerivativeTensor}
-			
-		end
-		
-		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
-			
-			local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
-
-			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
-
-			local coroutineArray = {}
-
-			for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
-
-				for kernelChannelIndex = 1, weightTensorDimensionSizeArray[2], 1 do
-
-					createCoroutineToArray(coroutineArray, function()
-					
-						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
-
-							local subTensor = pureTensor[a][kernelChannelIndex]
-
-							local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
-
-							for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
-
-								local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
-
-								local targetDimensionIndexArray = {(c - 1) * strideDimensionSize + kernelDimensionSize}
-
-								local extractedSubTensor = AqwamTensorLibrary:extract(subTensor, originDimensionIndexArray, targetDimensionIndexArray)
-
-								local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(extractedSubTensor, subFirstDerivativeTensor[c])
-
-								chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex] = AqwamTensorLibrary:add(chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex], subChainRuleFirstDerivativeTensor)
 
 							end
 
@@ -263,11 +225,59 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 
 				end
 
+				runCoroutinesUntilFinished(coroutineArray)
+
+				tensor:differentiate{chainRuleFirstDerivativeTensor}
+
 			end
 
-			runCoroutinesUntilFinished(coroutineArray)
+			if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
 
-			weightTensor:differentiate{chainRuleFirstDerivativeTensor}
+				local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+
+				local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
+
+				local coroutineArray = {}
+
+				for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
+
+					for kernelChannelIndex = 1, weightTensorDimensionSizeArray[2], 1 do
+
+						createCoroutineToArray(coroutineArray, function()
+
+							for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
+
+								local subTensor = pureTensor[a][kernelChannelIndex]
+
+								local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
+
+								for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+
+									local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
+
+									local targetDimensionIndexArray = {(c - 1) * strideDimensionSize + kernelDimensionSize}
+
+									local extractedSubTensor = AqwamTensorLibrary:extract(subTensor, originDimensionIndexArray, targetDimensionIndexArray)
+
+									local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(extractedSubTensor, subFirstDerivativeTensor[c])
+
+									chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex] = AqwamTensorLibrary:add(chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex], subChainRuleFirstDerivativeTensor)
+
+								end
+
+							end
+
+						end)
+
+					end
+
+				end
+
+				runCoroutinesUntilFinished(coroutineArray)
+
+				weightTensor:differentiate{chainRuleFirstDerivativeTensor}
+
+			end
 
 		end
 		
@@ -370,36 +380,44 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		local tensor = inputTensorArray[1]
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local weightTensor = inputTensorArray[2]
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+		
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+			local tensor = inputTensorArray[1]
 
-		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
-			
-			local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+			local weightTensor = inputTensorArray[2]
 
-			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+			local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
-			for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
+			if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
 
-				createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
-					
-					local weight3DTensor = pureWeightTensor[kernelIndex]
+				local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
 
-					for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
+				local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-						for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+				for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
 
-							for d = 1, firstDerivativeTensorDimensionSizeArray[4], 1 do
+					createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
 
-								local firstDerivativeValue = firstDerivativeTensor[a][kernelIndex][c][d]
+						local weight3DTensor = pureWeightTensor[kernelIndex]
 
-								local originDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1], (d - 1) * strideDimensionSizeArray[2]} 
+						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
+
+							for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+
+								for d = 1, firstDerivativeTensorDimensionSizeArray[4], 1 do
+
+									local firstDerivativeValue = firstDerivativeTensor[a][kernelIndex][c][d]
+
+									local originDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1], (d - 1) * strideDimensionSizeArray[2]} 
 
 								--[[
 								
@@ -408,15 +426,17 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 								
 								--]]
 
-								local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeValue, weight3DTensor)
+									local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeValue, weight3DTensor)
 
-								for channelIndex = 1, channelSize, 1 do
+									for channelIndex = 1, channelSize, 1 do
 
-									for i = 1, weightTensorDimensionSizeArray[3], 1 do
+										for i = 1, weightTensorDimensionSizeArray[3], 1 do
 
-										for j = 1, weightTensorDimensionSizeArray[4], 1 do
+											for j = 1, weightTensorDimensionSizeArray[4], 1 do
 
-											chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndexArray[1] + i][originDimensionIndexArray[2] + j] = chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndexArray[1] + i][originDimensionIndexArray[2] + j] + subChainRuleFirstDerivativeTensor[channelIndex][i][j]
+												chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndexArray[1] + i][originDimensionIndexArray[2] + j] = chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndexArray[1] + i][originDimensionIndexArray[2] + j] + subChainRuleFirstDerivativeTensor[channelIndex][i][j]
+
+											end
 
 										end
 
@@ -428,70 +448,70 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 
 						end
 
-					end
+					end)
 
-				end)
+				end
+
+				runCoroutinesUntilFinished(coroutineArray)
+
+				tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 			end
 
-			runCoroutinesUntilFinished(coroutineArray)
+			if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
 
-			tensor:differentiate{chainRuleFirstDerivativeTensor}
+				local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
 
-		end
+				local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
 
-		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
-			
-			local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+				local coroutineArray = {}
 
-			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
+				for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
 
-			local coroutineArray = {}
+					for kernelChannelIndex = 1, weightTensorDimensionSizeArray[2], 1 do
 
-			for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
+						createCoroutineToArray(coroutineArray, function()
 
-				for kernelChannelIndex = 1, weightTensorDimensionSizeArray[2], 1 do
+							for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
 
-					createCoroutineToArray(coroutineArray, function()
+								local subTensor = pureTensor[a][kernelChannelIndex]
 
-						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
+								local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
 
-							local subTensor = pureTensor[a][kernelChannelIndex]
+								for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
 
-							local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
+									for d = 1, firstDerivativeTensorDimensionSizeArray[4], 1 do
 
-							for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+										local originDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1] + 1, (d - 1) * strideDimensionSizeArray[2] + 1}
 
-								for d = 1, firstDerivativeTensorDimensionSizeArray[4], 1 do
+										local targetDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1] + weightTensorDimensionSizeArray[3], (d - 1) * strideDimensionSizeArray[2] + weightTensorDimensionSizeArray[4]}
 
-									local originDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1] + 1, (d - 1) * strideDimensionSizeArray[2] + 1}
+										local extractedSubTensor = AqwamTensorLibrary:extract(subTensor, originDimensionIndexArray, targetDimensionIndexArray)
 
-									local targetDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1] + weightTensorDimensionSizeArray[3], (d - 1) * strideDimensionSizeArray[2] + weightTensorDimensionSizeArray[4]}
+										local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(extractedSubTensor, subFirstDerivativeTensor[c][d])
 
-									local extractedSubTensor = AqwamTensorLibrary:extract(subTensor, originDimensionIndexArray, targetDimensionIndexArray)
+										chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex] = AqwamTensorLibrary:add(chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex], subChainRuleFirstDerivativeTensor)
 
-									local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(extractedSubTensor, subFirstDerivativeTensor[c][d])
-
-									chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex] = AqwamTensorLibrary:add(chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex], subChainRuleFirstDerivativeTensor)
+									end
 
 								end
 
 							end
 
-						end
+						end)
 
-					end)
+					end
 
 				end
 
+				runCoroutinesUntilFinished(coroutineArray)
+
+				weightTensor:differentiate{chainRuleFirstDerivativeTensor}
+
 			end
 
-			runCoroutinesUntilFinished(coroutineArray)
-
-			weightTensor:differentiate{chainRuleFirstDerivativeTensor}
-
 		end
-
+		
 	end
 
 	runCoroutinesUntilFinished(coroutineArray)
@@ -597,38 +617,46 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		local tensor = inputTensorArray[1]
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local weightTensor = inputTensorArray[2]
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+		
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+			local tensor = inputTensorArray[1]
 
-		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
+			local weightTensor = inputTensorArray[2]
 
-			local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
+			local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
-			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+			if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
 
-			for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
+				local pureWeightTensor = AutomaticDifferentiationTensor:fetchValue(weightTensor)
 
-				createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
+				local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-					local weight3DTensor = pureWeightTensor[kernelIndex]
+				for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
 
-					for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
+					createCoroutineToArray(coroutineArray, function() -- The calculation here is so slow that I am forced to use coroutines here. What the fuck.
 
-						for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+						local weight3DTensor = pureWeightTensor[kernelIndex]
 
-							for d = 1, firstDerivativeTensorDimensionSizeArray[4], 1 do
-								
-								for e = 1, firstDerivativeTensorDimensionSizeArray[5] do
-									
-									local firstDerivativeValue = firstDerivativeTensor[a][kernelIndex][c][d][e]
+						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
 
-									local originDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1], (d - 1) * strideDimensionSizeArray[2], (e - 1) * strideDimensionSizeArray[3]} 
+							for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+
+								for d = 1, firstDerivativeTensorDimensionSizeArray[4], 1 do
+
+									for e = 1, firstDerivativeTensorDimensionSizeArray[5] do
+
+										local firstDerivativeValue = firstDerivativeTensor[a][kernelIndex][c][d][e]
+
+										local originDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1], (d - 1) * strideDimensionSizeArray[2], (e - 1) * strideDimensionSizeArray[3]} 
 
 									--[[
 									
@@ -637,80 +665,26 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 									
 									--]]
 
-									local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeValue, weight3DTensor)
+										local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeValue, weight3DTensor)
 
-									for channelIndex = 1, channelSize, 1 do
+										for channelIndex = 1, channelSize, 1 do
 
-										for i = 1, weightTensorDimensionSizeArray[3], 1 do
+											for i = 1, weightTensorDimensionSizeArray[3], 1 do
 
-											for j = 1, weightTensorDimensionSizeArray[4], 1 do
-												
-												for k = 1, weightTensorDimensionSizeArray[4], 1 do
-													
-													chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndexArray[1] + i][originDimensionIndexArray[2] + j][originDimensionIndexArray[3] + k] = chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndexArray[1] + i][originDimensionIndexArray[2] + j][originDimensionIndexArray[3] + k] + subChainRuleFirstDerivativeTensor[channelIndex][i][j][k]
-													
+												for j = 1, weightTensorDimensionSizeArray[4], 1 do
+
+													for k = 1, weightTensorDimensionSizeArray[4], 1 do
+
+														chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndexArray[1] + i][originDimensionIndexArray[2] + j][originDimensionIndexArray[3] + k] = chainRuleFirstDerivativeTensor[a][channelIndex][originDimensionIndexArray[1] + i][originDimensionIndexArray[2] + j][originDimensionIndexArray[3] + k] + subChainRuleFirstDerivativeTensor[channelIndex][i][j][k]
+
+													end
+
 												end
 
 											end
 
 										end
 
-									end
-									
-								end
-
-							end
-
-						end
-
-					end
-
-				end)
-
-			end
-
-			runCoroutinesUntilFinished(coroutineArray)
-
-			tensor:differentiate{chainRuleFirstDerivativeTensor}
-
-		end
-
-		if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
-			
-			local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
-
-			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
-
-			local coroutineArray = {}
-
-			for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
-
-				for kernelChannelIndex = 1, weightTensorDimensionSizeArray[2], 1 do
-
-					createCoroutineToArray(coroutineArray, function()
-
-						for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
-
-							local subTensor = pureTensor[a][kernelChannelIndex]
-
-							local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
-
-							for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
-
-								for d = 1, firstDerivativeTensorDimensionSizeArray[4], 1 do
-									
-									for e = 1, firstDerivativeTensorDimensionSizeArray[5], 1 do
-										
-										local originDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1] + 1, (d - 1) * strideDimensionSizeArray[2] + 1, (e - 1) * strideDimensionSizeArray[3] + 1}
-
-										local targetDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1] + weightTensorDimensionSizeArray[3], (d - 1) * strideDimensionSizeArray[2] + weightTensorDimensionSizeArray[4], (e - 1) * strideDimensionSizeArray[3] + weightTensorDimensionSizeArray[5]}
-
-										local extractedSubTensor = AqwamTensorLibrary:extract(subTensor, originDimensionIndexArray, targetDimensionIndexArray)
-
-										local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(extractedSubTensor, subFirstDerivativeTensor[c][d][e])
-
-										chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex] = AqwamTensorLibrary:add(chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex], subChainRuleFirstDerivativeTensor)
-										
 									end
 
 								end
@@ -723,14 +697,70 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 
 				end
 
+				runCoroutinesUntilFinished(coroutineArray)
+
+				tensor:differentiate{chainRuleFirstDerivativeTensor}
+
 			end
 
-			runCoroutinesUntilFinished(coroutineArray)
+			if AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{weightTensor} then
 
-			weightTensor:differentiate{chainRuleFirstDerivativeTensor}
+				local pureTensor = AutomaticDifferentiationTensor:fetchValue(tensor)
+
+				local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(weightTensorDimensionSizeArray)
+
+				local coroutineArray = {}
+
+				for kernelIndex = 1, weightTensorDimensionSizeArray[1], 1 do
+
+					for kernelChannelIndex = 1, weightTensorDimensionSizeArray[2], 1 do
+
+						createCoroutineToArray(coroutineArray, function()
+
+							for a = 1, firstDerivativeTensorDimensionSizeArray[1], 1 do
+
+								local subTensor = pureTensor[a][kernelChannelIndex]
+
+								local subFirstDerivativeTensor = firstDerivativeTensor[a][kernelChannelIndex]
+
+								for c = 1, firstDerivativeTensorDimensionSizeArray[3], 1 do
+
+									for d = 1, firstDerivativeTensorDimensionSizeArray[4], 1 do
+
+										for e = 1, firstDerivativeTensorDimensionSizeArray[5], 1 do
+
+											local originDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1] + 1, (d - 1) * strideDimensionSizeArray[2] + 1, (e - 1) * strideDimensionSizeArray[3] + 1}
+
+											local targetDimensionIndexArray = {(c - 1) * strideDimensionSizeArray[1] + weightTensorDimensionSizeArray[3], (d - 1) * strideDimensionSizeArray[2] + weightTensorDimensionSizeArray[4], (e - 1) * strideDimensionSizeArray[3] + weightTensorDimensionSizeArray[5]}
+
+											local extractedSubTensor = AqwamTensorLibrary:extract(subTensor, originDimensionIndexArray, targetDimensionIndexArray)
+
+											local subChainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(extractedSubTensor, subFirstDerivativeTensor[c][d][e])
+
+											chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex] = AqwamTensorLibrary:add(chainRuleFirstDerivativeTensor[kernelIndex][kernelChannelIndex], subChainRuleFirstDerivativeTensor)
+
+										end
+
+									end
+
+								end
+
+							end
+
+						end)
+
+					end
+
+				end
+
+				runCoroutinesUntilFinished(coroutineArray)
+
+				weightTensor:differentiate{chainRuleFirstDerivativeTensor}
+
+			end
 
 		end
-
+		
 	end
 
 	runCoroutinesUntilFinished(coroutineArray)
