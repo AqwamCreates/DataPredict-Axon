@@ -1,5 +1,31 @@
 # [API Reference](../API.md) - AutomaticDifferentiationTensor
 
+## Flags
+
+### enableFirstDerivativeCalculation()
+
+```
+
+AutomaticDifferentiationTensor.enableFirstDerivativeCalculation{}
+
+```
+
+### disableFirstDerivativeCalculation()
+
+```
+
+AutomaticDifferentiationTensor.disableFirstDerivativeCalculation{}
+
+```
+
+### disableFirstDerivativeCalculationForNextTensor()
+
+```
+
+AutomaticDifferentiationTensor.disableFirstDerivativeCalculationForNextTensor{}
+
+```
+
 ## Constructors
 
 ### new()
