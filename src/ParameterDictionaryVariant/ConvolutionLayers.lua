@@ -167,8 +167,6 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -283,6 +281,8 @@ function ConvolutionLayers.FastConvolution1D(parameterDictionary)
 		
 	end
 	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+	
 	runCoroutinesUntilFinished(coroutineArray)
 	
 	return AutomaticDifferentiationTensor.new{resultTensor, PartialFirstDerivativeFunction, inputTensorArray}
@@ -386,8 +386,6 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -513,6 +511,8 @@ function ConvolutionLayers.FastConvolution2D(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	runCoroutinesUntilFinished(coroutineArray)
 
@@ -623,8 +623,6 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -762,6 +760,8 @@ function ConvolutionLayers.FastConvolution3D(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	runCoroutinesUntilFinished(coroutineArray)
 
