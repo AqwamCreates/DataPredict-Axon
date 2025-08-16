@@ -58,13 +58,23 @@ function DropoutLayers.Dropout(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local PartialFirstDerivativeFunction
 
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		tensor:differentiate{firstDerivativeTensor}
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+			tensor:differentiate{firstDerivativeTensor}
+
+		end
 
 	end
 
@@ -112,14 +122,24 @@ function DropoutLayers.Dropout1D(parameterDictionary)
 
 	resultTensor = AqwamTensorLibrary:multiply(resultTensor, scalingFactor)
 	
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
-		
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
-		
-		tensor:differentiate{firstDerivativeTensor}
-		
+	local PartialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+			tensor:differentiate{firstDerivativeTensor}
+
+		end
+
 	end
 	
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
@@ -166,13 +186,23 @@ function DropoutLayers.Dropout2D(parameterDictionary)
 
 	resultTensor = AqwamTensorLibrary:multiply(resultTensor, scalingFactor)
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local PartialFirstDerivativeFunction
 
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		tensor:differentiate{firstDerivativeTensor}
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+			tensor:differentiate{firstDerivativeTensor}
+
+		end
 
 	end
 
@@ -220,13 +250,23 @@ function DropoutLayers.Dropout3D(parameterDictionary)
 
 	resultTensor = AqwamTensorLibrary:multiply(resultTensor, scalingFactor)
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local PartialFirstDerivativeFunction
 
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		tensor:differentiate{firstDerivativeTensor}
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+			tensor:differentiate{firstDerivativeTensor}
+
+		end
 
 	end
 
@@ -273,15 +313,25 @@ function DropoutLayers.DropoutND(parameterDictionary)
 	end
 
 	resultTensor = AqwamTensorLibrary:multiply(resultTensor, scalingFactor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		local tensor = inputTensorArray[1]
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+		
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		tensor:differentiate{firstDerivativeTensor}
+			local tensor = inputTensorArray[1]
 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+			tensor:differentiate{firstDerivativeTensor}
+
+		end
+		
 	end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
