@@ -131,18 +131,28 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+		
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local functionToApply = function (a) return (a * (1 - a)) end
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+			local functionToApply = function (a) return (a * (1 - a)) end
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
+
+		end
+		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -159,14 +169,24 @@ function ActivationLayer.FastBinaryStep(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor =  AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		tensor:differentiate(AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0))
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+
+			tensor:differentiate(AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0))
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -183,18 +203,28 @@ function ActivationLayer.FastRectifiedLinearUnit(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local derivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return 0 end end
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(derivativeFunctionToApply, pureTensor)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local derivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return 0 end end
+
+			local gradientTensor = AqwamTensorLibrary:applyFunction(derivativeFunctionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -213,18 +243,28 @@ function ActivationLayer.FastLeakyRectifiedLinearUnit(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	
+	local PartialFirstDerivativeFunction
+	
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local partialDerivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return negativeSlopeFactor end end
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+			local partialDerivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return negativeSlopeFactor end end
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -243,18 +283,28 @@ function ActivationLayer.FastExponentLinearUnit(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local partialDerivativeFunctionToApply = function (z) if (z > 0) then return 1 else return (negativeSlopeFactor * math.exp(z)) end end
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local partialDerivativeFunctionToApply = function (z) if (z > 0) then return 1 else return (negativeSlopeFactor * math.exp(z)) end end
+
+			local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -271,18 +321,28 @@ function ActivationLayer.FastSigmoidLinearUnit(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local partialDerivativeFunctionToApply = function (z) return (1 + math.exp(-z) + (z * math.exp(-z))) / (1 + math.exp(-z))^2 end
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local partialDerivativeFunctionToApply = function (z) return (1 + math.exp(-z) + (z * math.exp(-z))) / (1 + math.exp(-z))^2 end
+
+			local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -299,18 +359,28 @@ function ActivationLayer.FastGaussian(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local partialDerivativeFunctionToApply = function (z) return -2 * z * math.exp(-math.pow(z, 2)) end
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local partialDerivativeFunctionToApply = function (z) return -2 * z * math.exp(-math.pow(z, 2)) end
+
+			local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -327,18 +397,28 @@ function ActivationLayer.FastMish(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local partialDerivativeFunctionToApply = function (z) return (math.exp(z) * (math.exp(3 * z) + 4 * math.exp(2 * z) + (6 + 4 * z) * math.exp(z) + 4 * (1 + z)) / math.pow((1 + math.pow((math.exp(z) + 1), 2)), 2)) end
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local partialDerivativeFunctionToApply = function (z) return (math.exp(z) * (math.exp(3 * z) + 4 * math.exp(2 * z) + (6 + 4 * z) * math.exp(z) + 4 * (1 + z)) / math.pow((1 + math.pow((math.exp(z) + 1), 2)), 2)) end
+
+			local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -353,18 +433,28 @@ function ActivationLayer.FastTanh(parameterDictionary)
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(math.tanh, pureTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local partialDerivativeFunctionToApply = function (a) return (1 - math.pow(a, 2)) end
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local partialDerivativeFunctionToApply = function (a) return (1 - math.pow(a, 2)) end
+
+			local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -385,20 +475,30 @@ function ActivationLayer.FastSoftmax(parameterDictionary)
 	local sumExponentTensor = AqwamTensorLibrary:sum(exponentTensor, dimension)
 
 	local resultTensor = AqwamTensorLibrary:divide(exponentTensor, sumExponentTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local gradientTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		calculateChainRuleFirstDerivativeTensor(resultTensor, dimensionSizeArray, #dimensionSizeArray, 1, gradientTensor, dimension)
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local gradientTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
+
+			calculateChainRuleFirstDerivativeTensor(resultTensor, dimensionSizeArray, #dimensionSizeArray, 1, gradientTensor, dimension)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
@@ -423,20 +523,30 @@ function ActivationLayer.FastStableSoftmax(parameterDictionary)
 	local sumExponentTensor = AqwamTensorLibrary:sum(exponentTensor, dimension)
 
 	local resultTensor = AqwamTensorLibrary:divide(exponentTensor, sumExponentTensor)
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local gradientTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-		calculateChainRuleFirstDerivativeTensor(resultTensor, dimensionSizeArray, #dimensionSizeArray, 1, gradientTensor, dimension)
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
-		tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+			local gradientTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
+
+			calculateChainRuleFirstDerivativeTensor(resultTensor, dimensionSizeArray, #dimensionSizeArray, 1, gradientTensor, dimension)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
 
 	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
 
