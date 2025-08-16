@@ -151,29 +151,39 @@ function PaddingLayers.FastZeroPadding(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 		
-		local tensor = inputTensorArray[1]
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+		
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			local tensor = inputTensorArray[1]
 
-		local originDimensionIndexArray = {}
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local targetDimensionIndexArray = table.clone(tensorDimensionSizeArray)
+			local originDimensionIndexArray = {}
 
-		for dimension = 1, tensorNumberOfDimensions, 1 do
+			local targetDimensionIndexArray = table.clone(tensorDimensionSizeArray)
 
-			originDimensionIndexArray[dimension] = (headPaddingDimensionSizeArray[dimension] or 0) + 1
+			for dimension = 1, tensorNumberOfDimensions, 1 do
 
-			targetDimensionIndexArray[dimension] = targetDimensionIndexArray[dimension] + (headPaddingDimensionSizeArray[dimension] or 0)
+				originDimensionIndexArray[dimension] = (headPaddingDimensionSizeArray[dimension] or 0) + 1
+
+				targetDimensionIndexArray[dimension] = targetDimensionIndexArray[dimension] + (headPaddingDimensionSizeArray[dimension] or 0)
+
+			end
+
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:extract(firstDerivativeTensor, originDimensionIndexArray, targetDimensionIndexArray)
+
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 		end
-
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:extract(firstDerivativeTensor, originDimensionIndexArray, targetDimensionIndexArray)
-
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
-
+		
 	end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
@@ -247,43 +257,53 @@ function PaddingLayers.FastConstantPadding(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
+	
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+	
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
-		local tensor = inputTensorArray[1]
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			local tensor = inputTensorArray[1]
 
-		local chainRuleFirstDerivativeMultiplierFunction = function(chainRuleFirstDerivativeValue, inputValue, value, chainRuleFirstDerivativeMultiplierValue)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-			if (inputValue == value) then chainRuleFirstDerivativeValue = chainRuleFirstDerivativeValue * chainRuleFirstDerivativeMultiplierValue end
+			local chainRuleFirstDerivativeMultiplierFunction = function(chainRuleFirstDerivativeValue, inputValue, value, chainRuleFirstDerivativeMultiplierValue)
 
-			return chainRuleFirstDerivativeValue
+				if (inputValue == value) then chainRuleFirstDerivativeValue = chainRuleFirstDerivativeValue * chainRuleFirstDerivativeMultiplierValue end
+
+				return chainRuleFirstDerivativeValue
+
+			end
+
+			local originDimensionIndexArray = {}
+
+			local targetDimensionIndexArray = table.clone(tensorDimensionSizeArray)
+
+			for dimension = 1, tensorNumberOfDimensions, 1 do
+
+				originDimensionIndexArray[dimension] = (headPaddingDimensionSizeArray[dimension] or 0) + 1
+
+				targetDimensionIndexArray[dimension] = targetDimensionIndexArray[dimension] + (headPaddingDimensionSizeArray[dimension] or 0)
+
+			end
+
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:extract(firstDerivativeTensor, originDimensionIndexArray, targetDimensionIndexArray)
+
+			if (value ~= 0) then
+
+				chainRuleFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(chainRuleFirstDerivativeMultiplierFunction, chainRuleFirstDerivativeTensor, tensor, value, chainRuleFirstDerivativeMultiplierValue)
+
+			end
+
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 		end
-
-		local originDimensionIndexArray = {}
-
-		local targetDimensionIndexArray = table.clone(tensorDimensionSizeArray)
-
-		for dimension = 1, tensorNumberOfDimensions, 1 do
-
-			originDimensionIndexArray[dimension] = (headPaddingDimensionSizeArray[dimension] or 0) + 1
-
-			targetDimensionIndexArray[dimension] = targetDimensionIndexArray[dimension] + (headPaddingDimensionSizeArray[dimension] or 0)
-
-		end
-
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:extract(firstDerivativeTensor, originDimensionIndexArray, targetDimensionIndexArray)
-
-		if (value ~= 0) then
-
-			chainRuleFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(chainRuleFirstDerivativeMultiplierFunction, chainRuleFirstDerivativeTensor, tensor, value, chainRuleFirstDerivativeMultiplierValue)
-
-		end
-
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
-
+		
 	end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
@@ -375,61 +395,71 @@ function PaddingLayers.FastCircularPadding(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
-		local tensor = inputTensorArray[1]
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			local tensor = inputTensorArray[1]
 
-		local firstDerivativeTensorDimensionSizeArray  = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor) 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local firstDerivativeTensorNumberOfDimensions = #firstDerivativeTensorDimensionSizeArray
+			local firstDerivativeTensorDimensionSizeArray  = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor) 
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray, 0)
+			local firstDerivativeTensorNumberOfDimensions = #firstDerivativeTensorDimensionSizeArray
 
-		local currentDerivativeTensorDimensionIndexArray = table.create(firstDerivativeTensorNumberOfDimensions, 1)
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray, 0)
 
-		currentDerivativeTensorDimensionIndexArray[firstDerivativeTensorNumberOfDimensions] = 0
+			local currentDerivativeTensorDimensionIndexArray = table.create(firstDerivativeTensorNumberOfDimensions, 1)
 
-		local currentInputTensorDimensionIndexArray = {}
+			currentDerivativeTensorDimensionIndexArray[firstDerivativeTensorNumberOfDimensions] = 0
 
-		for dimension, inputTensorDimensionSize in ipairs(tensorDimensionSizeArray) do
+			local currentInputTensorDimensionIndexArray = {}
 
-			local currentTensorDimensionIndex = headPaddingDimensionSizeArray[dimension] % inputTensorDimensionSize
+			for dimension, inputTensorDimensionSize in ipairs(tensorDimensionSizeArray) do
 
-			if (currentTensorDimensionIndex == 0) then currentTensorDimensionIndex = inputTensorDimensionSize end
+				local currentTensorDimensionIndex = headPaddingDimensionSizeArray[dimension] % inputTensorDimensionSize
 
-			currentInputTensorDimensionIndexArray[dimension] = currentTensorDimensionIndex
+				if (currentTensorDimensionIndex == 0) then currentTensorDimensionIndex = inputTensorDimensionSize end
+
+				currentInputTensorDimensionIndexArray[dimension] = currentTensorDimensionIndex
+
+			end
+
+			currentInputTensorDimensionIndexArray[tensorNumberOfDimensions] = currentInputTensorDimensionIndexArray[tensorNumberOfDimensions] - 1
+
+			local currentChainRuleFirstDerivativeValue
+
+			local initialPartialFirstDerivativeValue
+
+			local newChainRuleFirstDerivativeValue
+
+			repeat
+
+				currentInputTensorDimensionIndexArray = incrementDimensionIndexArray(currentInputTensorDimensionIndexArray, tensorDimensionSizeArray)
+
+				currentDerivativeTensorDimensionIndexArray = incrementDimensionIndexArray(currentDerivativeTensorDimensionIndexArray, firstDerivativeTensorDimensionSizeArray)
+
+				currentChainRuleFirstDerivativeValue = AqwamTensorLibrary:getValue(chainRuleFirstDerivativeTensor, currentInputTensorDimensionIndexArray)
+
+				initialPartialFirstDerivativeValue = AqwamTensorLibrary:getValue(firstDerivativeTensor, currentDerivativeTensorDimensionIndexArray)  
+
+				newChainRuleFirstDerivativeValue = currentChainRuleFirstDerivativeValue + initialPartialFirstDerivativeValue
+
+				AqwamTensorLibrary:setValue(chainRuleFirstDerivativeTensor, newChainRuleFirstDerivativeValue, currentInputTensorDimensionIndexArray)
+
+			until checkIfDimensionIndexArraysAreEqual(currentDerivativeTensorDimensionIndexArray, firstDerivativeTensorDimensionSizeArray)
+
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 		end
-
-		currentInputTensorDimensionIndexArray[tensorNumberOfDimensions] = currentInputTensorDimensionIndexArray[tensorNumberOfDimensions] - 1
-
-		local currentChainRuleFirstDerivativeValue
-
-		local initialPartialFirstDerivativeValue
-
-		local newChainRuleFirstDerivativeValue
-
-		repeat
-
-			currentInputTensorDimensionIndexArray = incrementDimensionIndexArray(currentInputTensorDimensionIndexArray, tensorDimensionSizeArray)
-
-			currentDerivativeTensorDimensionIndexArray = incrementDimensionIndexArray(currentDerivativeTensorDimensionIndexArray, firstDerivativeTensorDimensionSizeArray)
-
-			currentChainRuleFirstDerivativeValue = AqwamTensorLibrary:getValue(chainRuleFirstDerivativeTensor, currentInputTensorDimensionIndexArray)
-
-			initialPartialFirstDerivativeValue = AqwamTensorLibrary:getValue(firstDerivativeTensor, currentDerivativeTensorDimensionIndexArray)  
-
-			newChainRuleFirstDerivativeValue = currentChainRuleFirstDerivativeValue + initialPartialFirstDerivativeValue
-
-			AqwamTensorLibrary:setValue(chainRuleFirstDerivativeTensor, newChainRuleFirstDerivativeValue, currentInputTensorDimensionIndexArray)
-
-		until checkIfDimensionIndexArraysAreEqual(currentDerivativeTensorDimensionIndexArray, firstDerivativeTensorDimensionSizeArray)
-
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
-
+		
 	end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
@@ -509,99 +539,109 @@ function PaddingLayers.FastReplicationPadding(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
-		local tensor = inputTensorArray[1]
-		
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local tensorNumberOfDimensions = #tensorDimensionSizeArray
+			local tensor = inputTensorArray[1]
 
-		local originDimensionIndexArray = {}
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		local targetDimensionIndexArray = table.clone(tensorDimensionSizeArray)
+			local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
-		for dimension = 1, tensorNumberOfDimensions, 1 do
+			local originDimensionIndexArray = {}
 
-			originDimensionIndexArray[dimension] = (headPaddingDimensionSizeArray[dimension] or 0) + 1
+			local targetDimensionIndexArray = table.clone(tensorDimensionSizeArray)
 
-			targetDimensionIndexArray[dimension] = targetDimensionIndexArray[dimension] + (headPaddingDimensionSizeArray[dimension] or 0)
+			for dimension = 1, tensorNumberOfDimensions, 1 do
 
-		end
+				originDimensionIndexArray[dimension] = (headPaddingDimensionSizeArray[dimension] or 0) + 1
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:extract(firstDerivativeTensor, originDimensionIndexArray, targetDimensionIndexArray)
+				targetDimensionIndexArray[dimension] = targetDimensionIndexArray[dimension] + (headPaddingDimensionSizeArray[dimension] or 0)
 
-		local originExtractionDimensionIndexArray = table.create(tensorNumberOfDimensions, 1)
+			end
 
-		for dimension = 1, tensorNumberOfDimensions, 1 do
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:extract(firstDerivativeTensor, originDimensionIndexArray, targetDimensionIndexArray)
 
-			local tensorDimensionSize = tensorDimensionSizeArray[dimension]
+			local originExtractionDimensionIndexArray = table.create(tensorNumberOfDimensions, 1)
 
-			local headPaddingDimensionSize = headPaddingDimensionSizeArray[dimension]
+			for dimension = 1, tensorNumberOfDimensions, 1 do
 
-			local tailPaddingDimensionSize = tailPaddingDimensionSizeArray[dimension]
+				local tensorDimensionSize = tensorDimensionSizeArray[dimension]
 
-			if (headPaddingDimensionSize >= 1) then -- Head gradient edge cases.
+				local headPaddingDimensionSize = headPaddingDimensionSizeArray[dimension]
 
-				if (tensorDimensionSize > 1) then
+				local tailPaddingDimensionSize = tailPaddingDimensionSizeArray[dimension]
 
-					local targetExtractionDimensionIndexArray = table.clone(tensorDimensionSizeArray)
+				if (headPaddingDimensionSize >= 1) then -- Head gradient edge cases.
 
-					targetExtractionDimensionIndexArray[dimension] = 1
+					if (tensorDimensionSize > 1) then
 
-					local extractedChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeTensor, originExtractionDimensionIndexArray, targetExtractionDimensionIndexArray)
+						local targetExtractionDimensionIndexArray = table.clone(tensorDimensionSizeArray)
 
-					extractedChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:multiply(extractedChainRuleFirstDerivativeHeadTensor, headPaddingDimensionSize)
+						targetExtractionDimensionIndexArray[dimension] = 1
 
-					local remainingChainRuleFirstDerivativeTensorHeadDimensionIndexArray = table.clone(originExtractionDimensionIndexArray)
+						local extractedChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeTensor, originExtractionDimensionIndexArray, targetExtractionDimensionIndexArray)
 
-					remainingChainRuleFirstDerivativeTensorHeadDimensionIndexArray[dimension] = remainingChainRuleFirstDerivativeTensorHeadDimensionIndexArray[dimension] + 1
+						extractedChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:multiply(extractedChainRuleFirstDerivativeHeadTensor, headPaddingDimensionSize)
 
-					local remainingChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeTensor, remainingChainRuleFirstDerivativeTensorHeadDimensionIndexArray, tensorDimensionSizeArray)
+						local remainingChainRuleFirstDerivativeTensorHeadDimensionIndexArray = table.clone(originExtractionDimensionIndexArray)
 
-					chainRuleFirstDerivativeTensor = AqwamTensorLibrary:concatenate(extractedChainRuleFirstDerivativeHeadTensor, remainingChainRuleFirstDerivativeHeadTensor, dimension)		
+						remainingChainRuleFirstDerivativeTensorHeadDimensionIndexArray[dimension] = remainingChainRuleFirstDerivativeTensorHeadDimensionIndexArray[dimension] + 1
 
-				else
+						local remainingChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeTensor, remainingChainRuleFirstDerivativeTensorHeadDimensionIndexArray, tensorDimensionSizeArray)
 
-					chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(chainRuleFirstDerivativeTensor, headPaddingDimensionSize)
+						chainRuleFirstDerivativeTensor = AqwamTensorLibrary:concatenate(extractedChainRuleFirstDerivativeHeadTensor, remainingChainRuleFirstDerivativeHeadTensor, dimension)		
+
+					else
+
+						chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(chainRuleFirstDerivativeTensor, headPaddingDimensionSize)
+
+					end
+
+				end
+
+				if (tailPaddingDimensionSize >= 1) then -- Tail gradient edge cases.
+
+					if (tensorDimensionSize > 1) then
+
+						local remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray = table.clone(tensorDimensionSizeArray)
+
+						remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] = remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] - 1
+
+						local extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray = table.clone(originExtractionDimensionIndexArray)
+
+						extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] = tensorDimensionSizeArray[dimension]
+
+						local remainingChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeTensor, originExtractionDimensionIndexArray, remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray)
+
+						local targetChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeTensor, extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray, tensorDimensionSizeArray)
+
+						targetChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:multiply(targetChainRuleFirstDerivativeTailTensor, tailPaddingDimensionSize)
+
+						chainRuleFirstDerivativeTensor = AqwamTensorLibrary:concatenate(remainingChainRuleFirstDerivativeTailTensor, targetChainRuleFirstDerivativeTailTensor, dimension)
+
+					else
+
+						chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(chainRuleFirstDerivativeTensor, tailPaddingDimensionSize)
+
+					end
 
 				end
 
 			end
 
-			if (tailPaddingDimensionSize >= 1) then -- Tail gradient edge cases.
-
-				if (tensorDimensionSize > 1) then
-
-					local remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray = table.clone(tensorDimensionSizeArray)
-
-					remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] = remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] - 1
-
-					local extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray = table.clone(originExtractionDimensionIndexArray)
-
-					extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] = tensorDimensionSizeArray[dimension]
-
-					local remainingChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeTensor, originExtractionDimensionIndexArray, remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray)
-
-					local targetChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeTensor, extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray, tensorDimensionSizeArray)
-
-					targetChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:multiply(targetChainRuleFirstDerivativeTailTensor, tailPaddingDimensionSize)
-
-					chainRuleFirstDerivativeTensor = AqwamTensorLibrary:concatenate(remainingChainRuleFirstDerivativeTailTensor, targetChainRuleFirstDerivativeTailTensor, dimension)
-
-				else
-
-					chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(chainRuleFirstDerivativeTensor, tailPaddingDimensionSize)
-
-				end
-
-			end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 		end
-
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
-
+		
 	end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
@@ -715,101 +755,111 @@ function PaddingLayers.FastReflectionPadding(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
-		local tensor = inputTensorArray[1]
-		
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local originDimensionIndexArray = {}
+			local tensor = inputTensorArray[1]
 
-		local targetDimensionIndexArray = table.clone(tensorDimensionSizeArray)
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-		for dimension = 1, tensorNumberOfDimensions, 1 do
+			local originDimensionIndexArray = {}
 
-			originDimensionIndexArray[dimension] = (headPaddingDimensionSizeArray[dimension] or 0) + 1
+			local targetDimensionIndexArray = table.clone(tensorDimensionSizeArray)
 
-			targetDimensionIndexArray[dimension] = targetDimensionIndexArray[dimension] + (headPaddingDimensionSizeArray[dimension] or 0)
+			for dimension = 1, tensorNumberOfDimensions, 1 do
 
-		end
+				originDimensionIndexArray[dimension] = (headPaddingDimensionSizeArray[dimension] or 0) + 1
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:extract(firstDerivativeTensor, originDimensionIndexArray, targetDimensionIndexArray)
+				targetDimensionIndexArray[dimension] = targetDimensionIndexArray[dimension] + (headPaddingDimensionSizeArray[dimension] or 0)
 
-		local chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+			end
 
-		local originExtractionDimensionIndexArray = table.create(tensorNumberOfDimensions, 1)
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:extract(firstDerivativeTensor, originDimensionIndexArray, targetDimensionIndexArray)
 
-		for dimension = 1, tensorNumberOfDimensions, 1 do -- Gradient edge cases.
+			local chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-			local inputTensorDimensionSize = tensorDimensionSizeArray[dimension]
+			local originExtractionDimensionIndexArray = table.create(tensorNumberOfDimensions, 1)
 
-			local headPaddingDimensionSize = headPaddingDimensionSizeArray[dimension]
+			for dimension = 1, tensorNumberOfDimensions, 1 do -- Gradient edge cases.
 
-			local tailPaddingDimensionSize = tailPaddingDimensionSizeArray[dimension]
+				local inputTensorDimensionSize = tensorDimensionSizeArray[dimension]
 
-			if (headPaddingDimensionSize >= 1) then
+				local headPaddingDimensionSize = headPaddingDimensionSizeArray[dimension]
 
-				if (inputTensorDimensionSize > 1) then
+				local tailPaddingDimensionSize = tailPaddingDimensionSizeArray[dimension]
 
-					local remainingExtractionDimensionIndexArray = table.clone(tensorDimensionSizeArray)
+				if (headPaddingDimensionSize >= 1) then
 
-					remainingExtractionDimensionIndexArray[dimension] = 1
+					if (inputTensorDimensionSize > 1) then
 
-					local extractedChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeMultiplierTensor, originExtractionDimensionIndexArray, remainingExtractionDimensionIndexArray)
+						local remainingExtractionDimensionIndexArray = table.clone(tensorDimensionSizeArray)
 
-					local targetChainRuleFirstDerivativeTensorHeadDimensionIndexArray = table.clone(originExtractionDimensionIndexArray)
+						remainingExtractionDimensionIndexArray[dimension] = 1
 
-					targetChainRuleFirstDerivativeTensorHeadDimensionIndexArray[dimension] = targetChainRuleFirstDerivativeTensorHeadDimensionIndexArray[dimension] + 1
+						local extractedChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeMultiplierTensor, originExtractionDimensionIndexArray, remainingExtractionDimensionIndexArray)
 
-					local targetChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeMultiplierTensor, targetChainRuleFirstDerivativeTensorHeadDimensionIndexArray, tensorDimensionSizeArray)
+						local targetChainRuleFirstDerivativeTensorHeadDimensionIndexArray = table.clone(originExtractionDimensionIndexArray)
 
-					targetChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:add(targetChainRuleFirstDerivativeHeadTensor, 1)
+						targetChainRuleFirstDerivativeTensorHeadDimensionIndexArray[dimension] = targetChainRuleFirstDerivativeTensorHeadDimensionIndexArray[dimension] + 1
 
-					chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:concatenate(extractedChainRuleFirstDerivativeHeadTensor, targetChainRuleFirstDerivativeHeadTensor, dimension)	
+						local targetChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeMultiplierTensor, targetChainRuleFirstDerivativeTensorHeadDimensionIndexArray, tensorDimensionSizeArray)
 
-				else
+						targetChainRuleFirstDerivativeHeadTensor = AqwamTensorLibrary:add(targetChainRuleFirstDerivativeHeadTensor, 1)
 
-					chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:add(chainRuleFirstDerivativeMultiplierTensor, 1)
+						chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:concatenate(extractedChainRuleFirstDerivativeHeadTensor, targetChainRuleFirstDerivativeHeadTensor, dimension)	
+
+					else
+
+						chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:add(chainRuleFirstDerivativeMultiplierTensor, 1)
+
+					end
+
+				end
+
+				if (tailPaddingDimensionSize >= 1) then -- Tail gradient edge cases.
+
+					if (inputTensorDimensionSize > 1) then
+
+						local remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray = table.clone(tensorDimensionSizeArray)
+
+						remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] = remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] - 1
+
+						local extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray = table.clone(originExtractionDimensionIndexArray)
+
+						extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] = tensorDimensionSizeArray[dimension]
+
+						local targetChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeMultiplierTensor, originExtractionDimensionIndexArray, remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray)
+
+						local remainingChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeMultiplierTensor, extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray, tensorDimensionSizeArray)
+
+						targetChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:add(targetChainRuleFirstDerivativeTailTensor, 1)
+
+						chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:concatenate(targetChainRuleFirstDerivativeTailTensor, remainingChainRuleFirstDerivativeTailTensor, dimension)
+
+					else
+
+						chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:add(chainRuleFirstDerivativeMultiplierTensor, tailPaddingDimensionSize)
+
+					end
 
 				end
 
 			end
 
-			if (tailPaddingDimensionSize >= 1) then -- Tail gradient edge cases.
+			chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(chainRuleFirstDerivativeTensor, chainRuleFirstDerivativeMultiplierTensor)
 
-				if (inputTensorDimensionSize > 1) then
-
-					local remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray = table.clone(tensorDimensionSizeArray)
-
-					remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] = remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] - 1
-
-					local extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray = table.clone(originExtractionDimensionIndexArray)
-
-					extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray[dimension] = tensorDimensionSizeArray[dimension]
-
-					local targetChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeMultiplierTensor, originExtractionDimensionIndexArray, remainingChainRuleFirstDerivativeTensorTailDimensionIndexArray)
-
-					local remainingChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:extract(chainRuleFirstDerivativeMultiplierTensor, extractedChainRuleFirstDerivativeTensorTailDimensionIndexArray, tensorDimensionSizeArray)
-
-					targetChainRuleFirstDerivativeTailTensor = AqwamTensorLibrary:add(targetChainRuleFirstDerivativeTailTensor, 1)
-
-					chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:concatenate(targetChainRuleFirstDerivativeTailTensor, remainingChainRuleFirstDerivativeTailTensor, dimension)
-
-				else
-
-					chainRuleFirstDerivativeMultiplierTensor = AqwamTensorLibrary:add(chainRuleFirstDerivativeMultiplierTensor, tailPaddingDimensionSize)
-
-				end
-
-			end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 		end
-
-		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(chainRuleFirstDerivativeTensor, chainRuleFirstDerivativeMultiplierTensor)
-
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
-
+		
 	end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
