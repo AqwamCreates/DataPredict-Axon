@@ -251,40 +251,50 @@ function PoolingLayers.FastMaximumUnpooling1D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
-		
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		local unpoolingMethodInverseFunction = unpooling1DMethodInverseFunctionList[unpoolingMethod]
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (not unpoolingMethodInverseFunction) then error("Invalid unpooling method.") end
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+			local tensor = inputTensorArray[1]
 
-		for a = 1, tensorDimension1Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-			for b = 1, tensorDimension2Size, 1 do
+			local unpoolingMethodInverseFunction = unpooling1DMethodInverseFunctionList[unpoolingMethod]
 
-				for c = 1, tensorDimension3Size, 1 do
+			if (not unpoolingMethodInverseFunction) then error("Invalid unpooling method.") end
 
-					local startC = (c - 1) * strideDimensionSize + 1
+			local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
-					local endC = startC + kernelDimensionSize - 1
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-					unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, startC, endC)
+			for a = 1, tensorDimension1Size, 1 do
+
+				for b = 1, tensorDimension2Size, 1 do
+
+					for c = 1, tensorDimension3Size, 1 do
+
+						local startC = (c - 1) * strideDimensionSize + 1
+
+						local endC = startC + kernelDimensionSize - 1
+
+						unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, startC, endC)
+
+					end
 
 				end
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
@@ -373,34 +383,44 @@ function PoolingLayers.FastMaximumUnpooling2D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
-		
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		local unpoolingMethodInverseFunction = unpooling2DMethodInverseFunctionList[unpoolingMethod]
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (not unpoolingMethodInverseFunction) then error("Invalid unpooling method.") end
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		for a = 1, tensorDimension1Size, 1 do
+			local tensor = inputTensorArray[1]
 
-			for b = 1, tensorDimension2Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-				for c = 1, tensorDimension3Size, 1 do
+			local unpoolingMethodInverseFunction = unpooling2DMethodInverseFunctionList[unpoolingMethod]
 
-					for d = 1, tensorDimension4Size, 1 do
+			if (not unpoolingMethodInverseFunction) then error("Invalid unpooling method.") end
 
-						local startC = (c - 1) * strideDimension1Size + 1
-						local startD = (d - 1) * strideDimension2Size + 1
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-						local endC = startC + kernelDimension1Size - 1
-						local endD = startD + kernelDimension2Size - 1
+			for a = 1, tensorDimension1Size, 1 do
 
-						unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, d, startC, startD, endC, endD)
+				for b = 1, tensorDimension2Size, 1 do
+
+					for c = 1, tensorDimension3Size, 1 do
+
+						for d = 1, tensorDimension4Size, 1 do
+
+							local startC = (c - 1) * strideDimension1Size + 1
+							local startD = (d - 1) * strideDimension2Size + 1
+
+							local endC = startC + kernelDimension1Size - 1
+							local endD = startD + kernelDimension2Size - 1
+
+							unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, d, startC, startD, endC, endD)
+
+						end
 
 					end
 
@@ -408,9 +428,9 @@ function PoolingLayers.FastMaximumUnpooling2D(parameterDictionary)
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
@@ -511,38 +531,48 @@ function PoolingLayers.FastMaximumUnpooling3D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
-		
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		local unpoolingMethodInverseFunction = unpooling3DMethodInverseFunctionList[unpoolingMethod]
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (not unpoolingMethodInverseFunction) then error("Invalid unpooling method.") end
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		for a = 1, tensorDimension1Size, 1 do
+			local tensor = inputTensorArray[1]
 
-			for b = 1, tensorDimension2Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-				for c = 1, tensorDimension3Size, 1 do
+			local unpoolingMethodInverseFunction = unpooling3DMethodInverseFunctionList[unpoolingMethod]
 
-					for d = 1, tensorDimension4Size, 1 do
+			if (not unpoolingMethodInverseFunction) then error("Invalid unpooling method.") end
 
-						for e = 1, tensorDimension5Size, 1 do
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-							local startC = (c - 1) * strideDimension1Size + 1
-							local startD = (d - 1) * strideDimension2Size + 1
-							local startE = (e - 1) * strideDimension3Size + 1
+			for a = 1, tensorDimension1Size, 1 do
 
-							local endC = startC + kernelDimension1Size - 1
-							local endD = startD + kernelDimension2Size - 1
-							local endE = startE + kernelDimension3Size - 1
+				for b = 1, tensorDimension2Size, 1 do
 
-							unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, d, e, startC, startD, startE, endC, endD, endE)
+					for c = 1, tensorDimension3Size, 1 do
+
+						for d = 1, tensorDimension4Size, 1 do
+
+							for e = 1, tensorDimension5Size, 1 do
+
+								local startC = (c - 1) * strideDimension1Size + 1
+								local startD = (d - 1) * strideDimension2Size + 1
+								local startE = (e - 1) * strideDimension3Size + 1
+
+								local endC = startC + kernelDimension1Size - 1
+								local endD = startD + kernelDimension2Size - 1
+								local endE = startE + kernelDimension3Size - 1
+
+								unpoolingMethodInverseFunction(chainRuleFirstDerivativeTensor, firstDerivativeTensor, a, b, c, d, e, startC, startD, startE, endC, endD, endE)
+
+							end
 
 						end
 
@@ -552,9 +582,9 @@ function PoolingLayers.FastMaximumUnpooling3D(parameterDictionary)
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
@@ -621,30 +651,40 @@ function PoolingLayers.FastAveragePooling1D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		for a = 1, resultTensorDimension1Size, 1 do
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			for b = 1, resultTensorDimension2Size, 1 do
+			local tensor = inputTensorArray[1]
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-					local derivativeValue = firstDerivativeTensor[a][b][c]
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-					local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
+			for a = 1, resultTensorDimension1Size, 1 do
 
-					local targetDimensionIndexArray = {(c - 1) * strideDimensionSize + kernelDimensionSize}
+				for b = 1, resultTensorDimension2Size, 1 do
 
-					for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+					for c = 1, resultTensorDimension3Size, 1 do
 
-						chainRuleFirstDerivativeTensor[a][b][x] = chainRuleFirstDerivativeTensor[a][b][x] + derivativeValue
+						local derivativeValue = firstDerivativeTensor[a][b][c]
+
+						local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
+
+						local targetDimensionIndexArray = {(c - 1) * strideDimensionSize + kernelDimensionSize}
+
+						for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+							chainRuleFirstDerivativeTensor[a][b][x] = chainRuleFirstDerivativeTensor[a][b][x] + derivativeValue
+
+						end
 
 					end
 
@@ -652,11 +692,11 @@ function PoolingLayers.FastAveragePooling1D(parameterDictionary)
 
 			end
 
+			chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelDimensionSize)
+
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
+
 		end
-
-		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelDimensionSize)
-
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
@@ -741,38 +781,48 @@ function PoolingLayers.FastAveragePooling2D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		local kernelArea = kernelDimension1Size * kernelDimension2Size
+			local tensor = inputTensorArray[1]
 
-		for a = 1, resultTensorDimension1Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-			for b = 1, resultTensorDimension2Size, 1 do
+			local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-					for d = 1, resultTensorDimension4Size, 1 do
+			local kernelArea = kernelDimension1Size * kernelDimension2Size
 
-						local derivativeValue = firstDerivativeTensor[a][b][c][d]
+			for a = 1, resultTensorDimension1Size, 1 do
 
-						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
+				for b = 1, resultTensorDimension2Size, 1 do
 
-						local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+					for c = 1, resultTensorDimension3Size, 1 do
 
-						for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+						for d = 1, resultTensorDimension4Size, 1 do
 
-							for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+							local derivativeValue = firstDerivativeTensor[a][b][c][d]
 
-								chainRuleFirstDerivativeTensor[a][b][x][y] = chainRuleFirstDerivativeTensor[a][b][x][y] + derivativeValue
+							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
+
+							local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+
+							for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+								for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+
+									chainRuleFirstDerivativeTensor[a][b][x][y] = chainRuleFirstDerivativeTensor[a][b][x][y] + derivativeValue
+
+								end
 
 							end
 
@@ -784,11 +834,11 @@ function PoolingLayers.FastAveragePooling2D(parameterDictionary)
 
 			end
 
+			chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelArea)
+
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
+
 		end
-
-		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelArea)
-
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
@@ -883,40 +933,50 @@ function PoolingLayers.FastAveragePooling3D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		local kernelVolume = kernelDimension1Size * kernelDimension2Size * kernelDimension3Size
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		for a = 1, resultTensorDimension1Size, 1 do
+			local tensor = inputTensorArray[1]
 
-			for b = 1, resultTensorDimension2Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-					for d = 1, resultTensorDimension4Size, 1 do
+			local kernelVolume = kernelDimension1Size * kernelDimension2Size * kernelDimension3Size
 
-						for e = 1, resultTensorDimension5Size, 1 do
+			for a = 1, resultTensorDimension1Size, 1 do
 
-							local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
+				for b = 1, resultTensorDimension2Size, 1 do
 
-							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
+					for c = 1, resultTensorDimension3Size, 1 do
 
-							local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+						for d = 1, resultTensorDimension4Size, 1 do
 
-							for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+							for e = 1, resultTensorDimension5Size, 1 do
 
-								for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+								local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
 
-									for z = originDimensionIndexArray[3], targetDimensionIndexArray[3], 1 do
+								local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
-										chainRuleFirstDerivativeTensor[a][b][x][y][z] = chainRuleFirstDerivativeTensor[a][b][x][y][z] + derivativeValue
+								local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+
+								for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+									for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+
+										for z = originDimensionIndexArray[3], targetDimensionIndexArray[3], 1 do
+
+											chainRuleFirstDerivativeTensor[a][b][x][y][z] = chainRuleFirstDerivativeTensor[a][b][x][y][z] + derivativeValue
+
+										end
 
 									end
 
@@ -932,11 +992,11 @@ function PoolingLayers.FastAveragePooling3D(parameterDictionary)
 
 			end
 
+			chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelVolume)
+
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
+
 		end
-
-		chainRuleFirstDerivativeTensor = AqwamTensorLibrary:divide(chainRuleFirstDerivativeTensor, kernelVolume)
-
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
 
 	end
 
@@ -1003,30 +1063,40 @@ function PoolingLayers.FastMinimumPooling1D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		for a = 1, resultTensorDimension1Size, 1 do
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			for b = 1, resultTensorDimension2Size, 1 do
+			local tensor = inputTensorArray[1]
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-					local derivativeValue = firstDerivativeTensor[a][b][c]
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-					local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
+			for a = 1, resultTensorDimension1Size, 1 do
 
-					local targetDimensionIndexArray = {(c - 1) * strideDimensionSize + kernelDimensionSize}
+				for b = 1, resultTensorDimension2Size, 1 do
 
-					for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+					for c = 1, resultTensorDimension3Size, 1 do
 
-						if (resultTensor[a][b][c] == tensor[a][b][x]) then chainRuleFirstDerivativeTensor[a][b][x] = chainRuleFirstDerivativeTensor[a][b][x] + derivativeValue end
+						local derivativeValue = firstDerivativeTensor[a][b][c]
+
+						local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
+
+						local targetDimensionIndexArray = {(c - 1) * strideDimensionSize + kernelDimensionSize}
+
+						for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+							if (resultTensor[a][b][c] == tensor[a][b][x]) then chainRuleFirstDerivativeTensor[a][b][x] = chainRuleFirstDerivativeTensor[a][b][x] + derivativeValue end
+
+						end
 
 					end
 
@@ -1034,9 +1104,9 @@ function PoolingLayers.FastMinimumPooling1D(parameterDictionary)
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
@@ -1121,36 +1191,46 @@ function PoolingLayers.FastMinimumPooling2D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		for a = 1, resultTensorDimension1Size, 1 do
+			local tensor = inputTensorArray[1]
 
-			for b = 1, resultTensorDimension2Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
-					for d = 1, resultTensorDimension4Size, 1 do
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-						local derivativeValue = firstDerivativeTensor[a][b][c][d]
+			for a = 1, resultTensorDimension1Size, 1 do
 
-						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
+				for b = 1, resultTensorDimension2Size, 1 do
 
-						local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+					for c = 1, resultTensorDimension3Size, 1 do
 
-						for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+						for d = 1, resultTensorDimension4Size, 1 do
 
-							for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+							local derivativeValue = firstDerivativeTensor[a][b][c][d]
 
-								if (resultTensor[a][b][c][d] == tensor[a][b][x][y]) then chainRuleFirstDerivativeTensor[a][b][x][y] = chainRuleFirstDerivativeTensor[a][b][x][y] + derivativeValue end
+							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
+
+							local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+
+							for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+								for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+
+									if (resultTensor[a][b][c][d] == tensor[a][b][x][y]) then chainRuleFirstDerivativeTensor[a][b][x][y] = chainRuleFirstDerivativeTensor[a][b][x][y] + derivativeValue end
+
+								end
 
 							end
 
@@ -1162,9 +1242,9 @@ function PoolingLayers.FastMinimumPooling2D(parameterDictionary)
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
@@ -1259,38 +1339,48 @@ function PoolingLayers.FastMinimumPooling3D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		for a = 1, resultTensorDimension1Size, 1 do
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			for b = 1, resultTensorDimension2Size, 1 do
+			local tensor = inputTensorArray[1]
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-					for d = 1, resultTensorDimension4Size, 1 do
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-						for e = 1, resultTensorDimension5Size, 1 do
+			for a = 1, resultTensorDimension1Size, 1 do
 
-							local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
+				for b = 1, resultTensorDimension2Size, 1 do
 
-							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
+					for c = 1, resultTensorDimension3Size, 1 do
 
-							local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+						for d = 1, resultTensorDimension4Size, 1 do
 
-							for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+							for e = 1, resultTensorDimension5Size, 1 do
 
-								for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+								local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
 
-									for z = originDimensionIndexArray[3], targetDimensionIndexArray[3], 1 do
+								local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
 
-										if (resultTensor[a][b][c][d][e] == tensor[a][b][x][y][z]) then chainRuleFirstDerivativeTensor[a][b][x][y][z] = chainRuleFirstDerivativeTensor[a][b][x][y][z] + derivativeValue end
+								local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+
+								for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+									for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+
+										for z = originDimensionIndexArray[3], targetDimensionIndexArray[3], 1 do
+
+											if (resultTensor[a][b][c][d][e] == tensor[a][b][x][y][z]) then chainRuleFirstDerivativeTensor[a][b][x][y][z] = chainRuleFirstDerivativeTensor[a][b][x][y][z] + derivativeValue end
+
+										end
 
 									end
 
@@ -1306,9 +1396,9 @@ function PoolingLayers.FastMinimumPooling3D(parameterDictionary)
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
@@ -1375,30 +1465,40 @@ function PoolingLayers.FastMaximumPooling1D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		for a = 1, resultTensorDimension1Size, 1 do
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			for b = 1, resultTensorDimension2Size, 1 do
+			local tensor = inputTensorArray[1]
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
-					local derivativeValue = firstDerivativeTensor[a][b][c]
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-					local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
+			for a = 1, resultTensorDimension1Size, 1 do
 
-					local targetDimensionIndexArray = {(c - 1) * strideDimensionSize + kernelDimensionSize}
+				for b = 1, resultTensorDimension2Size, 1 do
 
-					for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+					for c = 1, resultTensorDimension3Size, 1 do
 
-						if (resultTensor[a][b][c] == tensor[a][b][x]) then chainRuleFirstDerivativeTensor[a][b][x] = chainRuleFirstDerivativeTensor[a][b][x] + derivativeValue end
+						local derivativeValue = firstDerivativeTensor[a][b][c]
+
+						local originDimensionIndexArray = {(c - 1) * strideDimensionSize + 1}
+
+						local targetDimensionIndexArray = {(c - 1) * strideDimensionSize + kernelDimensionSize}
+
+						for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+							if (resultTensor[a][b][c] == tensor[a][b][x]) then chainRuleFirstDerivativeTensor[a][b][x] = chainRuleFirstDerivativeTensor[a][b][x] + derivativeValue end
+
+						end
 
 					end
 
@@ -1406,9 +1506,9 @@ function PoolingLayers.FastMaximumPooling1D(parameterDictionary)
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
@@ -1493,34 +1593,44 @@ function PoolingLayers.FastMaximumPooling2D(parameterDictionary)
 		end
 
 	end
+	
+	local PartialFirstDerivativeFunction
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		for a = 1, resultTensorDimension1Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-			for b = 1, resultTensorDimension2Size, 1 do
+			local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-					for d = 1, resultTensorDimension4Size, 1 do
+			for a = 1, resultTensorDimension1Size, 1 do
 
-						local derivativeValue = firstDerivativeTensor[a][b][c][d]
+				for b = 1, resultTensorDimension2Size, 1 do
 
-						local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
+					for c = 1, resultTensorDimension3Size, 1 do
 
-						local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+						for d = 1, resultTensorDimension4Size, 1 do
 
-						for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+							local derivativeValue = firstDerivativeTensor[a][b][c][d]
 
-							for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1}
 
-								if (resultTensor[a][b][c][d] == tensor[a][b][x][y]) then chainRuleFirstDerivativeTensor[a][b][x][y] = chainRuleFirstDerivativeTensor[a][b][x][y] + derivativeValue end
+							local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size}
+
+							for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+								for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+
+									if (resultTensor[a][b][c][d] == tensor[a][b][x][y]) then chainRuleFirstDerivativeTensor[a][b][x][y] = chainRuleFirstDerivativeTensor[a][b][x][y] + derivativeValue end
+
+								end
 
 							end
 
@@ -1532,9 +1642,9 @@ function PoolingLayers.FastMaximumPooling2D(parameterDictionary)
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
@@ -1629,38 +1739,49 @@ function PoolingLayers.FastMaximumPooling3D(parameterDictionary)
 		end
 
 	end
+	
 
-	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-		
-		local tensor = inputTensorArray[1]
+	local PartialFirstDerivativeFunction
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-		local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		for a = 1, resultTensorDimension1Size, 1 do
+		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-			for b = 1, resultTensorDimension2Size, 1 do
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-				for c = 1, resultTensorDimension3Size, 1 do
+			local tensor = inputTensorArray[1]
 
-					for d = 1, resultTensorDimension4Size, 1 do
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
 
-						for e = 1, resultTensorDimension5Size, 1 do
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
-							local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
+			for a = 1, resultTensorDimension1Size, 1 do
 
-							local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
+				for b = 1, resultTensorDimension2Size, 1 do
 
-							local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+					for c = 1, resultTensorDimension3Size, 1 do
 
-							for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+						for d = 1, resultTensorDimension4Size, 1 do
 
-								for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+							for e = 1, resultTensorDimension5Size, 1 do
 
-									for z = originDimensionIndexArray[3], targetDimensionIndexArray[3], 1 do
+								local derivativeValue = firstDerivativeTensor[a][b][c][d][e]
 
-										if (resultTensor[a][b][c][d][e] == tensor[a][b][x][y][z]) then chainRuleFirstDerivativeTensor[a][b][x][y][z] = chainRuleFirstDerivativeTensor[a][b][x][y][z] + derivativeValue end
+								local originDimensionIndexArray = {(c - 1) * strideDimension1Size + 1, (d - 1) * strideDimension2Size + 1, (e - 1) * strideDimension3Size + 1}
+
+								local targetDimensionIndexArray = {(c - 1) * strideDimension1Size + kernelDimension1Size, (d - 1) * strideDimension2Size + kernelDimension2Size, (e - 1) * strideDimension3Size + kernelDimension3Size}
+
+								for x = originDimensionIndexArray[1], targetDimensionIndexArray[1], 1 do
+
+									for y = originDimensionIndexArray[2], targetDimensionIndexArray[2], 1 do
+
+										for z = originDimensionIndexArray[3], targetDimensionIndexArray[3], 1 do
+
+											if (resultTensor[a][b][c][d][e] == tensor[a][b][x][y][z]) then chainRuleFirstDerivativeTensor[a][b][x][y][z] = chainRuleFirstDerivativeTensor[a][b][x][y][z] + derivativeValue end
+
+										end
 
 									end
 
@@ -1676,9 +1797,9 @@ function PoolingLayers.FastMaximumPooling3D(parameterDictionary)
 
 			end
 
-		end
+			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
-		tensor:differentiate{chainRuleFirstDerivativeTensor}
+		end
 
 	end
 
