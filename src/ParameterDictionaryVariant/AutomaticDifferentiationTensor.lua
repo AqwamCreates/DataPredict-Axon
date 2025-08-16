@@ -30,8 +30,6 @@ local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
 local AHAAutomaticDifferentiationTensor = {}
 
-local doFirstDerivativeScopeCount
-
 AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally = true
 
 AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false
@@ -260,8 +258,6 @@ function AHAAutomaticDifferentiationTensor.stack(parameterDictionary)
 	
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 		
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			for i, tensor in ipairs(tensorArray) do
@@ -277,6 +273,8 @@ function AHAAutomaticDifferentiationTensor.stack(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, tensorArray})
 
@@ -300,8 +298,6 @@ function AHAAutomaticDifferentiationTensor.radian(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -315,6 +311,8 @@ function AHAAutomaticDifferentiationTensor.radian(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -338,8 +336,6 @@ function AHAAutomaticDifferentiationTensor.degree(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -353,6 +349,8 @@ function AHAAutomaticDifferentiationTensor.degree(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -376,8 +374,6 @@ function AHAAutomaticDifferentiationTensor.sin(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -391,6 +387,8 @@ function AHAAutomaticDifferentiationTensor.sin(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -414,8 +412,6 @@ function AHAAutomaticDifferentiationTensor.cos(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -431,6 +427,8 @@ function AHAAutomaticDifferentiationTensor.cos(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -453,8 +451,6 @@ function AHAAutomaticDifferentiationTensor.tan(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-		
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -471,6 +467,8 @@ function AHAAutomaticDifferentiationTensor.tan(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -494,8 +492,6 @@ function AHAAutomaticDifferentiationTensor.exponent(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -507,6 +503,8 @@ function AHAAutomaticDifferentiationTensor.exponent(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction,inputTensorArray})
 
@@ -533,8 +531,6 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -589,6 +585,8 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -624,8 +622,6 @@ function AHAAutomaticDifferentiationTensor.clamp(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -651,6 +647,8 @@ function AHAAutomaticDifferentiationTensor.clamp(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -691,8 +689,6 @@ function AHAAutomaticDifferentiationTensor.maximum(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -737,6 +733,8 @@ function AHAAutomaticDifferentiationTensor.maximum(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, tensorArray})
 
@@ -777,8 +775,6 @@ function AHAAutomaticDifferentiationTensor.minimum(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -823,6 +819,8 @@ function AHAAutomaticDifferentiationTensor.minimum(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, tensorArray})
 
@@ -844,8 +842,6 @@ function AHAAutomaticDifferentiationTensor:findMaximumValue()
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -861,6 +857,8 @@ function AHAAutomaticDifferentiationTensor:findMaximumValue()
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({maximumValue, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -882,8 +880,6 @@ function AHAAutomaticDifferentiationTensor:findMinimumValue()
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -899,6 +895,8 @@ function AHAAutomaticDifferentiationTensor:findMinimumValue()
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({minimumValue, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1028,8 +1026,6 @@ function AHAAutomaticDifferentiationTensor:__add(otherTensor)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local selfTensor = inputTensorArray[1]
@@ -1063,6 +1059,8 @@ function AHAAutomaticDifferentiationTensor:__add(otherTensor)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1084,8 +1082,6 @@ function AHAAutomaticDifferentiationTensor:__sub(otherTensor)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local selfTensor = inputTensorArray[1]
@@ -1119,6 +1115,8 @@ function AHAAutomaticDifferentiationTensor:__sub(otherTensor)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1139,8 +1137,6 @@ function AHAAutomaticDifferentiationTensor:__mul(otherTensor)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1179,6 +1175,8 @@ function AHAAutomaticDifferentiationTensor:__mul(otherTensor)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1199,8 +1197,6 @@ function AHAAutomaticDifferentiationTensor:__div(otherTensor)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1243,6 +1239,8 @@ function AHAAutomaticDifferentiationTensor:__div(otherTensor)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1259,8 +1257,6 @@ function AHAAutomaticDifferentiationTensor:__unm()
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1269,6 +1265,8 @@ function AHAAutomaticDifferentiationTensor:__unm()
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {self}})
 
@@ -1289,8 +1287,6 @@ function AHAAutomaticDifferentiationTensor:__pow(otherTensor)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1337,6 +1333,8 @@ function AHAAutomaticDifferentiationTensor:__pow(otherTensor)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1359,8 +1357,6 @@ function AHAAutomaticDifferentiationTensor.add(inputTensorArray)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1381,6 +1377,8 @@ function AHAAutomaticDifferentiationTensor.add(inputTensorArray)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1404,8 +1402,6 @@ function AHAAutomaticDifferentiationTensor.subtract(inputTensorArray)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			for i, tensor in ipairs(inputTensorArray) do
@@ -1425,6 +1421,8 @@ function AHAAutomaticDifferentiationTensor.subtract(inputTensorArray)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1448,8 +1446,6 @@ function AHAAutomaticDifferentiationTensor.multiply(inputTensorArray)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			for i, tensor in ipairs(inputTensorArray) do
@@ -1479,6 +1475,8 @@ function AHAAutomaticDifferentiationTensor.multiply(inputTensorArray)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 	
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1502,8 +1500,6 @@ function AHAAutomaticDifferentiationTensor.divide(inputTensorArray)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			for i, tensor in ipairs(inputTensorArray) do
@@ -1533,6 +1529,8 @@ function AHAAutomaticDifferentiationTensor.divide(inputTensorArray)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1559,8 +1557,6 @@ function AHAAutomaticDifferentiationTensor:power(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1607,6 +1603,8 @@ function AHAAutomaticDifferentiationTensor:power(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1627,8 +1625,6 @@ function AHAAutomaticDifferentiationTensor:unaryMinus()
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1639,6 +1635,8 @@ function AHAAutomaticDifferentiationTensor:unaryMinus()
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1664,8 +1662,6 @@ function AHAAutomaticDifferentiationTensor:sum(parameterDictionary)
 	
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -1689,6 +1685,8 @@ function AHAAutomaticDifferentiationTensor:sum(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1715,8 +1713,6 @@ function AHAAutomaticDifferentiationTensor:dotProduct(parameterDictionary) -- Re
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1759,6 +1755,8 @@ function AHAAutomaticDifferentiationTensor:dotProduct(parameterDictionary) -- Re
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1785,8 +1783,6 @@ function AHAAutomaticDifferentiationTensor:extract(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -1849,6 +1845,8 @@ function AHAAutomaticDifferentiationTensor:extract(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1898,8 +1896,6 @@ function AHAAutomaticDifferentiationTensor.concatenate(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local extractedDerivativeTensorArray = {}
@@ -1935,6 +1931,8 @@ function AHAAutomaticDifferentiationTensor.concatenate(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, tensorArray})
 
@@ -1962,8 +1960,6 @@ function AHAAutomaticDifferentiationTensor:transpose(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -1973,6 +1969,8 @@ function AHAAutomaticDifferentiationTensor:transpose(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -1998,8 +1996,6 @@ function AHAAutomaticDifferentiationTensor:flatten(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -2017,6 +2013,8 @@ function AHAAutomaticDifferentiationTensor:flatten(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -2042,8 +2040,6 @@ function AHAAutomaticDifferentiationTensor:reshape(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 			
 			local tensor = inputTensorArray[1]
@@ -2061,6 +2057,8 @@ function AHAAutomaticDifferentiationTensor:reshape(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -2086,8 +2084,6 @@ function AHAAutomaticDifferentiationTensor:permute(parameterDictionary)
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -2103,6 +2099,8 @@ function AHAAutomaticDifferentiationTensor:permute(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -2129,8 +2127,6 @@ function AHAAutomaticDifferentiationTensor:mean(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -2165,6 +2161,8 @@ function AHAAutomaticDifferentiationTensor:mean(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})	
 
@@ -2189,8 +2187,6 @@ function AHAAutomaticDifferentiationTensor:standardDeviation(parameterDictionary
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -2227,6 +2223,8 @@ function AHAAutomaticDifferentiationTensor:standardDeviation(parameterDictionary
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})	
 
@@ -2252,8 +2250,6 @@ function AHAAutomaticDifferentiationTensor:zScoreNormalization(parameterDictiona
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -2271,7 +2267,9 @@ function AHAAutomaticDifferentiationTensor:zScoreNormalization(parameterDictiona
 		end
 
 	end
-
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+	
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})	
 
 end
@@ -2294,8 +2292,6 @@ function AHAAutomaticDifferentiationTensor:absolute()
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -2313,6 +2309,8 @@ function AHAAutomaticDifferentiationTensor:absolute()
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})	
 
@@ -2337,8 +2335,6 @@ function AHAAutomaticDifferentiationTensor:expandDimensionSizes(parameterDiction
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -2365,6 +2361,8 @@ function AHAAutomaticDifferentiationTensor:expandDimensionSizes(parameterDiction
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -2388,8 +2386,6 @@ function AHAAutomaticDifferentiationTensor:expandNumberOfDimensions(parameterDic
 
 	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -2407,6 +2403,8 @@ function AHAAutomaticDifferentiationTensor:expandNumberOfDimensions(parameterDic
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
