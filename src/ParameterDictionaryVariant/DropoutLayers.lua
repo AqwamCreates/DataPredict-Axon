@@ -64,8 +64,6 @@ function DropoutLayers.Dropout(parameterDictionary)
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -77,6 +75,8 @@ function DropoutLayers.Dropout(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -128,8 +128,6 @@ function DropoutLayers.Dropout1D(parameterDictionary)
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -141,6 +139,8 @@ function DropoutLayers.Dropout1D(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 	
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 	
@@ -192,8 +192,6 @@ function DropoutLayers.Dropout2D(parameterDictionary)
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -205,6 +203,8 @@ function DropoutLayers.Dropout2D(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -256,8 +256,6 @@ function DropoutLayers.Dropout3D(parameterDictionary)
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
@@ -269,6 +267,8 @@ function DropoutLayers.Dropout3D(parameterDictionary)
 		end
 
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -319,8 +319,6 @@ function DropoutLayers.DropoutND(parameterDictionary)
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -333,6 +331,8 @@ function DropoutLayers.DropoutND(parameterDictionary)
 		end
 		
 	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
