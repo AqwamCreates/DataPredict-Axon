@@ -2458,6 +2458,130 @@ function AHAAutomaticDifferentiationTensor.createRandomUniformTensor(parameterDi
 
 end
 
+function AHAAutomaticDifferentiationTensor.createHeNormalTensor(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[1]
+
+	local numberOfInputNeurons = parameterDictionary.numberOfInputNeurons or parameterDictionary[2]
+
+	local variancePart1 = 2 / numberOfInputNeurons
+
+	local variancePart = math.sqrt(variancePart1)
+
+	local randomNormalTensor = AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray)
+	
+	local tensor = AqwamTensorLibrary:multiply(variancePart, randomNormalTensor)
+
+	return AHAAutomaticDifferentiationTensor.new({tensor})
+
+end
+
+function AHAAutomaticDifferentiationTensor.createHeUniformTensor(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[1]
+
+	local numberOfInputNeurons = parameterDictionary.numberOfInputNeurons or parameterDictionary[2]
+
+	local variancePart1 = 6 / numberOfInputNeurons
+
+	local variancePart = math.sqrt(variancePart1)
+
+	local randomUniformTensor = AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
+
+	local tensor = AqwamTensorLibrary:multiply(variancePart, randomUniformTensor) 
+
+	return AHAAutomaticDifferentiationTensor.new({tensor})
+
+end
+
+function AHAAutomaticDifferentiationTensor.createXavierNormalTensor(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[1]
+
+	local numberOfInputNeurons = parameterDictionary.numberOfInputNeurons or parameterDictionary[2]
+	
+	local numberOfOutputNeurons = parameterDictionary.numberOfOutputNeurons or parameterDictionary[3]
+
+	local variancePart1 = 2 / (numberOfInputNeurons + numberOfOutputNeurons)
+
+	local variancePart = math.sqrt(variancePart1)
+
+	local randomNormalTensor = AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray)
+
+	local tensor = AqwamTensorLibrary:multiply(variancePart, randomNormalTensor) 
+
+	return AHAAutomaticDifferentiationTensor.new({tensor})
+
+end
+
+function AHAAutomaticDifferentiationTensor.createXavierUniformTensor(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[1]
+
+	local numberOfInputNeurons = parameterDictionary.numberOfInputNeurons or parameterDictionary[2]
+
+	local numberOfOutputNeurons = parameterDictionary.numberOfOutputNeurons or parameterDictionary[3]
+
+	local variancePart1 = 6 / (numberOfInputNeurons + numberOfOutputNeurons)
+
+	local variancePart = math.sqrt(variancePart1)
+
+	local randomUniformTensor = AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
+
+	local tensor = AqwamTensorLibrary:multiply(variancePart, randomUniformTensor)
+
+	return AHAAutomaticDifferentiationTensor.new({tensor})
+
+end
+
+function AHAAutomaticDifferentiationTensor.createLeCunNormalTensor(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[1]
+
+	local numberOfInputNeurons = parameterDictionary.numberOfInputNeurons or parameterDictionary[2]
+
+	local variancePart1 = 1 / numberOfInputNeurons
+
+	local variancePart = math.sqrt(variancePart1)
+
+	local randomNormalTensor = AqwamTensorLibrary:createRandomNormalTensor(dimensionSizeArray)
+
+	local tensor = AqwamTensorLibrary:multiply(variancePart, randomNormalTensor)
+	
+	return AHAAutomaticDifferentiationTensor.new({tensor})
+
+end
+
+function AHAAutomaticDifferentiationTensor.createLeCunUniformTensor(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[1]
+
+	local numberOfInputNeurons = parameterDictionary.numberOfInputNeurons or parameterDictionary[2]
+
+	local variancePart1 = 3 / numberOfInputNeurons
+
+	local variancePart = math.sqrt(variancePart1)
+
+	local randomUniformTensor = AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
+
+	local tensor = AqwamTensorLibrary:multiply(variancePart, randomUniformTensor) 
+
+	return AHAAutomaticDifferentiationTensor.new({tensor})
+
+end
+
 --------------------------------------------------------------------------------------
 
 function AHAAutomaticDifferentiationTensor:isAutomaticDifferentiationTensor()
