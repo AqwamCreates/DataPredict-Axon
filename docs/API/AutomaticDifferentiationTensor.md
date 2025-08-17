@@ -118,7 +118,7 @@ AutomaticDifferentiationTensor.createRandomNormalTensor{dimensionSizeArray: {num
 
 ```
 
-AutomaticDifferentiationTensor.createRandomNormalTensor{dimensionSizeArray: {number}, minimumValue: number, maximumValue: number}: AutomaticDifferentiationTensor
+AutomaticDifferentiationTensor.createHeNormalTensor{dimensionSizeArray: {number}, numberOfInputNeurons: number}: AutomaticDifferentiationTensor
 
 ```
 
@@ -126,9 +126,79 @@ AutomaticDifferentiationTensor.createRandomNormalTensor{dimensionSizeArray: {num
 
 * dimensionSizeArray: The dimension size array for the automatic differentiation tensor. 
 
-* minimumValue: The minimum value for the generated values.
+* numberOfInputNeurons: The number of input neurons.
 
-* maximumValue: The maximum value for the generated values.
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### createHeNormalTensor()
+
+```
+
+AutomaticDifferentiationTensor.createHeNormalTensor{dimensionSizeArray: {number}, numberOfInputNeurons: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* dimensionSizeArray: The dimension size array for the automatic differentiation tensor. 
+
+* numberOfInputNeurons: The number of input neurons.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### createHeUniformTensor()
+
+```
+
+AutomaticDifferentiationTensor.createHeUniformTensor{dimensionSizeArray: {number}, numberOfInputNeurons: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* dimensionSizeArray: The dimension size array for the automatic differentiation tensor. 
+
+* numberOfInputNeurons: The number of input neurons.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### createLeCunNormalTensor()
+
+```
+
+AutomaticDifferentiationTensor.createLeCunNormalTensor{dimensionSizeArray: {number}, numberOfInputNeurons: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* dimensionSizeArray: The dimension size array for the automatic differentiation tensor. 
+
+* numberOfInputNeurons: The number of input neurons.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### createLeCunUniformTensor()
+
+```
+
+AutomaticDifferentiationTensor.createLeCunUniformTensor{dimensionSizeArray: {number}, numberOfInputNeurons: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* dimensionSizeArray: The dimension size array for the automatic differentiation tensor. 
+
+* numberOfInputNeurons: The number of input neurons.
 
 #### Returns:
 
