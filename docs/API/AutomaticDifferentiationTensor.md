@@ -168,6 +168,46 @@ AutomaticDifferentiationTensor.createHeUniformTensor{dimensionSizeArray: {number
 
 * AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
 
+### createXavierNormalTensor()
+
+```
+
+AutomaticDifferentiationTensor.createXavierNormalTensor{dimensionSizeArray: {number}, numberOfInputNeurons: number, numberOfOutputNeurons: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* dimensionSizeArray: The dimension size array for the automatic differentiation tensor. 
+
+* numberOfInputNeurons: The number of input neurons.
+
+* numberOfOutputNeurons: The number of output neurons.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
+### createXavierUniformTensor()
+
+```
+
+AutomaticDifferentiationTensor.createXavierUniformTensor{dimensionSizeArray: {number}, numberOfInputNeurons: number, numberOfOutputNeurons: number}: AutomaticDifferentiationTensor
+
+```
+
+#### Parameters:
+
+* dimensionSizeArray: The dimension size array for the automatic differentiation tensor. 
+
+* numberOfInputNeurons: The number of input neurons.
+
+* numberOfOutputNeurons: The number of output neurons.
+
+#### Returns:
+
+* AutomaticDifferentiationTensor: The generated automatic differentiation tensor object.
+
 ### createLeCunNormalTensor()
 
 ```
