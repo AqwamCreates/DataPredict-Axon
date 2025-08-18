@@ -6,7 +6,7 @@
 
 ```
 
-AutomaticDifferentiationTensor.enableFirstDerivativeCalculation{
+AutomaticDifferentiationTensor.enableFirstDerivativeCalculation{}
 
 ```
 
