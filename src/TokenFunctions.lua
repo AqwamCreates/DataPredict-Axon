@@ -10,7 +10,7 @@ local symbolArray = {"'", "(", ")", ",", "-", ".", "\\", "/", ":", ";", "<", "="
 
 local whiteSpaceArray = {" ", "\t", "\n", "\v", "\f", "\r"}
 
-local specialTokenArray = {"[SOS]", "[EOS]", "[Capital]", "[AllCapitals]", "[Unknown]", "[Pad]", "[Act]", "[SwitchCharacter]"}
+local specialTokenArray = {"[SOS]", "[EOS]", "[Capital]", "[AllCapitals]", "[Unknown]", "[Pad]", "[Action]", "[SwitchCharacter]"}
 
 local topTrigramArray = {
 	"the", "and", "ing", "her", "ent", "ion", "for", "tha", "nth", "ere",
