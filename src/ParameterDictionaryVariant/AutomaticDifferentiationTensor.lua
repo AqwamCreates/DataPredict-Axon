@@ -34,6 +34,8 @@ AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally = tru
 
 AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false
 
+local isWaitEnabledOnFirstDerivativeCalculation = false
+
 local function showFunctionErrorDueToNonObjectCondition(showError)
 
 	if (showError) then error("This function can only be called if it is an object.") end
@@ -136,6 +138,18 @@ function AHAAutomaticDifferentiationTensor:disableFirstDerivativeCalculationForN
 	
 	AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = true
 	
+end
+
+function AHAAutomaticDifferentiationTensor:enableWaitOnFirstDerivativeCalculation()
+	
+	isWaitEnabledOnFirstDerivativeCalculation = true
+	
+end
+
+function AHAAutomaticDifferentiationTensor:disableWaitOnFirstDerivativeCalculation()
+
+	isWaitEnabledOnFirstDerivativeCalculation = false
+
 end
 
 --------------------------------------------------------------------------------------
@@ -2659,6 +2673,8 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 	end
 
 	local PartialFirstDerivativeFunction = self.PartialFirstDerivativeFunction
+	
+	if (isWaitEnabledOnFirstDerivativeCalculation) then task.wait() end
 
 	if (PartialFirstDerivativeFunction) then PartialFirstDerivativeFunction(firstDerivativeTensor) end
 
