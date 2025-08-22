@@ -13,11 +13,13 @@ local whiteSpaceArray = {" ", "\t", "\n", "\v", "\f", "\r"}
 local specialTokenArray = {"[SOS]", "[EOS]", "[Capital]", "[AllCapitals]", "[Unknown]", "[Pad]", "[Action]", "[SwitchCharacter]"}
 
 local topTrigramArray = {
+	
 	"the", "and", "ing", "her", "ent", "ion", "for", "tha", "nth", "ere",
 	"ati", "ver", "all", "hat", "his", "you", "thi", "ter", "wit", "tio",
 	"men", "ons", "con", "int", "ate", "ana", "ers", "est", "nce", "one",
 	"ith", "ove", "ect", "res", "ati", "out", "our", "eve", "ous", "rea",
 	"def", "pro", "sta", "ing", "rec", "inf", "ful", "ing", "com", "per"
+	
 }
 
 local function generateBigramTokenArray()
