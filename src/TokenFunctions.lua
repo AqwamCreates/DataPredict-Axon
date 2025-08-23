@@ -44,9 +44,9 @@ function TokenFunctions:getTokenArray()
 
 	local tokenArray = {}
 	
-	for _, sp in ipairs(specialTokenArray) do table.insert(tokenArray, sp) end
-	
 	local bigrams = generateBigramTokenArray()
+	
+	for _, sp in ipairs(specialTokenArray) do table.insert(tokenArray, sp) end
 
 	for _, bg in ipairs(bigrams) do table.insert(tokenArray, bg) end
 
