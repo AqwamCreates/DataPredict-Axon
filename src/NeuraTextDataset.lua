@@ -969,5 +969,4 @@ return {
 [SwitchCharacter] [SOS] Neura: [Action] hug [ActionTarget] User *squeezes you tightly* There… I just wanted to feel close. [EOS]
 ]],
 
-	
 }
