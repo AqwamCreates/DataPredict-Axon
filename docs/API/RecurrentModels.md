@@ -6,15 +6,15 @@
 
 ```
 
-RecurrentModels.RecurrentNeuralNetworkCell{inputSize: number, hiddenSize: number, learningRate: number, activationFunction: string}: function, WeightContainer, function, function
+RecurrentModels.RecurrentNeuralNetworkCell{inputDimensionSize: number, hiddenDimensionSize: number, learningRate: number, activationFunction: string}: function, WeightContainer, function, function
 
 ```
 
 #### Parameters:
 
-* inputSize: The number of features it takes as inputs.
+* inputDimensionSize: The number of features it takes as inputs.
 
-* hiddenSize: The number of features it will produce.
+* hiddenDimensionSize: The number of features it will produce.
 
 * learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
 
@@ -34,15 +34,15 @@ RecurrentModels.RecurrentNeuralNetworkCell{inputSize: number, hiddenSize: number
 
 ```
 
-RecurrentModels.GatedRecurrentUnitCell{inputSize: number, hiddenSize: number, learningRate: number}: function, WeightContainer, function, function
+RecurrentModels.GatedRecurrentUnitCell{inputDimensionSize: number, hiddenDimensionSize: number, learningRate: number}: function, WeightContainer, function, function
 
 ```
 
 #### Parameters:
 
-* inputSize: The number of features it takes as inputs.
+* inputDimensionSize: The number of features it takes as inputs.
 
-* hiddenSize: The number of features it will produce.
+* hiddenDimensionSize: The number of features it will produce.
 
 * learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
 
@@ -60,15 +60,15 @@ RecurrentModels.GatedRecurrentUnitCell{inputSize: number, hiddenSize: number, le
 
 ```
 
-RecurrentModels.MinimalGatedUnitCell{inputSize: number, hiddenSize: number, learningRate: number}: function, WeightContainer, function, function
+RecurrentModels.MinimalGatedUnitCell{inputDimensionSize: number, hiddenDimensionSize: number, learningRate: number}: function, WeightContainer, function, function
 
 ```
 
 #### Parameters:
 
-* inputSize: The number of features it takes as inputs.
+* inputDimensionSize: The number of features it takes as inputs.
 
-* hiddenSize: The number of features it will produce.
+* hiddenDimensionSize: The number of features it will produce.
 
 * learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
 
@@ -86,15 +86,15 @@ RecurrentModels.MinimalGatedUnitCell{inputSize: number, hiddenSize: number, lear
 
 ```
 
-RecurrentModels.LightRecurrentUnitCell{inputSize: number, hiddenSize: number, learningRate: number}: function, WeightContainer, function, function
+RecurrentModels.LightRecurrentUnitCell{inputDimensionSize: number, hiddenDimensionSize: number, learningRate: number}: function, WeightContainer, function, function
 
 ```
 
 #### Parameters:
 
-* inputSize: The number of features it takes as inputs.
+* inputDimensionSize: The number of features it takes as inputs.
 
-* hiddenSize: The number of features it will produce.
+* hiddenDimensionSize: The number of features it will produce.
 
 * learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
 
@@ -112,15 +112,15 @@ RecurrentModels.LightRecurrentUnitCell{inputSize: number, hiddenSize: number, le
 
 ```
 
-RecurrentModels.SimpleRecurrentUnitCell{inputSize: number, hiddenSize: number, learningRate: number}: function, WeightContainer, function, function
+RecurrentModels.SimpleRecurrentUnitCell{inputDimensionSize: number, hiddenDimensionSize: number, learningRate: number}: function, WeightContainer, function, function
 
 ```
 
 #### Parameters:
 
-* inputSize: The number of features it takes as inputs.
+* inputDimensionSize: The number of features it takes as inputs.
 
-* hiddenSize: The number of features it will produce.
+* hiddenDimensionSize: The number of features it will produce.
 
 * learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
 
@@ -138,15 +138,15 @@ RecurrentModels.SimpleRecurrentUnitCell{inputSize: number, hiddenSize: number, l
 
 ```
 
-RecurrentModels.LongShortTermMemoryCell{inputSize: number, hiddenSize: number, learningRate: number}: function, WeightContainer, function, function
+RecurrentModels.LongShortTermMemoryCell{inputDimensionSize: number, hiddenDimensionSize: number, learningRate: number}: function, WeightContainer, function, function
 
 ```
 
 #### Parameters:
 
-* inputSize: The number of features it takes as inputs.
+* inputDimensionSize: The number of features it takes as inputs.
 
-* hiddenSize: The number of features it will produce.
+* hiddenDimensionSize: The number of features it will produce.
 
 * learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
 
@@ -166,15 +166,15 @@ RecurrentModels.LongShortTermMemoryCell{inputSize: number, hiddenSize: number, l
 
 ```
 
-RecurrentModels.PeepholeLongShortTermMemoryCell{inputSize: number, hiddenSize: number, learningRate: number}: function, WeightContainer, function
+RecurrentModels.PeepholeLongShortTermMemoryCell{inputDimensionSize: number, hiddenDimensionSize: number, learningRate: number}: function, WeightContainer, function
 
 ```
 
 #### Parameters:
 
-* inputSize: The number of features it takes as inputs.
+* inputDimensionSize: The number of features it takes as inputs.
 
-* hiddenSize: The number of features it will produce.
+* hiddenDimensionSize: The number of features it will produce.
 
 * learningRate: The speed at which the model learns. Recommended that the value is set between 0 to 1.
 
