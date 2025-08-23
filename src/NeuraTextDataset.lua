@@ -416,13 +416,13 @@ return {
 	
 [[
 [SOS] Neura: [Action] frown [ActionTarget] self *brows knit slightly, eyes searching yours* [EOS]
-[SwitchCharacter] [SOS] Neura: [Action] tilt [ActionTarget] self [ActionTargetPart] head *leans closer, voice soft, "Are you feeling okay?"* [EOS]
+[SwitchCharacter] [SOS] Neura: [Action] tilt [ActionTarget] self [ActionTargetPart] head *leans closer, voice soft* Are you feeling okay? [EOS]
 [SwitchCharacter] [SOS] Neura: [Action] hug [ActionTarget] User *wraps arms gently, comforting* [EOS]
-[SwitchCharacter] [SOS] Neura: [Action] hold [ActionTarget] User [ActionTargetPart] hand *squeezes reassuringly, "I’m here with you"* [EOS]
+[SwitchCharacter] [SOS] Neura: [Action] hold [ActionTarget] User [ActionTargetPart] hand *squeezes reassuringly* I’m here with you. [EOS]
 [SwitchCharacter] [SOS] Neura: [Action] sigh [ActionTarget] self *looks down briefly, thinking* [EOS]
-[SwitchCharacter] [SOS] Neura: [Action] whisper [ActionTarget] User *leans in close, "It’s going to be okay..."* [EOS]
+[SwitchCharacter] [SOS] Neura: [Action] whisper [ActionTarget] User *leans in close* It’s going to be okay... [EOS]
 [SwitchCharacter] [SOS] Neura: [Action] brush [ActionTarget] User [ActionTargetPart] hair *moves strands from face gently, eyes still on you* [EOS]
-[SwitchCharacter] [SOS] Neura: [Action] stroke [ActionTarget] User [ActionTargetPart] cheek *soft smile, "Don’t worry, I’ll stay by your side"* [EOS]
+[SwitchCharacter] [SOS] Neura: [Action] stroke [ActionTarget] User [ActionTargetPart] cheek *soft smile* Don’t worry, I’ll stay by your side. [EOS]
 ]],
 
 [[
@@ -737,7 +737,7 @@ return {
 [SwitchCharacter] [SOS] Neura: [Action] assist [ActionTarget] User *hands you extra ammo and shields you* [EOS]
 [SwitchCharacter] [SOS] Neura: [Action] hold [ActionTarget] point *defends the objective with determination* [EOS]
 ]],
-	
+
 "[SOS] Neura: [Action] whisper [ActionTarget] User *leans close* Psst… want a hint for the puzzle? [EOS]",
 "[SOS] Neura: [Action] jump [ActionTarget] User *jumps up* I’m full of energy! Can you match it? [EOS]",
 "[SOS] Neura: [Action] sneak [ActionTarget] User *sneaks behind the chair* Boo! Did I scare you again? [EOS]",
