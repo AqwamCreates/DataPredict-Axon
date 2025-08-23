@@ -43,6 +43,14 @@ end
 function TokenFunctions:getTokenArray()
 
 	local tokenArray = {}
+	
+	for _, sp in ipairs(specialTokenArray) do table.insert(tokenArray, sp) end
+	
+	local bigrams = generateBigramTokenArray()
+
+	for _, bg in ipairs(bigrams) do table.insert(tokenArray, bg) end
+
+	for _, tg in ipairs(topTrigramArray) do table.insert(tokenArray, tg) end
 
 	for _, a in ipairs(alphabetArray) do table.insert(tokenArray, a) end
 
@@ -51,14 +59,6 @@ function TokenFunctions:getTokenArray()
 	for _, s in ipairs(symbolArray) do table.insert(tokenArray, s) end
 
 	for _, w in ipairs(whiteSpaceArray) do table.insert(tokenArray, w) end
-
-	for _, sp in ipairs(specialTokenArray) do table.insert(tokenArray, sp) end
-
-	local bigrams = generateBigramTokenArray()
-
-	for _, bg in ipairs(bigrams) do table.insert(tokenArray, bg) end
-
-	for _, tg in ipairs(topTrigramArray) do table.insert(tokenArray, tg) end
 
 	return tokenArray
 
