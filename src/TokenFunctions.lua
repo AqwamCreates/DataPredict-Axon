@@ -92,17 +92,61 @@ function TokenFunctions:getInputAndTargetTokenArrays(tokenSequenceArray)
 
 end
 
-function TokenFunctions:convertStringToToken(inputString)
+function TokenFunctions:convertStringToTokenArray(inputString)
 	
 	local tokenArray = {}
 	
-	local fullTokenArray = self:getTokenArray()  -- full token dictionary
+	local fullTokenArray = TokenFunctions:getTokenArray()
 	
-	table.insert(tokenArray, "[SOS]")  -- prepend SOS
+	local specialTokenLengthArray = {}
+	
+	for i, specialToken in ipairs(specialTokenArray) do -- Storing this as cache so that we don't have to keep on calculating it for each string token.
+		
+		specialTokenLengthArray[i] = #specialToken
+		
+	end
+	
+	table.insert(tokenArray, "[SOS]")
 
-	while #inputString > 0 do
+	while (#inputString > 0) do
 		
 		local remainingLength = #inputString
+		
+		--- Special token check ---
+		
+		local isSpecialToken
+		
+		local selectedSpecialTokenLength
+
+		for i, specialTokenLength in ipairs(specialTokenLengthArray) do
+			
+			if (specialTokenLength > remainingLength) then continue end
+
+			local subString = inputString:sub(1, specialTokenLength)
+			
+			local specialToken = specialTokenArray[i]
+
+			if (specialToken == subString) then
+
+				isSpecialToken = true
+				
+				selectedSpecialTokenLength = specialTokenLength
+
+				table.insert(tokenArray, specialToken)
+
+				break
+
+			end
+
+		end
+
+		if (isSpecialToken) then
+
+			inputString = inputString:sub(selectedSpecialTokenLength + 1)
+
+			continue
+
+		end
 
 		--- Trigram check ---
 		
@@ -180,7 +224,7 @@ function TokenFunctions:convertStringToToken(inputString)
 		
 		local character = inputString:sub(1, 1)
 
-		if  character:match("%a") and character == character:upper() then
+		if character:match("%a") and character == character:upper() then
 			
 			table.insert(tokenArray, "[Capital]")
 			
@@ -205,6 +249,7 @@ function TokenFunctions:convertStringToToken(inputString)
 	table.insert(tokenArray, "[EOS]")
 
 	return tokenArray
+	
 end
 
 return TokenFunctions
