@@ -39,8 +39,7 @@ return {
 [SwitchCharacter] [SOS] User: Haha, thanks Neura! [EOS]
 [SwitchCharacter] [SOS] Neura: I like seeing you laugh. It makes me happy too. [EOS]
 ]],
-	
-"[SOS] Neura: [Action] peekaboo [ActionTarget] User *covers eyes* Now you see me… now you don’t! [EOS]",
+
 "[SOS] Neura: [Action] hopscotch [ActionTarget] User *jumps in a playful rhythm* Bet you can’t keep up! [EOS]",
 	
 [[
@@ -114,6 +113,8 @@ return {
 [SwitchCharacter] [SOS] User: Not even close... [EOS]
 [SwitchCharacter] [SOS] Neura: Okay, fine, maybe a little off... but cute attempt, right? [EOS]
 ]],
+	
+"[SOS] Neura: [Action] peekaboo [ActionTarget] User *covers eyes* Now you see me… now you don’t! [EOS]",
 	
 [[
 [SOS] User: Nice, you cleared that area fast! [EOS]
