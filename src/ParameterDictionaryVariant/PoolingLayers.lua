@@ -263,6 +263,8 @@ function PoolingLayers.FastMaximumUnpooling1D(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local unpoolingMethodInverseFunction = unpooling1DMethodInverseFunctionList[unpoolingMethod]
 
@@ -395,6 +397,8 @@ function PoolingLayers.FastMaximumUnpooling2D(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local unpoolingMethodInverseFunction = unpooling2DMethodInverseFunctionList[unpoolingMethod]
 
@@ -543,6 +547,8 @@ function PoolingLayers.FastMaximumUnpooling3D(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local unpoolingMethodInverseFunction = unpooling3DMethodInverseFunctionList[unpoolingMethod]
 
@@ -662,7 +668,9 @@ function PoolingLayers.FastAveragePooling1D(parameterDictionary)
 
 			local tensor = inputTensorArray[1]
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -792,7 +800,9 @@ function PoolingLayers.FastAveragePooling2D(parameterDictionary)
 
 			local tensor = inputTensorArray[1]
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
@@ -944,7 +954,9 @@ function PoolingLayers.FastAveragePooling3D(parameterDictionary)
 
 			local tensor = inputTensorArray[1]
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1075,6 +1087,8 @@ function PoolingLayers.FastMinimumPooling1D(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1202,7 +1216,9 @@ function PoolingLayers.FastMinimumPooling2D(parameterDictionary)
 
 			local tensor = inputTensorArray[1]
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
@@ -1350,7 +1366,9 @@ function PoolingLayers.FastMinimumPooling3D(parameterDictionary)
 
 			local tensor = inputTensorArray[1]
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1477,6 +1495,8 @@ function PoolingLayers.FastMaximumPooling1D(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
@@ -1602,7 +1622,9 @@ function PoolingLayers.FastMaximumPooling2D(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local firstDerivativeTensorSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
@@ -1751,7 +1773,9 @@ function PoolingLayers.FastMaximumPooling3D(parameterDictionary)
 
 			local tensor = inputTensorArray[1]
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:createTensor(tensorDimensionSizeArray)
 
