@@ -140,7 +140,9 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 		
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local functionToApply = function (a) return (a * (1 - a)) end
 
@@ -179,6 +181,8 @@ function ActivationLayer.FastBinaryStep(parameterDictionary)
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			tensor:differentiate(AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0))
 
@@ -212,7 +216,9 @@ function ActivationLayer.FastRectifiedLinearUnit(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local derivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return 0 end end
 
@@ -252,7 +258,9 @@ function ActivationLayer.FastLeakyRectifiedLinearUnit(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local partialDerivativeFunctionToApply = function (z) if (z >= 0) then return 1 else return negativeSlopeFactor end end
 
@@ -292,7 +300,9 @@ function ActivationLayer.FastExponentLinearUnit(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local partialDerivativeFunctionToApply = function (z) if (z > 0) then return 1 else return (negativeSlopeFactor * math.exp(z)) end end
 
@@ -330,7 +340,9 @@ function ActivationLayer.FastSigmoidLinearUnit(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local partialDerivativeFunctionToApply = function (z) return (1 + math.exp(-z) + (z * math.exp(-z))) / (1 + math.exp(-z))^2 end
 
@@ -368,7 +380,9 @@ function ActivationLayer.FastGaussian(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local partialDerivativeFunctionToApply = function (z) return -2 * z * math.exp(-math.pow(z, 2)) end
 
@@ -406,7 +420,9 @@ function ActivationLayer.FastMish(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local partialDerivativeFunctionToApply = function (z) return (math.exp(z) * (math.exp(3 * z) + 4 * math.exp(2 * z) + (6 + 4 * z) * math.exp(z) + 4 * (1 + z)) / math.pow((1 + math.pow((math.exp(z) + 1), 2)), 2)) end
 
@@ -442,7 +458,9 @@ function ActivationLayer.FastTanh(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local partialDerivativeFunctionToApply = function (a) return (1 - math.pow(a, 2)) end
 
@@ -484,7 +502,9 @@ function ActivationLayer.FastSoftmax(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
@@ -532,7 +552,9 @@ function ActivationLayer.FastStableSoftmax(parameterDictionary)
 
 		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureTensor)
 
