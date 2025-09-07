@@ -596,7 +596,9 @@ function ActivationLayer.BinaryStep(parameterDictionary)
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end 
+		if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+		
+		if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 		tensor:differentiate(AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0))
 
