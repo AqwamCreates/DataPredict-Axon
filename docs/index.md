@@ -37,6 +37,10 @@ If there are any suggestions or issues for this library, don't be afraid to reac
 
 In addition, if you are interested in Roblox tutorials and future projects by me, then you can subscribe to me in [YouTube](https://www.youtube.com/channel/UCUrwoxv5dufEmbGsxyEUPZw).
 
+## API Reference
+
+* [API Reference](API.md)
+
 ## Tutorials
 
 ### Installation
@@ -66,10 +70,6 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 ### Learning AIs
 
 * [Getting Started With Deep Reinforcement Learning](Tutorials/GettingStartedWithDeepReinforcementLearning.md)
-
-## API Reference
-
-* [API Reference](API.md)
 
 ### Repository
 
