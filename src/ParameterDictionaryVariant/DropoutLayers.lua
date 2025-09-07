@@ -69,6 +69,8 @@ function DropoutLayers.Dropout(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			tensor:differentiate{firstDerivativeTensor}
 
@@ -133,6 +135,8 @@ function DropoutLayers.Dropout1D(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			tensor:differentiate{firstDerivativeTensor}
 
@@ -197,6 +201,8 @@ function DropoutLayers.Dropout2D(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			tensor:differentiate{firstDerivativeTensor}
 
@@ -261,6 +267,8 @@ function DropoutLayers.Dropout3D(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			tensor:differentiate{firstDerivativeTensor}
 
@@ -325,6 +333,8 @@ function DropoutLayers.DropoutND(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			tensor:differentiate{firstDerivativeTensor}
 
