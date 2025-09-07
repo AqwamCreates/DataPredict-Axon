@@ -86,28 +86,24 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 
 	local resultValue = sumBinaryCrossEntropyValue / numberOfData
 	
-	local PartialFirstDerivativeFunction
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+		local generatedLabelTensor = inputTensorArray[1]
 
-	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+		local labelTensor = inputTensorArray[2]
+
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+		local scale = 1 / numberOfData
 		
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		local subtractedPureGeneratedLabelTensor = AqwamTensorLibrary:subtract(1, pureGeneratedLabelTensor)
 
-			local generatedLabelTensor = inputTensorArray[1]
-
-			local labelTensor = inputTensorArray[2]
-
-			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
-
-			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
-
-			local scale = 1 / numberOfData
-
-			local subtractedPureGeneratedLabelTensor = AqwamTensorLibrary:subtract(1, pureGeneratedLabelTensor)
-
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
-
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+			
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:subtract(pureLabelTensor, pureGeneratedLabelTensor)
 
 				local partialFirstDerivativeTensorPart2 = AqwamTensorLibrary:multiply(subtractedPureGeneratedLabelTensor, pureGeneratedLabelTensor)
@@ -121,11 +117,15 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 				generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
-
+				
 			end
 
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+		end
 
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+			
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:logarithm(subtractedPureGeneratedLabelTensor)
 
 				local partialFirstDerivativeTensorPart2 = AqwamTensorLibrary:logarithm(pureGeneratedLabelTensor)
@@ -139,14 +139,12 @@ function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 				local collapsedNegativeFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 				labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
-
+				
 			end
 
 		end
-		
+
 	end
-	
-	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 	
 	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
 	
@@ -173,27 +171,23 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 	local numberOfData = getNumberOfData(labelTensor)
 
 	local resultValue = -sumCategoricalCrossEntropyValue / numberOfData
-	
-	local PartialFirstDerivativeFunction
 
-	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-		
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		local generatedLabelTensor = inputTensorArray[1]
 
-			local generatedLabelTensor = inputTensorArray[1]
+		local labelTensor = inputTensorArray[2]
 
-			local labelTensor = inputTensorArray[2]
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
-			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
-			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+		local scale = -1 / numberOfData
 
-			local scale = -1 / numberOfData
-
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
-
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+			
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local partialFirstDerivativeTensor = AqwamTensorLibrary:divide(pureLabelTensor, pureGeneratedLabelTensor)
 
 				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
@@ -203,11 +197,15 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 				generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
-
+				
 			end
+			
+		end
 
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
-
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+			
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local partialFirstDerivativeTensor = AqwamTensorLibrary:logarithm(pureGeneratedLabelTensor)
 
 				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
@@ -217,14 +215,12 @@ function CostFunctions.FastCategoricalCrossEntropy(parameterDictionary)
 				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 				labelTensor:differentiate{collapsedFirstDerivativeTensor}
-
+				
 			end
-
+			
 		end
-		
+
 	end
-	
-	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
 	
@@ -266,40 +262,36 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 
 	local resultValue = sumFocalLossValue / numberOfData
 	
-	local PartialFirstDerivativeFunction
-
-	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
-
-	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 		
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		local generatedLabelTensor = inputTensorArray[1]
 
-			local generatedLabelTensor = inputTensorArray[1]
+		local labelTensor = inputTensorArray[2]
+		
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+		
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+		
+		local pureNegativeGeneratedLabelTensor = AqwamTensorLibrary:unaryMinus(pureGeneratedLabelTensor)
+		
+		local pureNegativeLabelTensor = AqwamTensorLibrary:unaryMinus(pureLabelTensor)
+		
+		local functionToApply = function (labelValue, generatedValue) 
 
-			local labelTensor = inputTensorArray[2]
+			local pT = (labelValue * generatedValue) + (1 - labelValue) * (1 - generatedValue)
 
-			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+			local focalLossValue = -alpha * ((1 - pT) ^ gamma) * ((gamma * pT * math.log(pT)) + pT - 1)
 
-			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+			return focalLossValue
 
-			local pureNegativeGeneratedLabelTensor = AqwamTensorLibrary:unaryMinus(pureGeneratedLabelTensor)
+		end
 
-			local pureNegativeLabelTensor = AqwamTensorLibrary:unaryMinus(pureLabelTensor)
+		local scale = 1 / numberOfData
 
-			local functionToApply = function (labelValue, generatedValue) 
-
-				local pT = (labelValue * generatedValue) + (1 - labelValue) * (1 - generatedValue)
-
-				local focalLossValue = -alpha * ((1 - pT) ^ gamma) * ((gamma * pT * math.log(pT)) + pT - 1)
-
-				return focalLossValue
-
-			end
-
-			local scale = 1 / numberOfData
-
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
-
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+			
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local twoABTensor = AqwamTensorLibrary:multiply(2, AqwamTensorLibrary:multiply(pureLabelTensor, pureGeneratedLabelTensor))
 
 				local zTensor = AqwamTensorLibrary:add(twoABTensor, AqwamTensorLibrary:add(pureNegativeLabelTensor, AqwamTensorLibrary:add(pureNegativeGeneratedLabelTensor, 1)))
@@ -339,11 +331,15 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 				local collapsedLossTensor = collapseTensor(partialFirstDerivativeTensor, dimensionSizeArray)
 
 				generatedLabelTensor:differentiate{collapsedLossTensor}
-
+				
 			end
 
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+		end
 
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+			
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local twoABTensor = AqwamTensorLibrary:multiply(2, AqwamTensorLibrary:multiply(pureLabelTensor, pureGeneratedLabelTensor))
 
 				local zTensor = AqwamTensorLibrary:add(twoABTensor, AqwamTensorLibrary:add(pureNegativeLabelTensor, AqwamTensorLibrary:add(pureNegativeGeneratedLabelTensor, 1)))
@@ -379,14 +375,12 @@ function CostFunctions.FastFocalLoss(parameterDictionary)
 				local collapsedLossTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 				labelTensor:differentiate{collapsedLossTensor}
-
+				
 			end
 
 		end
-		
+
 	end
-	
-	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 	
 	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
 	
@@ -413,53 +407,53 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 	local numberOfData = getNumberOfData(labelTensor)
 
 	local resultValue = sumAbsoluteErrorValue / numberOfData
-	
-	local PartialFirstDerivativeFunction
 
-	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+		local generatedLabelTensor = inputTensorArray[1]
+
+		local labelTensor = inputTensorArray[2]
+
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
+
+		local scale = 1 / numberOfData
 		
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		local functionToApply = function(x)
+			
+			if (x > 0) then return 1
+				
+			elseif (x < 0) then return -1
+				
+			else return 0 end
+			
+		end
+		
+		lossTensor = AqwamTensorLibrary:applyFunction(functionToApply, lossTensor)
 
-			local generatedLabelTensor = inputTensorArray[1]
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor, scale)
 
-			local labelTensor = inputTensorArray[2]
-
-			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
-
-			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
-
-			local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
-
-			local scale = 1 / numberOfData
-
-			local functionToApply = function(x)
-
-				if (x > 0) then return 1
-
-				elseif (x < 0) then return -1
-
-				else return 0 end
-
-			end
-
-			lossTensor = AqwamTensorLibrary:applyFunction(functionToApply, lossTensor)
-
-			firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor, scale)
-
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
-
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+			
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
 
 				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 				generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
-
+				
 			end
 
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+		end
 
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+			
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local negativeFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, -1)
 
 				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
@@ -467,14 +461,12 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 				local collapsedNegativeFirstDerivativeTensor = collapseTensor(negativeFirstDerivativeTensor, dimensionSizeArray)
 
 				labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
-
+				
 			end
 
 		end
-		
+
 	end
-	
-	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
 
@@ -501,41 +493,41 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 	local numberOfData = getNumberOfData(labelTensor)
 
 	local resultValue = sumSquaredErrorValue / numberOfData
-	
-	local PartialFirstDerivativeFunction
 
-	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
-	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+		local generatedLabelTensor = inputTensorArray[1]
 		
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		local labelTensor = inputTensorArray[2]
+		
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
 
-			local generatedLabelTensor = inputTensorArray[1]
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
 
-			local labelTensor = inputTensorArray[2]
+		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
 
-			local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+		local scale = 2 / numberOfData
+		
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor, scale)
 
-			local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
-
-			local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
-
-			local scale = 2 / numberOfData
-
-			firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor, scale)
-
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
-
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+			
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
 
 				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
 				generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
-
+				
 			end
 
-			if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+		end
 
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+			
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+				
 				local negativeFirstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, -1)
 
 				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
@@ -543,14 +535,12 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 				local collapsedNegativeFirstDerivativeTensor = collapseTensor(negativeFirstDerivativeTensor, dimensionSizeArray)
 
 				labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
-
+				
 			end
 
 		end
-		
+
 	end
-	
-	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
 	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
 
