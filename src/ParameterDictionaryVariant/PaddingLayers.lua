@@ -163,6 +163,8 @@ function PaddingLayers.FastZeroPadding(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local originDimensionIndexArray = {}
 
@@ -269,6 +271,8 @@ function PaddingLayers.FastConstantPadding(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local chainRuleFirstDerivativeMultiplierFunction = function(chainRuleFirstDerivativeValue, inputValue, value, chainRuleFirstDerivativeMultiplierValue)
 
@@ -407,6 +411,8 @@ function PaddingLayers.FastCircularPadding(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local firstDerivativeTensorDimensionSizeArray  = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor) 
 
@@ -551,6 +557,8 @@ function PaddingLayers.FastReplicationPadding(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local tensorNumberOfDimensions = #tensorDimensionSizeArray
 
@@ -767,6 +775,8 @@ function PaddingLayers.FastReflectionPadding(parameterDictionary)
 			local tensor = inputTensorArray[1]
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local originDimensionIndexArray = {}
 
