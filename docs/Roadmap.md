@@ -8,7 +8,7 @@ The list of items shown below are likely to be implemented due to their mainstre
 
   * If actions are selected per game frame, eligibility traces are a must as it allows faster learning due to its ability to filter out noise from overlapping actions.
 
-  * Currently trying to figure out on how to fit this into DataPredict Axon's API. The autodifferentiation nature of the tensors makes it hard to modify temporal difference values with eligibility traces.
+  * Currently trying to figure out on how to fit this into DataPredict Axon's API. The automatic differentiation nature of the tensors makes it hard to modify temporal difference values with eligibility traces.
 
 ## Nice-To-Have
 
