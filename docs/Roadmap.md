@@ -14,7 +14,7 @@ The list of items shown below are likely to be implemented due to their mainstre
 
 The list of items shown below may not necessarily be implemented in the future. However, they could be prioritized with external demand, collaboration, or funding.
 
-* Dilated Convolution Neural Network
+* Dilated Dilated Convolution Layer And Pooling Layer
 
   * Enables larger receptive field without more weight parameters.
 
