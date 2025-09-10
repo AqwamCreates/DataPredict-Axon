@@ -41,6 +41,8 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 
 * [API Reference](API.md)
 
+* [Roadmap](Roadmap.md)
+
 ## Tutorials
 
 ### Installation
