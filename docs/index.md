@@ -12,7 +12,17 @@ By using or possessing any copies of this library or its assets (including the i
 
 * Plus some more stuff...
 
-Once you pass the commercial use threshold and want to license it, expect to pay for (gross revenue * (0.0365 / log2(gross revenue))) every month, provided that it uses this library. In other words, it starts at around 1% of gross revenue and that percentage decreases as your project earns more. That fee also includes DataPredict™ and DataPredict™ Axon. All the money will be used for future research and improvements that will be released to the public.
+Once you pass this commercial use threshold and want to license it, keep this in mind:
+
+* Expect to pay for (gross revenue * (0.0365 / log2(gross revenue))) every month, provided that it uses this library. In other words, it starts at around 1% of gross revenue and that percentage decreases as your project earns more. 
+
+* Because machine, deep and reinforcement learning models try to find the best solution for you during training, you are likely (but not guaranteed) to increase your revenue over this cost.
+
+* You're not licensing convenience; you're licensing a higher probability of increased revenue.
+
+* Think of it this way: you’re not losing 1% of your revenue; you’re investing 1% to unlock the other 30% you might be leaving on the table. In some cases, the upside could be even higher.
+
+* That fee also includes DataPredict™ and DataPredict™ Axon. All the money will be used for future research and improvements that will be released to the public.
 
 Thanks to the early adopters, I managed to to fund my Master research thesis (that may be published soon) on how to speed up reinforcement learning training by 10 times from the baseline methods. It is already implemented in the DataPredict™ and DataPredict™ Neural libraries!
 
@@ -40,6 +50,8 @@ In addition, if you are interested in Roblox tutorials and future projects by me
 ## API Reference
 
 * [API Reference](API.md)
+
+* [Roadmap](Roadmap.md)
 
 ## Tutorials
 
