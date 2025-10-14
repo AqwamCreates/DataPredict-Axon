@@ -2428,8 +2428,6 @@ function AHAAutomaticDifferentiationTensor:standardDeviation(parameterDictionary
 
 			firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, chainRuleFirstDerivativeTensorPart1)
 
-			if (not dimension) then AqwamTensorLibrary:createTensor(dimensionSizeArray, firstDerivativeTensor) end
-
 			tensor:differentiate{firstDerivativeTensor}
 
 		end
