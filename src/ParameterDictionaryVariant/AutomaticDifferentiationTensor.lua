@@ -583,7 +583,7 @@ local metaMethodOperationDictionary = {
 	__pow = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:power(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
 			
 			local baseTensor = inputTensorArray[1]
 			
@@ -593,7 +593,7 @@ local metaMethodOperationDictionary = {
 			
 			if (tensorIndex == 1) then
 				
-				functionToApply = function(firstDerivativeValue, baseValue, exponentValue) return (firstDerivativeValue * exponentValue * math.power(baseValue, (exponentValue - 1)) end
+				functionToApply = function(firstDerivativeValue, baseValue, exponentValue) return (firstDerivativeValue * exponentValue * math.pow(baseValue, (exponentValue - 1))) end
 				
 			else
 				
@@ -601,7 +601,7 @@ local metaMethodOperationDictionary = {
 				
 			end
 			
-			return AqwamTensorLibrary:applyFunction(functionToApply, derivativeTensor, baseTensor, exponentTensor)
+			return AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor, baseTensor, exponentTensor)
 			
 		end
 
