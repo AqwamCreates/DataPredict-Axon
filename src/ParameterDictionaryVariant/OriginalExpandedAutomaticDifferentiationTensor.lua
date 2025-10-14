@@ -764,8 +764,6 @@ function AHAAutomaticDifferentiationTensor.maximum(parameterDictionary)
 
 	local numberOfTensors = #tensorArray
 
-	local dimensionSizeArrayArray = {}
-
 	local expandedPureTensorArray = {}
 	
 	for i = 1, numberOfTensors, 1 do
@@ -774,11 +772,7 @@ function AHAAutomaticDifferentiationTensor.maximum(parameterDictionary)
 		
 	end
 
-	dimensionSizeArrayArray[1] = AqwamTensorLibrary:getDimensionSizeArray(pureTensorArray[1])
-
 	for i = 2, numberOfTensors, 1 do
-
-		dimensionSizeArrayArray[i] = AqwamTensorLibrary:getDimensionSizeArray(pureTensorArray[i])
 
 		expandedPureTensorArray[i - 1], expandedPureTensorArray[i] = AqwamTensorLibrary:broadcast(pureTensorArray[i - 1], pureTensorArray[i])
 
