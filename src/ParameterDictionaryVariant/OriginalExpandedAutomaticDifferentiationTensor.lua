@@ -300,7 +300,7 @@ function AHAAutomaticDifferentiationTensor.stack(parameterDictionary)
 
 				if (AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then
 					
-					if (tensor:getIsFirstDerivativeTensorRequired()) then return tensor:differentiate{firstDerivativeTensor[i]} end
+					if (tensor:getIsFirstDerivativeTensorRequired()) then tensor:differentiate{firstDerivativeTensor[i]} end
 
 				end
 
