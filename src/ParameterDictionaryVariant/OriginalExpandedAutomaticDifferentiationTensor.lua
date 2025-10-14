@@ -2448,11 +2448,9 @@ function AHAAutomaticDifferentiationTensor:absolute()
 
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
-	local functionToApply = function (value) return (((value >= 0) and value) or -value) end
-
 	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, selfTensorValue)
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.abs, selfTensorValue)
 
 	local inputTensorArray = {self}
 	
