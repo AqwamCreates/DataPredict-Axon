@@ -44,7 +44,7 @@ local defaultNoiseClippingFactor = 0.5
 
 local defaultPolicyDelayAmount = 3
 
-local defaultAveragingRate = 0.995
+local defaultAveragingRate = 0.01
 
 local defaultTargetPolicyFunction = "StableSoftmax"
 
@@ -57,12 +57,12 @@ local function rateAverageWeightTensorArray(averagingRate, TargetWeightTensorArr
 	local averagingRateComplement = 1 - averagingRate
 
 	for layer = 1, #TargetWeightTensorArray, 1 do
+		
+		local PrimaryWeightTensorArrayPart = AqwamTensorLibrary:multiply(averagingRate, PrimaryWeightTensorArray[layer])
 
-		local TargetWeightTensorArrayPart = AqwamTensorLibrary:multiply(averagingRate, TargetWeightTensorArray[layer])
+		local TargetWeightTensorArrayPart = AqwamTensorLibrary:multiply(averagingRateComplement, TargetWeightTensorArray[layer])
 
-		local PrimaryWeightTensorArrayPart = AqwamTensorLibrary:multiply(averagingRateComplement, PrimaryWeightTensorArray[layer])
-
-		TargetWeightTensorArray[layer] = AqwamTensorLibrary:add(TargetWeightTensorArrayPart, PrimaryWeightTensorArrayPart)
+		TargetWeightTensorArray[layer] = AqwamTensorLibrary:add(PrimaryWeightTensorArrayPart, TargetWeightTensorArrayPart)
 
 	end
 
