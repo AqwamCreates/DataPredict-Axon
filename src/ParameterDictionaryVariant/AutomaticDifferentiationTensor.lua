@@ -423,43 +423,6 @@ function AHAAutomaticDifferentiationTensor.coerce(parameterDictionary)
 
 end
 
-AHAAutomaticDifferentiationTensor.stack = wrapOperation(
-	
-	function(inputTensorArray) 
-		
-		local resultTensor = {inputTensorArray[1]}
-		
-		for i = 2, #inputTensorArray, 1 do
-
-			local previousTensor = inputTensorArray[i - 1]
-
-			local currentTensor = inputTensorArray[i]
-
-			local previousTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(previousTensor)
-
-			local currentTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(currentTensor)
-
-			local previousTensorNumberOfDimensions = #previousTensorDimensionSizeArray
-
-			local currentTensorNumberOfDimensions = #currentTensorDimensionSizeArray
-
-			if (previousTensorNumberOfDimensions ~= currentTensorNumberOfDimensions) then error("Tensor at " .. i .. " does not contain the same number of dimensions as the previous tensors.") end
-
-			for j, size in ipairs(previousTensorDimensionSizeArray) do
-
-				if (size ~= currentTensorDimensionSizeArray[j]) then error("Tensor at " .. i .. " does not contain the same dimension size at dimension " .. j .. " as the previous tensors.") end
-
-			end
-
-			resultTensor[i] = currentTensor
-
-		end
-		
-		return AqwamTensorLibrary:add(table.unpack(inputTensorArray)) end, 
-	
-	function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end)
-
-
 local unaryOperationDictionary = {
 	
 	rad = {
@@ -539,6 +502,46 @@ local unaryFindOperationDictionary = {
 }
 
 local operationDictionary = {
+	
+	stack = {
+		
+		operatorFunction = function(inputTensorArray)
+			
+			local resultTensor = {inputTensorArray[1]}
+
+			for i = 2, #inputTensorArray, 1 do
+
+				local previousTensor = inputTensorArray[i - 1]
+
+				local currentTensor = inputTensorArray[i]
+
+				local previousTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(previousTensor)
+
+				local currentTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(currentTensor)
+
+				local previousTensorNumberOfDimensions = #previousTensorDimensionSizeArray
+
+				local currentTensorNumberOfDimensions = #currentTensorDimensionSizeArray
+
+				if (previousTensorNumberOfDimensions ~= currentTensorNumberOfDimensions) then error("Tensor at " .. i .. " does not contain the same number of dimensions as the previous tensors.") end
+
+				for j, size in ipairs(previousTensorDimensionSizeArray) do
+
+					if (size ~= currentTensorDimensionSizeArray[j]) then error("Tensor at " .. i .. " does not contain the same dimension size at dimension " .. j .. " as the previous tensors.") end
+
+				end
+
+				resultTensor[i] = currentTensor
+
+			end
+			
+			return resultTensor
+			
+		end,
+		
+		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor[tensorIndex] end
+		
+	}
 	
 	__add = {
 
