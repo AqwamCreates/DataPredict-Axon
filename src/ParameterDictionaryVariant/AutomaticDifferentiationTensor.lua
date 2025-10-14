@@ -240,7 +240,7 @@ local function wrapUnaryFindOperation(operatorFunction, derivativeFunction)
 
 end
 
-local function wrapOperation(operatorFunction, derivativeFunction)
+local function wrapMetaMethodOperation(operatorFunction, derivativeFunction)
 
 	return function(...)
 
@@ -248,7 +248,7 @@ local function wrapOperation(operatorFunction, derivativeFunction)
 
 		local inputTensorValueArray = {}
 
-		for i, tensor in ipairs(inputTensorArray) do inputTensorValueArray[i] =  AHAAutomaticDifferentiationTensor:fetchValue{tensor} end
+		for i, tensor in ipairs(inputTensorArray) do inputTensorValueArray[i] = AHAAutomaticDifferentiationTensor:fetchValue{tensor} end
 
 		local resultTensor = operatorFunction(inputTensorValueArray)
 
@@ -260,8 +260,6 @@ local function wrapOperation(operatorFunction, derivativeFunction)
 
 			PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 				
-				local tensorValue
-				
 				local derivativeTensor 
 				
 				local dimensionSizeArray
@@ -271,17 +269,68 @@ local function wrapOperation(operatorFunction, derivativeFunction)
 				for tensorIndex, tensor in ipairs(inputTensorArray) do
 					
 					if (checkIfCanDifferentiateTensor(tensor)) then
-						
-						tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
 
-						derivativeTensor = derivativeFunction(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+						derivativeTensor = derivativeFunction(firstDerivativeTensor, inputTensorValueArray, resultTensor, tensorIndex)
 
-						dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensorValue)
+						dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(inputTensorValueArray[tensorIndex])
 
 						collapsedTensor = collapseTensor(derivativeTensor, dimensionSizeArray)
 
 						tensor:differentiate{collapsedTensor}
 						
+					end
+
+				end
+
+			end
+
+		end
+
+		if isFirstDerivativeFunctionNotCreatedForTheNextTensor then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+		return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	end
+
+end
+
+local function wrapOperation(operatorFunction, derivativeFunction)
+
+	return function(parameterDictionary)
+
+		local inputTensorArray = parameterDictionary
+
+		local inputTensorValueArray = {}
+
+		for i, tensor in ipairs(inputTensorArray) do inputTensorValueArray[i] = AHAAutomaticDifferentiationTensor:fetchValue{tensor} end
+
+		local resultTensor = operatorFunction(inputTensorValueArray)
+
+		local PartialFirstDerivativeFunction
+
+		local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+		if AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+			PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+				local derivativeTensor 
+
+				local dimensionSizeArray
+
+				local collapsedTensor
+
+				for tensorIndex, tensor in ipairs(inputTensorArray) do
+
+					if (checkIfCanDifferentiateTensor(tensor)) then
+
+						derivativeTensor = derivativeFunction(firstDerivativeTensor, inputTensorValueArray, resultTensor, tensorIndex)
+
+						dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(inputTensorValueArray[tensorIndex])
+
+						collapsedTensor = collapseTensor(derivativeTensor, dimensionSizeArray)
+
+						tensor:differentiate{collapsedTensor}
+
 					end
 
 				end
@@ -501,7 +550,7 @@ local unaryFindOperationDictionary = {
 	
 }
 
-local operationDictionary = {
+local metaMethodOperationDictionary = {
 	
 	__add = {
 
@@ -520,14 +569,14 @@ local operationDictionary = {
 	__mul = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:multiply(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
+		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(inputTensorArray[((tensorIndex == 1) and 2) or 1], derivativeTensor) end
 
 	},
 	
 	__div = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:divide(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
+		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(inputTensorArray[((tensorIndex == 1) and 2) or 1], derivativeTensor) end
 
 	},
 	
@@ -538,33 +587,9 @@ local operationDictionary = {
 
 	},
 	
-	add = {
+}
 
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:add(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end
-
-	},
-
-	subtract = {
-
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:subtract(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end
-
-	},
-
-	multiply = {
-
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:multiply(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
-
-	},
-
-	divide = {
-
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:divide(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
-
-	},
+local operationDictionary = {
 	
 	stack = {
 
@@ -605,13 +630,13 @@ local operationDictionary = {
 		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor[tensorIndex] end
 
 	},
-	
+
 	maximum = {
 
 		operatorFunction = function(inputTensorArray) 
-			
+
 			expandedPureTensorArray = {}
-			
+
 			expandedPureTensorArray[1] = inputTensorArray[1]
 
 			for i = 2, #inputTensorArray, 1 do
@@ -621,11 +646,11 @@ local operationDictionary = {
 			end
 			
 			return AqwamTensorLibrary:applyFunction(math.max, table.unpack(expandedPureTensorArray))
-			
+
 		end,
-		
+
 		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex)
-			
+
 			local functionToApply = function(derivativeValue, ...)
 
 				local valueArray = {...} 
@@ -649,13 +674,13 @@ local operationDictionary = {
 				return (isMaximum and derivativeValue) or 0
 
 			end
-			
+
 			return AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor, table.unpack(expandedPureTensorArray))
-			
+
 		end
 
 	},
-	
+
 	minimum = {
 
 		operatorFunction = function(inputTensorArray) 
@@ -710,6 +735,7 @@ local operationDictionary = {
 
 register(wrapUnaryOperation, unaryOperationDictionary)
 register(wrapUnaryFindOperation, unaryFindOperationDictionary)
+register(wrapMetaMethodOperation, metaMethodOperationDictionary)
 register(wrapOperation, operationDictionary)
 
 
