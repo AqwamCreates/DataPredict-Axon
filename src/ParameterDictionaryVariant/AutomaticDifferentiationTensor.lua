@@ -52,8 +52,6 @@ local function register(wrapFunction, operationDictionary)
 
 		if (not operatorFunction) then error("No operator function for " .. name .. ".") end
 
-		if (not derivativeFunction) then error("No derivative function for " .. name .. ".") end
-
 		AHAAutomaticDifferentiationTensor[name] = wrapFunction(operatorFunction, derivativeFunction)
 
 	end
@@ -517,6 +515,42 @@ local unaryFindOperationDictionary = {
 
 local metaMethodOperationDictionary = {
 	
+	__eq = {
+
+		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:applyFunction(function (value, otherValue) return ((value == otherValue) and 1) or 0 end, table.unpack(inputTensorArray)) end,
+
+	}
+	
+	__ne = {
+
+		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:applyFunction(function (value, otherValue) return ((value ~= otherValue) and 1) or 0 end, table.unpack(inputTensorArray)) end,
+
+	}
+	
+	__lt = {
+
+		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:applyFunction(function (value, otherValue) return ((value < otherValue) and 1) or 0 end, table.unpack(inputTensorArray)) end,
+
+	}
+	
+	__le = {
+
+		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:applyFunction(function (value, otherValue) return ((value <= otherValue) and 1) or 0 end, table.unpack(inputTensorArray)) end,
+
+	}
+	
+	__gt = {
+
+		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:applyFunction(function (value, otherValue) return ((value > otherValue) and 1) or 0 end, table.unpack(inputTensorArray)) end,
+
+	}
+	
+	__ge = {
+		
+		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:applyFunction(function (value, otherValue) return ((value >= otherValue) and 1) or 0 end, table.unpack(inputTensorArray)) end,
+		
+	}
+	
 	__unm = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:unaryMinus(inputTensorArray[1]) end,
@@ -906,88 +940,6 @@ function AHAAutomaticDifferentiationTensor:findMinimumValueDimensionIndexArray()
 	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
 
 	return AHAAutomaticDifferentiationTensor:findMinimumValueDimensionIndexArray(selfTensorValue)
-
-end
-
---------------------------------------------------------------------------------------
-
-function AHAAutomaticDifferentiationTensor:__eq(otherTensor)
-	
-	local functionToApply = function (value, otherValue) return ((value == otherValue) and 1) or 0 end
-	
-	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
-	
-	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
-	
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, selfTensorValue, otherTensorValue)
-
-	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
-
-end
-
-function AHAAutomaticDifferentiationTensor:__ne(otherTensor)
-
-	local functionToApply = function (value, otherValue) return ((value ~= otherValue) and 1) or 0 end
-
-	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
-
-	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
-
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, selfTensorValue, otherTensorValue)
-
-	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
-
-end
-
-function AHAAutomaticDifferentiationTensor:__lt(otherTensor)
-
-	local functionToApply = function (value, otherValue) return ((value < otherValue) and 1) or 0 end
-
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, self, otherTensor)
-
-	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
-
-end
-
-function AHAAutomaticDifferentiationTensor:__le(otherTensor)
-
-	local functionToApply = function (value, otherValue) return ((value <= otherValue) and 1) or 0 end
-
-	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
-
-	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
-
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, selfTensorValue, otherTensorValue)
-
-	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
-
-end
-
-function AHAAutomaticDifferentiationTensor:__gt(otherTensor)
-
-	local functionToApply = function (value, otherValue) return ((value > otherValue) and 1) or 0 end
-
-	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
-
-	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
-
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, selfTensorValue, otherTensorValue)
-
-	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
-
-end
-
-function AHAAutomaticDifferentiationTensor:__ge(otherTensor)
-
-	local functionToApply = function (value, otherValue) return ((value >= otherValue) and 1) or 0 end
-
-	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
-
-	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
-
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, selfTensorValue, otherTensorValue)
-
-	return AHAAutomaticDifferentiationTensor.new({resultTensor, nil, {self, otherTensor}})
 
 end
 
