@@ -541,7 +541,7 @@ local operationDictionary = {
 		
 		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor[tensorIndex] end
 		
-	}
+	},
 	
 	__add = {
 
