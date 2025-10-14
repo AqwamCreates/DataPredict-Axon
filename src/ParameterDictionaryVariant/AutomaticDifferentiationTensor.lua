@@ -939,12 +939,6 @@ end
 
 --------------------------------------------------------------------------------------
 
-function AHAAutomaticDifferentiationTensor.wrapBinaryOperation(operatorFunction)
-	
-	
-	
-end
-
 function AHAAutomaticDifferentiationTensor:__eq(otherTensor)
 	
 	local functionToApply = function (value, otherValue) return ((value == otherValue) and 1) or 0 end
