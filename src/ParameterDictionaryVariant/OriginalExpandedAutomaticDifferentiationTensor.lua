@@ -38,28 +38,6 @@ AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextT
 
 local isWaitEnabledOnFirstDerivativeCalculation = false
 
-local function register(wrapFunction, operationDictionary)
-
-	local operatorFunction
-
-	local derivativeFunction
-
-	for name, functionDictionary in pairs(operationDictionary) do
-
-		operatorFunction = functionDictionary.operatorFunction
-
-		derivativeFunction = functionDictionary.derivativeFunction
-
-		if (not operatorFunction) then error("No operator function for " .. name .. ".") end
-
-		if (not derivativeFunction) then error("No derivative function for " .. name .. ".") end
-
-		AHAAutomaticDifferentiationTensor[name] = wrapFunction(operatorFunction, derivativeFunction)
-
-	end
-
-end
-
 local function showFunctionErrorDueToNonObjectCondition(showError)
 
 	if (showError) then error("This function can only be called if it is an object.") end
@@ -258,103 +236,6 @@ function AHAAutomaticDifferentiationTensor.new(parameterDictionary)
 
 end
 
-function AHAAutomaticDifferentiationTensor.wrapUnaryOperation(operatorFunction, derivativeFunction)
-	
-	return function(parameterDictionary)
-		
-		local tensor = parameterDictionary.tensor or parameterDictionary[1]
-		
-		local inputTensorArray = {tensor}
-
-		local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
-
-		local resultTensor = operatorFunction(tensorValue)
-
-		local PartialFirstDerivativeFunction
-
-		local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
-
-		if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-			PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-				local tensor = inputTensorArray[1]
-				
-				if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
-
-				if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
-				
-				local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
-
-				local partialDerivativeTensor = derivativeFunction(firstDerivativeTensor, tensorValue)
-
-				tensor:differentiate{partialDerivativeTensor}
-
-			end
-
-		end
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
-		return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
-
-	end
-	
-end
-
-function AHAAutomaticDifferentiationTensor.wrapOperation(operatorFunction, derivativeFunction)
-	
-	return function(...)
-		
-		local inputTensorArray = {...}
-		
-		local inputTensorValueArray = {}
-		
-		for i, tensor in ipairs(inputTensorArray) do inputTensorValueArray[i] =  AHAAutomaticDifferentiationTensor:fetchValue{tensor} end
-		
-		local resultTensor = operatorFunction(inputTensorValueArray)
-
-		local PartialFirstDerivativeFunction
-		
-		local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
-
-		if AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-			
-			PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-				
-				for tensorIndex, tensor in ipairs(inputTensorArray) do
-					
-					if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor} then
-
-						if (tensor:getIsFirstDerivativeTensorRequired()) then
-
-							local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
-
-							local derivativeTensor = derivativeFunction(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
-
-							local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensorValue)
-
-							local collapsedTensor = collapseTensor(derivativeTensor, dimensionSizeArray)
-
-							tensor:differentiate{collapsedTensor}
-
-						end
-
-					end
-					
-				end
-				
-			end
-			
-		end
-
-		if isFirstDerivativeFunctionNotCreatedForTheNextTensor then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
-		return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
-	end
-	
-end
-
 function AHAAutomaticDifferentiationTensor.coerce(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
@@ -367,166 +248,315 @@ function AHAAutomaticDifferentiationTensor.coerce(parameterDictionary)
 
 end
 
-AHAAutomaticDifferentiationTensor.stack = AHAAutomaticDifferentiationTensor.wrapOperation(
+function AHAAutomaticDifferentiationTensor.stack(parameterDictionary)
+
+	local tensorArray = parameterDictionary or {}
 	
-	function(inputTensorArray) 
+	local numberOfTensors = #parameterDictionary
+	
+	local pureFirstTensor = AHAAutomaticDifferentiationTensor:fetchValue{tensorArray[1]}
+
+	local resultTensor = {pureFirstTensor}
+	
+	for i = 2, numberOfTensors, 1 do
 		
-		local resultTensor = {inputTensorArray[1]}
+		local previousTensor = tensorArray[i - 1]
 		
-		for i = 2, #inputTensorArray, 1 do
-
-			local previousTensor = inputTensorArray[i - 1]
-
-			local currentTensor = inputTensorArray[i]
-
-			local previousTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(previousTensor)
-
-			local currentTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(currentTensor)
-
-			local previousTensorNumberOfDimensions = #previousTensorDimensionSizeArray
-
-			local currentTensorNumberOfDimensions = #currentTensorDimensionSizeArray
-
-			if (previousTensorNumberOfDimensions ~= currentTensorNumberOfDimensions) then error("Tensor at " .. i .. " does not contain the same number of dimensions as the previous tensors.") end
-
-			for j, size in ipairs(previousTensorDimensionSizeArray) do
-
-				if (size ~= currentTensorDimensionSizeArray[j]) then error("Tensor at " .. i .. " does not contain the same dimension size at dimension " .. j .. " as the previous tensors.") end
-
-			end
-
-			resultTensor[i] = currentTensor
-
+		local currentTensor = tensorArray[i]
+		
+		local purePreviousTensor = AHAAutomaticDifferentiationTensor:fetchValue{previousTensor}
+		
+		local pureCurrentTensor = AHAAutomaticDifferentiationTensor:fetchValue{currentTensor}
+		
+		local previousTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(purePreviousTensor)
+		
+		local currentTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureCurrentTensor)
+		
+		local previousTensorNumberOfDimensions = #previousTensorDimensionSizeArray
+		
+		local currentTensorNumberOfDimensions = #currentTensorDimensionSizeArray
+		
+		if (previousTensorNumberOfDimensions ~= currentTensorNumberOfDimensions) then error("Tensor at " .. i .. " does not contain the same number of dimensions as the previous tensors.") end
+		
+		for j, size in ipairs(previousTensorDimensionSizeArray) do
+			
+			if (size ~= currentTensorDimensionSizeArray[j]) then error("Tensor at " .. i .. " does not contain the same dimension size at dimension " .. j .. " as the previous tensors.") end
+			
 		end
 		
-		return AqwamTensorLibrary:add(table.unpack(inputTensorArray)) end, 
-	
-	function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end)
-
-
-local unaryOperationDictionary = {
-	
-	rad = {
+		resultTensor[i] = pureCurrentTensor
 		
-		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.rad, tensor) end
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:multiply((math.pi / 180), firstDerivativeTensor)
+	end
+	
+	local PartialFirstDerivativeFunction
+	
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+	
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 		
-	}
-	
-	degree = {
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			for i, tensor in ipairs(tensorArray) do
+
+				if (AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then
+					
+					if (tensor:getIsFirstDerivativeTensorRequired()) then return tensor:differentiate{firstDerivativeTensor[i]} end
+
+				end
+
+			end
+			
+		end
 		
-		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.deg, tensor) end
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:multiply((180 / math.pi), firstDerivativeTensor)
-		
-	}
+	end
 	
-	sin = {
-		
-		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.sin, tensor) end
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:applyFunction(math.cos, firstDerivativeTensor, tensor) end
-		
-	}
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, tensorArray})
+
+end
+
+function AHAAutomaticDifferentiationTensor.radian(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 	
-	cos = {
-		
-		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.cos, tensor) end
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:applyFunction(function(derivativeValue, value) return derivativeValue * -math.sin(value) end, firstDerivativeTensor, tensor) end
-		
-	}
+	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local inputTensorArray = {tensor}
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.rad, pureTensor)
 	
-	tan = {
+	local PartialFirstDerivativeFunction
 
-		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.tan, tensor) end
-		derivativeFunction = function(firstDerivativeTensor,tensor) return AqwamTensorLibrary:applyFunction(function (derivativeValue, radianValue) return derivativeValue * math.pow((1 / math.cos(radian)), 2) end, firstDerivativeTensor, tensor) end
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-	}
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			local radiansPerDegree = math.pi / 180
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(radiansPerDegree, firstDerivativeTensor)}
+
+		end
+
+	end
 	
-	exponent = {
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.exponent, tensor) end
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:multiply(firstDerivativeTensor, tensor) end
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
-	}
+end
+
+function AHAAutomaticDifferentiationTensor.degree(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 	
-	__unm = {
-
-		operatorFunction = function(tensor) return AqwamTensorLibrary:unaryMinus(tensor) end
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:unaryMinus(firstDerivativeTensor) end
-
-	}
+	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
 	
-	unaryMinux = {
+	local inputTensorArray = {tensor}
 
-		operatorFunction = function(tensor) return AqwamTensorLibrary:unaryMinus(tensor) end
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:unaryMinus(firstDerivativeTensor) end
-
-	}
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.deg, pureTensor)
 	
-}
+	local PartialFirstDerivativeFunction
 
-local operationDictionary = {
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			local degreesPerRadian = 180 / math.pi
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(degreesPerRadian, firstDerivativeTensor)}
+
+		end
+
+	end
 	
-	__add = {
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:add(table.unpack(inputTensorArray)) end
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
-	}
+end
+
+function AHAAutomaticDifferentiationTensor.sin(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 	
-	__sub = {
+	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
 
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:subtract(table.unpack(inputTensorArray)) end
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end
+	local inputTensorArray = {tensor}
 
-	}
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.sin, pureTensor)
 	
-	__mul = {
+	local PartialFirstDerivativeFunction
 
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:multiply(table.unpack(inputTensorArray)) end
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
-	}
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(math.cos, tensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(partialDerivativeTensor, firstDerivativeTensor)}
+
+		end
+
+	end
 	
-	__div = {
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:divide(table.unpack(inputTensorArray)) end
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
-	}
+end
+
+function AHAAutomaticDifferentiationTensor.cos(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 	
-	add = {
+	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
 
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:add(table.unpack(inputTensorArray)) end
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end
+	local inputTensorArray = {tensor}
 
-	}
-
-	subtract = {
-
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:subtract(table.unpack(inputTensorArray)) end
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end
-
-	}
-
-	multiply = {
-
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:multiply(table.unpack(inputTensorArray)) end
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
-
-	}
-
-	divide = {
-
-		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:divide(table.unpack(inputTensorArray)) end
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
-
-	}
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.cos, pureTensor)
 	
-}
+	local PartialFirstDerivativeFunction
 
-register(wrapUnaryOperation, unaryOperationDictionary)
-register(wrapOperation, operationDictionary)
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			local partialDerivativeFunctionToApply = function (radian) return -math.sin(radian) end
+
+			local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, tensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(partialDerivativeTensor, firstDerivativeTensor)}
+
+		end
+
+	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
+function AHAAutomaticDifferentiationTensor.tan(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+	
+	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local inputTensorArray = {tensor}
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.tan, pureTensor)
+	
+	local PartialFirstDerivativeFunction
+	
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			local partialDerivativeFunctionToApply = function (radian) return math.pow((1 / math.cos(radian)), 2) end
+
+			local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, tensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(partialDerivativeTensor, firstDerivativeTensor)}
+
+		end
+
+	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
+function AHAAutomaticDifferentiationTensor.exponent(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+	
+	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local inputTensorArray = {tensor}
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.exp, pureTensor)
+	
+	local PartialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local tensor = inputTensorArray[1]
+
+			if (not AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+			
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(resultTensor, firstDerivativeTensor)}
+
+		end
+
+	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction,inputTensorArray})
+
+end
 
 function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 
@@ -968,12 +998,6 @@ end
 
 --------------------------------------------------------------------------------------
 
-function AHAAutomaticDifferentiationTensor.wrapBinaryOperation(operatorFunction)
-	
-	
-	
-end
-
 function AHAAutomaticDifferentiationTensor:__eq(otherTensor)
 	
 	local functionToApply = function (value, otherValue) return ((value == otherValue) and 1) or 0 end
@@ -1055,6 +1079,274 @@ function AHAAutomaticDifferentiationTensor:__ge(otherTensor)
 end
 
 --------------------------------------------------------------------------------------
+
+function AHAAutomaticDifferentiationTensor:__add(otherTensor)
+
+	local inputTensorArray = {self, otherTensor}
+
+	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+
+	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+	local resultTensor = AqwamTensorLibrary:add(selfTensorValue, otherTensorValue)
+	
+	local PartialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local selfTensor = inputTensorArray[1]
+
+			local otherTensor = inputTensorArray[2]
+
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+				
+				if (selfTensor:getIsFirstDerivativeTensorRequired()) then
+					
+					local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+
+					local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
+
+					local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, selfDimensionSizeArray)
+
+					selfTensor:differentiate{collapsedDerivativeTensor} 
+					
+				end
+
+			end
+
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+				
+				if (otherTensor:getIsFirstDerivativeTensorRequired()) then
+					
+					local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+					local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
+
+					local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, otherTensorDimensionSizeArray)
+
+					otherTensor:differentiate{collapsedDerivativeTensor}
+					
+				end	
+
+			end
+
+		end
+
+	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
+function AHAAutomaticDifferentiationTensor:__sub(otherTensor)
+
+	local inputTensorArray = {self, otherTensor}
+
+	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+
+	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+	local resultTensor = AqwamTensorLibrary:subtract(selfTensorValue, otherTensorValue)
+
+	local PartialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local selfTensor = inputTensorArray[1]
+
+			local otherTensor = inputTensorArray[2]
+
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+				
+				if (selfTensor:getIsFirstDerivativeTensorRequired()) then
+					
+					local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{selfTensor}
+
+					local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
+
+					local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, selfDimensionSizeArray)
+
+					selfTensor:differentiate{collapsedDerivativeTensor} 
+					
+				end
+
+			end
+
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+				
+				if (otherTensor:getIsFirstDerivativeTensorRequired()) then
+					
+					local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+					local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
+
+					local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, otherTensorDimensionSizeArray)
+
+					otherTensor:differentiate{collapsedDerivativeTensor}
+					
+				end
+
+			end
+
+		end
+
+	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
+function AHAAutomaticDifferentiationTensor:__mul(otherTensor)
+
+	local inputTensorArray = {self, otherTensor}
+
+	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+
+	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+	local resultTensor = AqwamTensorLibrary:multiply(selfTensorValue, otherTensorValue)
+	
+	local PartialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local selfTensor = inputTensorArray[1]
+
+			local otherTensor = inputTensorArray[2]
+
+			local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{selfTensor}
+
+			local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+				
+				if (selfTensor:getIsFirstDerivativeTensorRequired()) then
+					
+					local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
+
+					local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(otherTensorValue, firstDerivativeTensor)
+
+					local collapsedChainRuleFirstDerivativeTensor = collapseTensor(chainRuleFirstDerivativeTensor, selfDimensionSizeArray)
+
+					selfTensor:differentiate{collapsedChainRuleFirstDerivativeTensor}
+					
+				end
+
+			end
+
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+				
+				if (otherTensor:getIsFirstDerivativeTensorRequired()) then
+					
+					local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
+
+					local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(selfTensorValue, firstDerivativeTensor)
+
+					local collapsedChainRuleFirstDerivativeTensor = collapseTensor(chainRuleFirstDerivativeTensor, otherTensorDimensionSizeArray)
+
+					otherTensor:differentiate{collapsedChainRuleFirstDerivativeTensor}
+					
+				end
+
+			end
+
+		end
+
+	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
+function AHAAutomaticDifferentiationTensor:__div(otherTensor)
+
+	local inputTensorArray = {self, otherTensor}
+
+	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+
+	local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+	local resultTensor = AqwamTensorLibrary:divide(selfTensorValue, otherTensorValue)
+	
+	local PartialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			local selfTensor = inputTensorArray[1]
+
+			local otherTensor = inputTensorArray[2]
+
+			local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{selfTensor}
+
+			local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{selfTensor} then
+				
+				if (selfTensor:getIsFirstDerivativeTensorRequired()) then
+					
+					local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{selfTensor}
+
+					local selfDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
+
+					local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(otherTensorValue, firstDerivativeTensor)
+
+					local collapsedChainRuleFirstDerivativeTensor = collapseTensor(chainRuleFirstDerivativeTensor, selfDimensionSizeArray)
+
+					selfTensor:differentiate{collapsedChainRuleFirstDerivativeTensor}
+					
+				end
+
+			end
+
+			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{otherTensor} then
+				
+				if (otherTensor:getIsFirstDerivativeTensorRequired()) then
+					
+					local otherTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{otherTensor}
+
+					local otherTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(otherTensorValue)
+
+					local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:multiply(selfTensorValue, firstDerivativeTensor)
+
+					local collapsedChainRuleFirstDerivativeTensor = collapseTensor(chainRuleFirstDerivativeTensor, otherTensorDimensionSizeArray)
+
+					otherTensor:differentiate{collapsedChainRuleFirstDerivativeTensor}
+					
+				end
+
+			end
+
+		end
+
+	end
+	
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
 
 function AHAAutomaticDifferentiationTensor:__unm()
 
