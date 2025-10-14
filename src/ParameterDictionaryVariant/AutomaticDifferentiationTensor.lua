@@ -897,7 +897,7 @@ local dimensionArrayOperationDictionary = {
 	flatten = {
 
 		operatorFunction = function(tensor, dimensionArray) return AqwamTensorLibrary:flatten(tensor, dimensionArray) end,
-		derivativeFunction = function(firstDerivativeTensor, tensor, dimensionArray) return AqwamTensorLibrary:reshape(firstDerivativeTensor, dimensionSizeArray) end
+		derivativeFunction = function(firstDerivativeTensor, tensor, dimensionArray) return AqwamTensorLibrary:reshape(firstDerivativeTensor, AqwamTensorLibrary:getDimensionSizeArray(tensor)) end
 
 	},
 	
