@@ -920,6 +920,7 @@ local dimensionArrayOperationDictionary = {
 register(wrapUnaryOperation, unaryOperationDictionary)
 register(wrapMetaMethodOperation, metaMethodOperationDictionary)
 register(wrapOperation, operationDictionary)
+register(wrapDimensionOperation, dimensionOperationDictionary)
 register(wrapDimensionArrayOperation, dimensionArrayOperationDictionary)
 
 function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
