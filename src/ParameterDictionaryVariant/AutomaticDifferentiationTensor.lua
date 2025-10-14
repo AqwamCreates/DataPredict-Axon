@@ -548,42 +548,62 @@ local metaMethodOperationDictionary = {
 	__unm = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:unaryMinus(inputTensorArray[1]) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:unaryMinus(firstDerivativeTensor) end
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:unaryMinus(firstDerivativeTensor) end
 
 	},
 	
 	__add = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:add(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex) return firstDerivativeTensor end
 
 	},
 	
 	__sub = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:subtract(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return derivativeTensor end
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex) return firstDerivativeTensor end
 
 	},
 	
 	__mul = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:multiply(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(inputTensorArray[((tensorIndex == 1) and 2) or 1], derivativeTensor) end
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(inputTensorArray[((tensorIndex == 1) and 2) or 1], firstDerivativeTensor) end
 
 	},
 	
 	__div = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:divide(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(inputTensorArray[((tensorIndex == 1) and 2) or 1], derivativeTensor) end
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(inputTensorArray[((tensorIndex == 1) and 2) or 1], firstDerivativeTensor) end
 
 	},
 	
 	__pow = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:power(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(AqwamTensorLibrary:divide(resultTensor, inputTensorArray[tensorIndex]), derivativeTensor) end
+		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+			
+			local baseTensor = inputTensorArray[1]
+			
+			local exponentTensor = inputTensorArray[2]
+			
+			local functionToApply
+			
+			if (tensorIndex == 1) then
+				
+				functionToApply = function(firstDerivativeValue, baseValue, exponentValue) return (firstDerivativeValue * exponentValue * math.power(baseValue, (exponentValue - 1)) end
+				
+			else
+				
+				functionToApply = function(firstDerivativeValue, baseValue, exponentValue) return (firstDerivativeValue * math.pow(baseValue, exponentValue) * math.log(baseValue)) end
+				
+			end
+			
+			return AqwamTensorLibrary:applyFunction(functionToApply, derivativeTensor, baseTensor, exponentTensor)
+			
+		end
 
 	},
 	
