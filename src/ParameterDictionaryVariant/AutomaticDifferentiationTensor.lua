@@ -476,14 +476,14 @@ local unaryOperationDictionary = {
 	cos = {
 		
 		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.cos, tensor) end,
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:applyFunction(function(derivativeValue, value) return derivativeValue * -math.sin(value) end, firstDerivativeTensor, tensor) end
+		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, value) return firstDerivativeValue * -math.sin(value) end, firstDerivativeTensor, tensor) end
 		
 	},
 	
 	tan = {
 
 		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.tan, tensor) end,
-		derivativeFunction = function(firstDerivativeTensor,tensor) return AqwamTensorLibrary:applyFunction(function (derivativeValue, radianValue) return derivativeValue * math.pow((1 / math.cos(radian)), 2) end, firstDerivativeTensor, tensor) end
+		derivativeFunction = function(firstDerivativeTensor,tensor) return AqwamTensorLibrary:applyFunction(function (firstDerivativeValue, radianValue) return firstDerivativeValue * math.pow((1 / math.cos(radian)), 2) end, firstDerivativeTensor, tensor) end
 
 	},
 	
@@ -515,14 +515,14 @@ local unaryFindOperationDictionary = {
 	findMaximumValue = {
 
 		operatorFunction = function(tensor) return AqwamTensorLibrary:findMaximumValue(tensor) end,
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:applyFunction(function(derivativeValue, value, resultValue) return ((value == resultValue) and value) or 0 end, firstDerivativeTensor, tensor) end
+		derivativeFunction = function(firstDerivativeTensor, tensor, resultValue) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, value) return ((value == resultValue) and value) or 0 end, firstDerivativeTensor, tensor) end
 
 	},
 	
 	findMinimumValue = {
 
 		operatorFunction = function(tensor) return AqwamTensorLibrary:findMinimumValue(tensor) end,
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:applyFunction(function(derivativeValue, value, resultValue) return ((value == resultValue) and value) or 0 end, firstDerivativeTensor, tensor) end
+		derivativeFunction = function(firstDerivativeTensor, tensor, resultValue) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, value) return ((value == resultValue) and value) or 0 end, firstDerivativeTensor, tensor) end
 
 	}
 	
