@@ -218,48 +218,6 @@ local function wrapUnaryOperation(operatorFunction, derivativeFunction)
 
 				local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
 
-				local partialDerivativeTensor = derivativeFunction(firstDerivativeTensor, tensorValue)
-
-				tensor:differentiate{partialDerivativeTensor}
-
-			end
-
-		end
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
-		return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
-
-	end
-
-end
-
-local function wrapUnaryFindOperation(operatorFunction, derivativeFunction)
-
-	return function(parameterDictionary)
-
-		local tensor = parameterDictionary.tensor or parameterDictionary[1]
-
-		local inputTensorArray = {tensor}
-
-		local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
-
-		local resultValue = operatorFunction(tensorValue)
-
-		local PartialFirstDerivativeFunction
-
-		local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
-
-		if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-			PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-				local tensor = inputTensorArray[1]
-
-				if (not checkIfCanDifferentiateTensor(tensor)) then return end
-
-				local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
-
 				local partialDerivativeTensor = derivativeFunction(firstDerivativeTensor, tensorValue, resultValue)
 
 				tensor:differentiate{partialDerivativeTensor}
@@ -270,7 +228,7 @@ local function wrapUnaryFindOperation(operatorFunction, derivativeFunction)
 
 		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-		return AHAAutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
+		return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
 
 	end
 
@@ -493,17 +451,13 @@ local unaryOperationDictionary = {
 
 	},
 	
-}
-
-local unaryFindOperationDictionary = {
-	
 	findMaximumValue = {
 
 		operatorFunction = function(tensor) return AqwamTensorLibrary:findMaximumValue(tensor) end,
 		derivativeFunction = function(firstDerivativeTensor, tensor, resultValue) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, value) return ((value == resultValue) and value) or 0 end, firstDerivativeTensor, tensor) end
 
 	},
-	
+
 	findMinimumValue = {
 
 		operatorFunction = function(tensor) return AqwamTensorLibrary:findMinimumValue(tensor) end,
@@ -760,7 +714,6 @@ local operationDictionary = {
 }
 
 register(wrapUnaryOperation, unaryOperationDictionary)
-register(wrapUnaryFindOperation, unaryFindOperationDictionary)
 register(wrapMetaMethodOperation, metaMethodOperationDictionary)
 register(wrapOperation, operationDictionary)
 
