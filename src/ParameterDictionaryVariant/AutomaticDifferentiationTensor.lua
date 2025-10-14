@@ -523,13 +523,6 @@ local unaryOperationDictionary = {
 
 	},
 	
-	__unm = {
-
-		operatorFunction = function(tensor) return AqwamTensorLibrary:unaryMinus(tensor) end,
-		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:unaryMinus(firstDerivativeTensor) end
-
-	},
-	
 }
 
 local unaryFindOperationDictionary = {
@@ -551,6 +544,13 @@ local unaryFindOperationDictionary = {
 }
 
 local metaMethodOperationDictionary = {
+	
+	__unm = {
+
+		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:unaryMinus(inputTensorArray[1]) end,
+		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:unaryMinus(firstDerivativeTensor) end
+
+	},
 	
 	__add = {
 
@@ -737,7 +737,6 @@ register(wrapUnaryOperation, unaryOperationDictionary)
 register(wrapUnaryFindOperation, unaryFindOperationDictionary)
 register(wrapMetaMethodOperation, metaMethodOperationDictionary)
 register(wrapOperation, operationDictionary)
-
 
 function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 
@@ -1007,32 +1006,6 @@ function AHAAutomaticDifferentiationTensor:__ge(otherTensor)
 end
 
 --------------------------------------------------------------------------------------
-
-function AHAAutomaticDifferentiationTensor:__unm()
-
-	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
-
-	local resultTensor = AqwamTensorLibrary:unaryMinus(selfTensorValue)
-	
-	local PartialFirstDerivativeFunction
-
-	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
-
-	if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-		
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-			if AHAAutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{self} then self:differentiate{AqwamTensorLibrary:unaryMinus(firstDerivativeTensor)} end
-
-		end
-		
-	end
-	
-	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
-
-	return AHAAutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {self}})
-
-end
 
 function AHAAutomaticDifferentiationTensor:power(parameterDictionary)
 
