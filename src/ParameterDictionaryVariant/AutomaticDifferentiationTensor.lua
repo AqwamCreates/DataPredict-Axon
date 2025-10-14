@@ -614,9 +614,7 @@ local operationDictionary = {
 			
 			expandedPureTensorArray[1] = inputTensorArray[1]
 
-			for i = 2, numberOfTensors, 1 do
-
-				dimensionSizeArrayArray[i] = AqwamTensorLibrary:getDimensionSizeArray(inputTensorArray[i])
+			for i = 2, #inputTensorArray, 1 do
 
 				expandedPureTensorArray[i - 1], expandedPureTensorArray[i] = AqwamTensorLibrary:broadcast(inputTensorArray[i - 1], inputTensorArray[i])
 
@@ -666,9 +664,7 @@ local operationDictionary = {
 
 			expandedPureTensorArray[1] = inputTensorArray[1]
 
-			for i = 2, numberOfTensors, 1 do
-
-				dimensionSizeArrayArray[i] = AqwamTensorLibrary:getDimensionSizeArray(inputTensorArray[i])
+			for i = 2, #inputTensorArray, 1 do
 
 				expandedPureTensorArray[i - 1], expandedPureTensorArray[i] = AqwamTensorLibrary:broadcast(inputTensorArray[i - 1], inputTensorArray[i])
 
