@@ -669,9 +669,9 @@ local operationDictionary = {
 
 		end,
 
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
 
-			local functionToApply = function(derivativeValue, ...)
+			local functionToApply = function(firstDerivativeValue, ...)
 
 				local valueArray = {...} 
 
@@ -691,7 +691,7 @@ local operationDictionary = {
 
 				end
 
-				return (isMaximum and derivativeValue) or 0
+				return (isMaximum and firstDerivativeValue) or 0
 
 			end
 
@@ -719,9 +719,9 @@ local operationDictionary = {
 
 		end,
 
-		derivativeFunction = function(derivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
 
-			local functionToApply = function(derivativeValue, ...)
+			local functionToApply = function(firstDerivativeValue, ...)
 
 				local valueArray = {...} 
 
@@ -741,7 +741,7 @@ local operationDictionary = {
 
 				end
 
-				return (isMinimum and derivativeValue) or 0
+				return (isMinimum and firstDerivativeValue) or 0
 
 			end
 
