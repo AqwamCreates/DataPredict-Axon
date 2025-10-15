@@ -334,7 +334,7 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
 	
-	local EligibilityTrace = parameterDictionary.EligibilityTrace
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[4]
 
 	if (not Model) then error("No model.") end
 
@@ -385,6 +385,8 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[4]
 
 	if (not Model) then error("No model.") end
 
@@ -439,8 +441,10 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[4]
 
-	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[4] or {}
+	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[5] or {}
 
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
@@ -513,6 +517,8 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[3] or defaultAveragingRate
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[5]
 
 	if (not Model) then error("No model.") end
 
@@ -571,8 +577,10 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[4]
 
-	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[4] or {}
+	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[5] or {}
 
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
@@ -641,6 +649,8 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[4]
 
 	if (not Model) then error("No model.") end
 
@@ -687,8 +697,10 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[4]
 
-	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[4] or {}
+	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[5] or {}
 
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
@@ -757,6 +769,8 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[3] or defaultAveragingRate
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[5]
 
 	if (not Model) then error("No model.") end
 
@@ -813,6 +827,8 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[5]
 
 	if (not Model) then error("No model.") end
 
@@ -901,8 +917,10 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[5]
 
-	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[5] or {}
+	local WeightTensorArrayArray = parameterDictionary.WeightTensorArrayArray or parameterDictionary[6] or {}
 
 	WeightTensorArrayArray[1] = WeightTensorArrayArray[1] or WeightContainer:getWeightTensorArray{true} -- So that the changes are reflected to the weight tensors that are put into the WeightContainer.
 
@@ -1013,6 +1031,8 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 	local averagingRate = parameterDictionary.averagingRate or parameterDictionary[4] or defaultAveragingRate
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[5] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[6]
 
 	if (not Model) then error("No model.") end
 
