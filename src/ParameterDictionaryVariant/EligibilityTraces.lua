@@ -50,7 +50,7 @@ function EligibilityTrace.new(parameterDictionary)
 	
 	NewEligibilityTrace.lambda = parameterDictionary.lambda or parameterDictionary[2] or 0.5
 
-	NewEligibilityTrace.eligibilityTraceMatrix = nil
+	NewEligibilityTrace.eligibilityTraceTensor = nil
 	
 	NewEligibilityTrace.isAnObject = true
 	
