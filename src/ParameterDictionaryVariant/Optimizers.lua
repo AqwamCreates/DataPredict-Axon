@@ -472,7 +472,7 @@ function Optimizer.Gravity(parameterDictionary)
 
 			local gaussianDensity = calculateGaussianDensity(0, standardDeviation)
 
-			previousVelocityTensor = AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(costFunctionDerivativeTensor), gaussianDensity)
+			previousVelocityTensor = AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), gaussianDensity)
 
 		end
 
