@@ -236,6 +236,22 @@ function ValueScheduler.Multiplicative(parameterDictionary)
 
 end
 
+function ValueScheduler.Polynomial(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local totalTimeValue = parameterDictionary.totalTimeValue or parameterDictionary[1] or 5
+	
+	local power = parameterDictionary.power or parameterDictionary[2] or 1
+
+	local timeValue = parameterDictionary.timeValue or parameterDictionary[3]
+
+	local CalculateFunction = function(value, timeValue) return (value * math.pow((1 - (timeValue / totalTimeValue)), power)) end
+
+	return ValueScheduler.new({CalculateFunction, timeValue}) 
+
+end
+
 function ValueScheduler:calculate(parameterDictionary)
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
