@@ -136,7 +136,7 @@ function EligibilityTrace:calculate(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 	
-	temporalDifferenceErrorVector = parameterDictionary.temporalDifferenceErrorVector or parameterDictionary[1]
+	local temporalDifferenceErrorVector = parameterDictionary.temporalDifferenceErrorVector or parameterDictionary[1]
 
 	return AqwamTensorLibrary:multiply(temporalDifferenceErrorVector, self.eligibilityTraceTensor)
 
