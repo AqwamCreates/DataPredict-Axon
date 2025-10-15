@@ -32,6 +32,10 @@ local Optimizer = {}
 
 Optimizer.__index = Optimizer
 
+local defaultWeightDecayRate = 0
+
+local defaultEpsilon = 1e-16
+
 local function showFunctionErrorDueToNonObjectCondition(showError)
 
 	if (showError) then error("This function can only be called if it is an object.") end
@@ -62,89 +66,227 @@ function Optimizer.new(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 	
-	local NewWeightContainer = {}
+	local NewOptimizer = {}
 
-	setmetatable(NewWeightContainer, Optimizer)
+	setmetatable(NewOptimizer, Optimizer)
 	
-	NewWeightContainer.CalculateFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
+	NewOptimizer.CalculateFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
 	
-	NewWeightContainer.optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[2]
+	NewOptimizer.optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[2]
 	
-	NewWeightContainer.LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
+	NewOptimizer.LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
 	
-	NewWeightContainer.isAnObject = true
+	NewOptimizer.isAnObject = true
 	
-	return NewWeightContainer
+	return NewOptimizer
 	
 end
 
-function Optimizer.AdaptiveGradient(parameterDictionary)
-	
-	parameterDictionary = parameterDictionary or {}
-	
-	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[1]
-	
-	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[2] or {}
-	
-	local CalculateFunction = function(learningRate, tensor)
-		
-		local previousSumOfGradientSquaredTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
-
-		local gradientSquaredTensor = AqwamTensorLibrary:power(tensor, 2)
-
-		local currentSumOfGradientSquaredTensor = AqwamTensorLibrary:add(previousSumOfGradientSquaredTensor, gradientSquaredTensor)
-
-		local squareRootSumOfGradientSquaredTensor = AqwamTensorLibrary:power(currentSumOfGradientSquaredTensor, 0.5)
-
-		local costFunctionDerivativeTensorPart1 = AqwamTensorLibrary:divide(tensor, squareRootSumOfGradientSquaredTensor)
-
-		tensor = AqwamTensorLibrary:multiply(learningRate, costFunctionDerivativeTensorPart1)
-		
-		optimizerInternalParameterArray[1] = currentSumOfGradientSquaredTensor
-		
-		return tensor
-		
-	end
-	
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
-	
-end
-
-function Optimizer.AdaptiveGradientDelta(parameterDictionary)
+function Optimizer.AdaptiveDelta(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 	
 	local decayRate = parameterDictionary.decayRate or parameterDictionary[1] or 0.9
 	
-	local epsilon = parameterDictionary.epsilon or parameterDictionary[2] or 1 * math.pow(10, -7)
+	local weightDecayRate = parameterDictionary.decayRate or parameterDictionary[2] or defaultWeightDecayRate
 	
-	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
+	
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[4]
 
-	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[4] or {}
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[5] or {}
 
-	local CalculateFunction = function(learningRate, tensor)
+	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
-		local previousRunningGradientSquaredTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
+		local previousRunningGradientSquaredTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(costFunctionDerivativeTensor), 0)
 
-		local gradientSquaredTensor = AqwamTensorLibrary:power(tensor, 2)
+		local gradientTensor = firstDerivativeTensor
+
+		if (weightDecayRate ~= 0) then
+
+			local decayedWeightTensor = AqwamTensorLibrary:multiply(weightDecayRate, tensor)
+
+			gradientTensor = AqwamTensorLibrary:add(gradientTensor, decayedWeightTensor)
+
+		end
+
+		local gradientSquaredTensor = AqwamTensorLibrary:power(gradientTensor, 2)
 
 		local runningDeltaTensorPart1 = AqwamTensorLibrary:multiply(decayRate, previousRunningGradientSquaredTensor)
 
 		local runningDeltaTensorPart2 = AqwamTensorLibrary:multiply((1 - decayRate), gradientSquaredTensor)
 
-		local currentRunningGradientSquaredTensor =  AqwamTensorLibrary:add(runningDeltaTensorPart1, runningDeltaTensorPart2)
+		local currentRunningGradientSquaredTensor = AqwamTensorLibrary:add(runningDeltaTensorPart1, runningDeltaTensorPart2)
 
 		local rootMeanSquareTensorPart1 = AqwamTensorLibrary:add(currentRunningGradientSquaredTensor, epsilon)
 
 		local rootMeanSquareTensor = AqwamTensorLibrary:applyFunction(math.sqrt, rootMeanSquareTensorPart1)
 
-		local tensorPart1 = AqwamTensorLibrary:divide(tensor, rootMeanSquareTensor)
+		local costFunctionDerivativeTensorPart1 = AqwamTensorLibrary:divide(gradientTensor, rootMeanSquareTensor)
 
-		tensor = AqwamTensorLibrary:multiply(learningRate, tensorPart1)
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, costFunctionDerivativeTensorPart1)
 
-		optimizerInternalParameterArray[1] = currentRunningGradientSquaredTensor
+		optimizerInternalParameterArray = {currentRunningGradientSquaredTensor}
 
-		return tensor
+		return firstDerivativeTensor
+
+	end
+
+	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+
+end
+
+function Optimizer.AdaptiveFactor(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local beta2DecayRate = parameterDictionary.beta2DecayRate or parameterDictionary[1] or -0.8
+
+	local weightDecayRate = parameterDictionary.weightDecayRate or parameterDictionary[2] or defaultWeightDecayRate
+
+	local clipValue = parameterDictionary.clipValue or parameterDictionary[3] or defaultClipValue
+
+	local epsilon1 = parameterDictionary.epsilon1 or parameterDictionary[4] or epsilon
+
+	local epsilon2 = parameterDictionary.epsilon2 or parameterDictionary[5] or epsilon
+
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[6]
+
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[7] or {}
+
+	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+
+		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+
+		local secondMomentRowFactorTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(dimensionSizeArray, 0)
+
+		local secondMomentColumnFactorTensor = optimizerInternalParameterArray[2] or AqwamTensorLibrary:createTensor(dimensionSizeArray, 0)
+
+		local timeValue = optimizerInternalParameterArray[3] or 1
+
+		local beta2 = 1 - math.pow(timeValue, beta2DecayRate)
+
+		local oneMinusBeta2 = 1 - beta2
+
+		local gradientTensor = costFunctionDerivativeTensor
+
+		if (weightDecayRate ~= 0) then
+
+			local decayedWeightTensor = AqwamTensorLibrary:multiply(weightDecayRate, tensor)
+
+			gradientTensor = AqwamTensorLibrary:add(gradientTensor, decayedWeightTensor)
+
+		end
+
+		local squaredGradientTensor = AqwamTensorLibrary:power(gradientTensor, 2)
+
+		local oneRowTensor = AqwamTensorLibrary:createTensor({dimensionSizeArray[1], 1}, 1)
+
+		local oneColumnTensor = AqwamTensorLibrary:createTensor({dimensionSizeArray[2], 1}, 1)
+
+		local transposedOneRowTensor = AqwamTensorLibrary:transpose(oneRowTensor)
+
+		local transposedOneColumnTensor = AqwamTensorLibrary:transpose(oneColumnTensor)
+
+		local dotProductOnTensor = AqwamTensorLibrary:dotProduct(oneRowTensor, transposedOneColumnTensor)
+
+		local epsilonMultiplyDotProductOnTensor = AqwamTensorLibrary:multiply(epsilon1, dotProductOnTensor)
+
+		local squaredGradientAddEpsilonMultiplyDotProductOnTensor = AqwamTensorLibrary:add(squaredGradientTensor, epsilonMultiplyDotProductOnTensor)
+
+		local secondMomentRowFactorTensorPart1 = AqwamTensorLibrary:multiply(beta2, secondMomentRowFactorTensor)
+
+		local secondMomentRowFactorTensorPart2 = AqwamTensorLibrary:multiply(oneMinusBeta2, squaredGradientAddEpsilonMultiplyDotProductOnTensor)
+
+		local secondMomentRowFactorTensorPart3 = AqwamTensorLibrary:dotProduct(secondMomentRowFactorTensorPart2, oneColumnTensor)
+
+		secondMomentRowFactorTensor = AqwamTensorLibrary:add(secondMomentRowFactorTensorPart1, secondMomentRowFactorTensorPart3)
+
+		local secondMomentColumnFactorTensorPart1 = AqwamTensorLibrary:multiply(beta2, secondMomentColumnFactorTensor)
+
+		local secondMomentColumnFactorTensorPart2 = AqwamTensorLibrary:dotProduct(transposedOneRowTensor, squaredGradientAddEpsilonMultiplyDotProductOnTensor)
+
+		local secondMomentColumnFactorTensorPart3 = AqwamTensorLibrary:multiply(oneMinusBeta2, secondMomentRowFactorTensorPart2)
+
+		secondMomentColumnFactorTensor = AqwamTensorLibrary:add(secondMomentColumnFactorTensorPart1, secondMomentColumnFactorTensorPart3)
+
+		local velocityTensorPart1 = AqwamTensorLibrary:multiply(secondMomentRowFactorTensor, secondMomentColumnFactorTensor)
+
+		local velocityTensorPart2 = AqwamTensorLibrary:dotProduct(transposedOneRowTensor, secondMomentRowFactorTensor)
+
+		local velocityTensor = AqwamTensorLibrary:divide(velocityTensorPart1, velocityTensorPart2)
+
+		local uTensor = AqwamTensorLibrary:divide(gradientTensor, AqwamTensorLibrary:applyFunction(math.sqrt, velocityTensor))
+
+		local squareRootVelocityTensor = AqwamTensorLibrary:applyFunction(math.sqrt, velocityTensor)
+
+		local dividedRootMeanSquaredXTensor = AqwamTensorLibrary:divide(uTensor, weightTensor)
+
+		local momentum = math.min(learningRate, (1 / math.sqrt(timeValue)))
+
+		local alpha = AqwamTensorLibrary:applyFunction(math.max, {{epsilon2}}, dividedRootMeanSquaredXTensor)
+
+		alpha = AqwamTensorLibrary:multiply(alpha, momentum)
+
+		local rootMeanSquaredUTensorPart1 = AqwamTensorLibrary:divide(gradientTensor, squareRootVelocityTensor)
+
+		local rootMeanSquaredUTensor = AqwamTensorLibrary:unaryMinus(rootMeanSquaredUTensorPart1)
+
+		local dividedRootMeanSquaredUTensor = AqwamTensorLibrary:divide(rootMeanSquaredUTensor, clipValue)
+
+		local finalUTensor = AqwamTensorLibrary:divide(uTensor, AqwamTensorLibrary:applyFunction(math.max, dividedRootMeanSquaredUTensor, 1))
+
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, finalUTensor)
+
+		timeValue = timeValue + 1
+
+		optimizerInternalParameterArray = {secondMomentRowFactorTensor, secondMomentColumnFactorTensor, timeValue}
+
+		return firstDerivativeTensor
+
+	end
+
+	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+
+end
+
+function Optimizer.AdaptiveGradient(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+	
+	local weightDecayRate = parameterDictionary.weightDecayRate or parameterDictionary[1] or defaultWeightDecayRate
+	
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[2]
+
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[3] or {}
+
+	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+
+		local previousSumOfGradientSquaredTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(costFunctionDerivativeTensor), 0)
+
+		local gradientTensor = firstDerivativeTensor
+
+		if (weightDecayRate ~= 0) then
+
+			local decayedWeightTensor = AqwamTensorLibrary:multiply(weightDecayRate, tensor)
+
+			gradientTensor = AqwamTensorLibrary:add(gradientTensor, decayedWeightTensor)
+
+		end
+
+		local gradientSquaredTensor = AqwamTensorLibrary:power(gradientTensor, 2)
+
+		local currentSumOfGradientSquaredTensor = AqwamTensorLibrary:add(previousSumOfGradientSquaredTensor, gradientSquaredTensor)
+
+		local squareRootSumOfGradientSquaredTensor = AqwamTensorLibrary:applyFunction(math.sqrt, currentSumOfGradientSquaredTensor)
+
+		local costFunctionDerivativeTensorPart1 = AqwamTensorLibrary:divide(gradientTensor, squareRootSumOfGradientSquaredTensor)
+
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, costFunctionDerivativeTensorPart1)
+
+		optimizerInternalParameterArray = {currentSumOfGradientSquaredTensor}
+
+		return firstDerivativeTensor
 
 	end
 
@@ -380,7 +522,7 @@ function Optimizer.NesterovAcceleratedAdaptiveMomentEstimation(parameterDictiona
 
 		local previousMTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
 
-		local previousNTensor = optimizerInternalParameterArray[2]  or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
+		local previousNTensor = optimizerInternalParameterArray[2] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
 
 		local meanCostFunctionDerivativeTensor = AqwamTensorLibrary:divide(tensor, (1 - beta1))
 
@@ -461,80 +603,6 @@ function Optimizer.RootMeanSquarePropagation(parameterDictionary)
 		tensor = AqwamTensorLibrary:multiply(learningRate, tensorPart1)
 
 		optimizerInternalParameterArray[1] = velocityTensor
-
-		return tensor
-
-	end
-
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
-
-end
-
-function Optimizer.LearningRateStepDecay(parameterDictionary)
-	
-	parameterDictionary = parameterDictionary or {}
-	
-	local timeStepToDecay = parameterDictionary.timeStepToDecay or parameterDictionary[1] or 100
-	
-	local decayRate = parameterDictionary.decayRate or parameterDictionary[2] or 0.5
-
-	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
-
-	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[4] or {}
-
-	local CalculateFunction = function(learningRate, tensor)
-
-		local currentLearningRate = optimizerInternalParameterArray[1] or learningRate
-
-		local currentTimeStep = optimizerInternalParameterArray[2] or 0
-
-		currentTimeStep = currentTimeStep + 1
-
-		if ((currentTimeStep % timeStepToDecay) == 0) then
-
-			currentLearningRate = currentLearningRate * decayRate
-
-		end
-
-		tensor = AqwamTensorLibrary:multiply(currentLearningRate, tensor)
-
-		optimizerInternalParameterArray[1] = currentLearningRate
-		
-		optimizerInternalParameterArray[2] = currentTimeStep
-
-		return tensor
-
-	end
-
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
-	
-end
-
-function Optimizer.LearningRateTimeDecay(parameterDictionary)
-
-	parameterDictionary = parameterDictionary or {}
-
-	local decayRate = parameterDictionary.decayRate or parameterDictionary[1] or 0.5
-
-	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[2]
-
-	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[3] or {}
-
-	local CalculateFunction = function(learningRate, tensor)
-
-		local currentLearningRate = optimizerInternalParameterArray[1] or learningRate
-
-		local currentTimeStep = optimizerInternalParameterArray[2] or 0
-
-		currentTimeStep = currentTimeStep + 1
-
-		currentLearningRate = currentLearningRate / (decayRate * currentTimeStep)
-
-		tensor = AqwamTensorLibrary:multiply(currentLearningRate, tensor)
-
-		optimizerInternalParameterArray[1] = currentLearningRate
-			
-		optimizerInternalParameterArray[2] = currentTimeStep
 
 		return tensor
 
