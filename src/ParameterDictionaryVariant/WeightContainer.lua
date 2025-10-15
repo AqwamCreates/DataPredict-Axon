@@ -166,7 +166,7 @@ function WeightContainer:gradientDescent()
 
 			if (Optimizer) then
 
-				firstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor}
+				firstDerivativeTensor = Optimizer:calculate{learningRate, firstDerivativeTensor, tensor}
 
 			else
 
