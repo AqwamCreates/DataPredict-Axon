@@ -46,13 +46,13 @@ function EligibilityTrace.new(parameterDictionary)
 
 	setmetatable(NewEligibilityTrace, EligibilityTrace)
 	
-	NewBaseEligibilityTrace.lambda = parameterDictionary.lambda or defaultLambda
+	NewEligibilityTrace.lambda = parameterDictionary.lambda or defaultLambda
 
-	NewBaseEligibilityTrace.mode = parameterDictionary.mode or defaultMode
+	NewEligibilityTrace.mode = parameterDictionary.mode or defaultMode
 	
 	NewEligibilityTrace.IncrementFunction = parameterDictionary.IncrementFunction or parameterDictionary[1]
 
-	NewBaseEligibilityTrace.eligibilityTraceMatrix = nil
+	NewEligibilityTrace.eligibilityTraceMatrix = nil
 	
 	NewEligibilityTrace.isAnObject = true
 	
@@ -106,7 +106,7 @@ function EligibilityTrace.ReplacingTrace()
 
 end
 
-function BaseEligibilityTrace:increment(parameterDictionary)
+function EligibilityTrace:increment(parameterDictionary)
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
@@ -126,7 +126,7 @@ function BaseEligibilityTrace:increment(parameterDictionary)
 
 end
 
-function BaseEligibilityTrace:calculate(parameterDictionary)
+function EligibilityTrace:calculate(parameterDictionary)
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
@@ -138,7 +138,7 @@ function BaseEligibilityTrace:calculate(parameterDictionary)
 
 end
 
-function BaseEligibilityTrace:getLambda()
+function EligibilityTrace:getLambda()
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
