@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Aqwam's Deep Learning Library (DataPredict Axon)
+	Aqwam's Machine, Deep And Reinforcement Learning Library (DataPredict)
 
 	Author: Aqwam Harish Aiman
 	
@@ -16,7 +16,7 @@
 		
 	By using this library, you agree to comply with our Terms and Conditions in the link below:
 	
-	https://github.com/AqwamCreates/DataPredict-Axon/blob/main/docs/TermsAndConditions.md
+	https://github.com/AqwamCreates/DataPredict/blob/main/docs/TermsAndConditions.md
 	
 	--------------------------------------------------------------------
 	
@@ -26,130 +26,68 @@
 
 --]]
 
-local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
+local BaseValueScheduler = require(script.Parent.BaseValueScheduler)
 
-local ValueScheduler = {}
+MultipleStepValueScheduler = {}
 
-ValueScheduler.__index = ValueScheduler
+MultipleStepValueScheduler.__index = MultipleStepValueScheduler
 
-local function showFunctionErrorDueToNonObjectCondition(showError)
+setmetatable(MultipleStepValueScheduler, BaseValueScheduler)
 
-	if (showError) then error("This function can only be called if it is an object.") end
+local defaultDecayRate = 0.5
 
-end
-
-function ValueScheduler.new(parameterDictionary)
+function MultipleStepValueScheduler.new(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 	
-	local NewValueScheduler = {}
-
-	setmetatable(NewValueScheduler, ValueScheduler)
+	local NewMultipleStepValueScheduler = BaseValueScheduler.new(parameterDictionary)
 	
-	NewValueScheduler.CalculateFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
+	setmetatable(NewMultipleStepValueScheduler, MultipleStepValueScheduler)
 	
-	NewValueScheduler.timeValue = parameterDictionary.timeValue or parameterDictionary[2] or 0
+	NewMultipleStepValueScheduler:setName("MultipleStep")
 	
-	NewValueScheduler.isAnObject = true
+	local timeValueArray = parameterDictionary.timeValueArray
 	
-	return NewValueScheduler
+	if (not timeValueArray) then error("No time value array.") end
 	
-end
-
-function ValueScheduler.Chained(parameterDictionary)
+	if (#timeValueArray <= 0) then error("No time value.") end
 	
-	parameterDictionary = parameterDictionary or {}
+	NewMultipleStepValueScheduler.timeValueArray = timeValueArray
 	
-	local ValueSchedulerArray = parameterDictionary.ValueSchedulerArray or parameterDictionary[1]
+	NewMultipleStepValueScheduler.decayRate = parameterDictionary.decayRate or defaultDecayRate
 	
-	local timeValue = parameterDictionary.timeValue or parameterDictionary[2]
-
-	local CalculateFunction = function(value, timeValue)
-
-		for _, ValueScheduler in ipairs(ValueSchedulerArray) do value = ValueScheduler:calculate(value, timeValue) end
-
-		return value
-
-	end
-
-	return ValueScheduler.new({CalculateFunction, timeValue})
+	--------------------------------------------------------------------------------
 	
-end
+	NewMultipleStepValueScheduler:setCalculateFunction(function(value, timeValue)
+		
+		local decayCount = 0
+		
+		for i, timeValueMilestone in ipairs(NewMultipleStepValueScheduler.timeValueArray) do
+			
+			if (timeValue <= timeValueMilestone) then break end
+				
+			decayCount = decayCount + 1
+			
+		end
 
-function ValueScheduler.Constant(parameterDictionary)
-	
-	local timeValue = parameterDictionary.timeValue or parameterDictionary[1] or 1
-
-	local decayRate = parameterDictionary.decayRate or  parameterDictionary[2] or 0.5
-	
-	local timeValue = parameterDictionary.timeValue or parameterDictionary[3]
-
-	local CalculateFunction = function(value, timeValue)
-
-		if (timeValue <= timeValue) then return value end
-
-		return (value * decayRate)
-
+		return (value * math.pow(NewMultipleStepValueScheduler.decayRate, decayCount))
+		
 	end)
 	
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return NewMultipleStepValueScheduler
 	
 end
 
-function ValueScheduler.CosineAnnealing(parameterDictionary)
+function MultipleStepValueScheduler:setTimeValueArray(timeValueArray)
 
-	local maximumTimeValue = parameterDictionary.maximumTimeValue or parameterDictionary[1] or defaultMaximumTimeValue
-
-	local minimumValue = parameterDictionary.minimumValue or parameterDictionary[2] or defaultMinimumValue
-
-	local timeValue = parameterDictionary.timeValue or parameterDictionary[3]
-
-	local CalculateFunction = function(value, timeValue)
-
-		local multiplyValuePart1 = 1 + math.cos((timeValue * math.pi) / maximumTimeValue)
-
-		local multiplyValuePart2 = (value - minimumValue)
-
-		local multiplyValue = 0.5 * multiplyValuePart1 * multiplyValuePart2
-
-		return (minimumValue + multiplyValue)
-
-	end)
-
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	self.timeValueArray = timeValueArray
 
 end
 
-function ValueScheduler:calculate(parameterDictionary)
+function MultipleStepValueScheduler:setDecayRate(decayRate)
 	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
-	
-	parameterDictionary = parameterDictionary or {}
-	
-	local valueToSchedule = parameterDictionary.valueToSchedule or parameterDictionary[1]
-	
-	local valueToScale = parameterDictionary.valueToScale or parameterDictionary[2]
-	
-	local CalculateFunction = self.CalculateFunction
-	
-	if (not CalculateFunction) then error("No calculate function.") end
-	
-	local timeValue = self.timeValue + 1
-	
-	self.timeValue = timeValue
-	
-	valueToSchedule = CalculateFunction(valueToSchedule, timeValue)
-	
-	if (not valueToScale) then valueToSchedule end
-	
-	return AqwamTensorLibrary:multiply(valueToSchedule, valueToScale)
+	self.decayRate = decayRate
 	
 end
 
-function ValueScheduler:reset()
-	
-	self.timeValue = 0
-	
-end
-
-return ValueScheduler
+return MultipleStepValueScheduler
