@@ -46,11 +46,9 @@ function EligibilityTrace.new(parameterDictionary)
 
 	setmetatable(NewEligibilityTrace, EligibilityTrace)
 	
-	NewEligibilityTrace.lambda = parameterDictionary.lambda or defaultLambda
-
-	NewEligibilityTrace.mode = parameterDictionary.mode or defaultMode
-	
 	NewEligibilityTrace.IncrementFunction = parameterDictionary.IncrementFunction or parameterDictionary[1]
+	
+	NewEligibilityTrace.lambda = parameterDictionary.lambda or parameterDictionary[2] or 0.5
 
 	NewEligibilityTrace.eligibilityTraceMatrix = nil
 	
@@ -60,41 +58,47 @@ function EligibilityTrace.new(parameterDictionary)
 	
 end
 
-function EligibilityTrace.AccumulatingTrace()
+function EligibilityTrace.AccumulatingTrace(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
+	
+	parameterDictionary.IncrementFunction = function(eligibilityTraceTensor, actionIndex)
 
-	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
-		
-		eligibilityTraceTensor[1][actionIndex] = eligibilityTraceTensor[1][actionIndex] + 1
+			eligibilityTraceTensor[1][actionIndex] = eligibilityTraceTensor[1][actionIndex] + 1
 
-		return eligibilityTraceTensor
+			return eligibilityTraceTensor
 
-	end
+		end
 
-	return EligibilityTrace.new({IncrementFunction})
+	return EligibilityTrace.new(parameterDictionary)
 	
 end
 
 function EligibilityTrace.DutchTrace(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
+	
+	local lambda = parameterDictionary.lambda or parameterDictionary[1]
 
-	local alpha = parameterDictionary.alpha or parameterDictionary[1] or 100
+	local alpha = parameterDictionary.alpha or parameterDictionary[2] or 0.5
 
 	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
 
-		eligibilityTraceTensor[1][actionIndex] = ((1 - NewDutchTrace.alpha) * eligibilityTraceTensor[1][actionIndex]) + 1
+		eligibilityTraceTensor[1][actionIndex] = ((1 - alpha) * eligibilityTraceTensor[1][actionIndex]) + 1
 
 		return eligibilityTraceTensor
 
 	end
 
-	return EligibilityTrace.new({IncrementFunction})
+	return EligibilityTrace.new({IncrementFunction, lambda})
 
 end
 
 function EligibilityTrace.ReplacingTrace()
+	
+	parameterDictionary = parameterDictionary or {}
 
-	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
+	parameterDictionary.IncrementFunction = function(eligibilityTraceTensor, actionIndex)
 
 		eligibilityTraceTensor[1][actionIndex] = 1
 
@@ -102,7 +106,7 @@ function EligibilityTrace.ReplacingTrace()
 
 	end
 
-	return EligibilityTrace.new({IncrementFunction})
+	return EligibilityTrace.new(parameterDictionary)
 
 end
 
