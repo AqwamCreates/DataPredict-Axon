@@ -358,7 +358,7 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 		
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
 
@@ -414,7 +414,7 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
 
@@ -484,7 +484,7 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
 
@@ -544,7 +544,7 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
 
@@ -622,7 +622,7 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 
 			if (EligibilityTrace) then
 
-				local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+				local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 				firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
 
@@ -670,7 +670,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor, actionIndex, discountFactor, dimensionSizeArray}
 
@@ -888,7 +888,7 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
 
@@ -996,7 +996,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
 
@@ -1094,7 +1094,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
 
