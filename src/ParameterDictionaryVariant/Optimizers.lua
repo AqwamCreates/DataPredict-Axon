@@ -644,7 +644,7 @@ function Optimizer.NesterovAcceleratedAdaptiveMomentEstimation(parameterDictiona
 		
 		optimizerInternalParameterArray[3] = timeValue
 
-		return tensor
+		return firstDerivativeTensor
 
 	end
 
@@ -729,8 +729,82 @@ function Optimizer.RectifiedAdaptiveMomentEstimation(parameterDictionary)
 			firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, meanMomentumTensor)
 
 		end
+		
+		optimizerInternalParameterArray[1] = momentumTensor
+		
+		optimizerInternalParameterArray[2] = velocityTensor
+		
+		optimizerInternalParameterArray[2] = timeValue
 
-		optimizerInternalParameterArray = {momentumTensor, velocityTensor, timeValue}
+		return firstDerivativeTensor
+
+	end
+
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+
+end
+
+function Optimizer.ResilientBackwardPropagation(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local etaPlus = parameterDictionary.etaPlus or parameterDictionary[1] or 0.5
+
+	local etaMinus = parameterDictionary.etaMinus or parameterDictionary[2] or 1.2
+
+	local maximumStepSize = parameterDictionary.maximumStepSize or parameterDictionary[3] or 1e-6
+
+	local minimumStepSize = parameterDictionary.minimumStepSize or parameterDictionary[4] or 50
+	
+	local weightDecayRate = parameterDictionary.weightDecayRate or parameterDictionary[5] or defaultWeightDecayRate
+
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[6]
+
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[7] or {}
+
+	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+
+		local previousGradientTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(costFunctionDerivativeTensor), 0)
+
+		local learningRateTensor = optimizerInternalParameterArray[2] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(costFunctionDerivativeTensor), learningRate)
+
+		local gradientTensor = firstDerivativeTensor
+		
+		if (weightDecayRate ~= 0) then
+
+			local decayedWeightTensor = AqwamTensorLibrary:multiply(weightDecayRate, tensor)
+
+			gradientTensor = AqwamTensorLibrary:add(gradientTensor, decayedWeightTensor)
+
+		end
+
+		local multipliedGradientTensor = AqwamTensorLibrary:multiply(gradientTensor, previousGradientTensor)
+
+		for i, unwrappedMultipliedGradientVector in ipairs(multipliedGradientTensor) do
+
+			for j, unwrappedGradientValue in ipairs(unwrappedMultipliedGradientVector) do
+
+				if (unwrappedGradientValue > 0) then
+
+					learningRateTensor[i][j] = math.min(learningRateTensor[i][j] * etaPlus, maximumStepSize)
+
+				elseif (unwrappedGradientValue < 0) then
+
+					learningRateTensor[i][j] = math.max(learningRateTensor[i][j] * etaMinus, minimumStepSize)
+
+					gradientTensor[i][j] = 0
+
+				end
+
+			end
+
+		end
+
+		local signTensor = AqwamTensorLibrary:applyFunction(math.sign, gradientTensor)
+
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRateTensor, signTensor)
+
+		NewResilientBackwardPropagationOptimizer.optimizerInternalParameterArray = {gradientTensor, learningRateTensor}
 
 		return firstDerivativeTensor
 
