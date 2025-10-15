@@ -28,6 +28,8 @@
 
 local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
+local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferentiationTensor)
+
 local EligibilityTrace = {}
 
 EligibilityTrace.__index = EligibilityTrace
@@ -110,35 +112,29 @@ function EligibilityTrace.ReplacingTrace()
 
 end
 
-function EligibilityTrace:increment(parameterDictionary)
-	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
-	
-	parameterDictionary = parameterDictionary or {}
-	
-	local actionIndex = parameterDictionary.actionIndex or parameterDictionary[1]
-	
-	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[2]
-	
-	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[3]
-
-	local eligibilityTraceTensor = self.eligibilityTraceTensor or AqwamTensorLibrary:createTensor(dimensionSizeArray, 0) 
-
-	eligibilityTraceTensor = AqwamTensorLibrary:multiply(eligibilityTraceTensor, discountFactor * self.lambda)
-
-	self.eligibilityTraceTensor = self.IncrementFunction(eligibilityTraceTensor, actionIndex)
-
-end
-
 function EligibilityTrace:calculate(parameterDictionary)
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	parameterDictionary = parameterDictionary or {}
 	
-	local temporalDifferenceErrorVector = parameterDictionary.temporalDifferenceErrorVector or parameterDictionary[1]
+	local temporalDifferenceError = parameterDictionary.temporalDifferenceError or parameterDictionary[1]
+	
+	local actionIndex = parameterDictionary.actionIndex or parameterDictionary[2]
+	
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3]
+	
+	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[4]
 
-	return AqwamTensorLibrary:multiply(temporalDifferenceErrorVector, self.eligibilityTraceTensor)
+	local eligibilityTraceTensor = self.eligibilityTraceTensor or AqwamTensorLibrary:createTensor(dimensionSizeArray, 0) 
+
+	eligibilityTraceTensor = AqwamTensorLibrary:multiply(eligibilityTraceTensor, discountFactor * self.lambda)
+
+	self.eligibilityTraceTensor = self.IncrementFunction(eligibilityTraceTensor, actionIndex)
+	
+	temporalDifferenceError = AutomaticDifferentiationTensor:fetchValue{temporalDifferenceError}
+	
+	return (temporalDifferenceError * eligibilityTraceTensor[1][actionIndex])
 
 end
 
