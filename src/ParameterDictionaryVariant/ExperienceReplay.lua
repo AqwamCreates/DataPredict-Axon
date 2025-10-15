@@ -194,17 +194,19 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	local addExperienceFunction = function()
 
-		local maxPriority = 1
+		local maximumPriority = 1
 
 		for i, priority in ipairs(priorityArray) do
 
-			if (priority <= maxPriority) then continue end
-
-			maxPriority = priority
+			if (priority > maximumPriority) then
+				
+				maximumPriority = priority
+				
+			end
 
 		end
 
-		table.insert(priorityArray, maxPriority)
+		table.insert(priorityArray, maximumPriority)
 
 		table.insert(weightArray, 0)
 
