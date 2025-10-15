@@ -252,6 +252,46 @@ function ValueScheduler.Polynomial(parameterDictionary)
 
 end
 
+function ValueScheduler.Sequential(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local ValueSchedulerArray = parameterDictionary.ValueSchedulerArray or parameterDictionary[1]
+
+	local timeValueArray = parameterDictionary.timeValueArray or parameterDictionary[2]
+	
+	local timeValue = parameterDictionary.timeValue or parameterDictionary[3]
+
+	if (not ValueSchedulerArray) then error("No value scheduler array.") end
+
+	local numberOfValueSchedulers = #ValueSchedulerArray
+
+	if (numberOfValueSchedulers <= 0) then error("No value scheduler.") end
+
+	if (not timeValueArray) then error("No time value array.") end
+
+	local numberOfTimeValueArray = #timeValueArray
+
+	if (numberOfTimeValueArray <= 0) then error("No time value.") end
+
+	if (numberOfValueSchedulers ~= numberOfTimeValueArray) then error("The number of value schedulers is not equal to the number of time values.") end
+
+	local CalculateFunction = function(value, timeValue) 
+
+		for i, ValueScheduler in ipairs(ValueSchedulerArray) do
+
+			if (timeValue <= timeValueArray[i]) then return ValueScheduler:calculate(value, timeValue) end
+
+		end
+
+		return ValueSchedulerArray[#ValueSchedulerArray]:calculate(value, timeValue) 
+		
+	end
+
+	return ValueScheduler.new({CalculateFunction, timeValue}) 
+
+end
+
 function ValueScheduler.Step(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
