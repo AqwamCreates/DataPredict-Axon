@@ -139,18 +139,24 @@ function BaseEligibilityTrace:calculate(parameterDictionary)
 end
 
 function BaseEligibilityTrace:getLambda()
+	
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	return self.lambda
 
 end
 
 function BaseEligibilityTrace:setLambda(lambda)
+	
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	self.lambda = lambda
 
 end
 
 function BaseEligibilityTrace:reset()
+	
+	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	self.eligibilityTraceTensor = nil
 
