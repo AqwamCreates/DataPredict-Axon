@@ -192,7 +192,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 	
 	local aggregateFunctionToApply = aggregrateFunctionList[aggregateFunction]
 
-	local addExperienceFunction = function()
+	local AddExperienceFunction = function()
 
 		local maximumPriority = 1
 
@@ -215,18 +215,16 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 		NewPrioritizedExperienceReplay:removeFirstValueFromArrayIfExceedsBufferSize(weightArray)
 
 	end
-
-	NewPrioritizedExperienceReplay:extendResetFunction(function()
+	
+	local ResetFunction = function()
 
 		table.clear(priorityArray)
 
 		table.clear(weightArray)
 
-	end)
+	end
 
-	local RunFunction = (function(UpdateFunction, replayBufferArray, batchSize)
-
-	
+	local RunFunction = function(UpdateFunction, replayBufferArray, batchSize)
 
 		local batchArray = {}
 
@@ -300,7 +298,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 		Model:update(sumLossMatrix, true)
 
-	end)
+	end
 
 	return ExperienceReplay.new({RunFunction})
 
