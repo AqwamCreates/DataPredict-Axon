@@ -130,7 +130,7 @@ function Optimizer.AdaptiveDelta(parameterDictionary)
 
 		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensorPart1)
 
-		optimizerInternalParameterArray = {currentRunningGradientSquaredTensor}
+		optimizerInternalParameterArray[1] = currentRunningGradientSquaredTensor
 
 		return firstDerivativeTensor
 
@@ -166,7 +166,7 @@ function Optimizer.AdaptiveFactor(parameterDictionary)
 
 		local secondMomentColumnFactorTensor = optimizerInternalParameterArray[2] or AqwamTensorLibrary:createTensor(dimensionSizeArray, 0)
 
-		local timeValue = optimizerInternalParameterArray[3] or 1
+		local timeValue = (optimizerInternalParameterArray[3] or 0) 1
 
 		local beta2 = 1 - math.pow(timeValue, beta2DecayRate)
 
@@ -242,10 +242,12 @@ function Optimizer.AdaptiveFactor(parameterDictionary)
 
 		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, finalUTensor)
 
-		timeValue = timeValue + 1
-
-		optimizerInternalParameterArray = {secondMomentRowFactorTensor, secondMomentColumnFactorTensor, timeValue}
-
+		optimizerInternalParameterArray[1] = secondMomentRowFactorTensor
+		
+		optimizerInternalParameterArray[2] = secondMomentColumnFactorTensor
+		
+		optimizerInternalParameterArray[3] = timeValue
+		
 		return firstDerivativeTensor
 
 	end
@@ -288,7 +290,7 @@ function Optimizer.AdaptiveGradient(parameterDictionary)
 
 		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensorPart1)
 
-		optimizerInternalParameterArray = {currentSumOfGradientSquaredTensor}
+		optimizerInternalParameterArray[1] = currentSumOfGradientSquaredTensor
 
 		return firstDerivativeTensor
 
@@ -320,7 +322,7 @@ function Optimizer.AdaptiveMomentEstimation(parameterDictionary)
 
 		local previousVelocityTensor = optimizerInternalParameterArray[2] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
-		local timeValue = optimizerInternalParameterArray[3] or 1
+		local timeValue = (optimizerInternalParameterArray[3] or 0) 1
 
 		local gradientTensor = firstDerivativeTensor
 
@@ -360,7 +362,11 @@ function Optimizer.AdaptiveMomentEstimation(parameterDictionary)
 
 		timeValue = timeValue + 1
 
-		optimizerInternalParameterArray = {momentumTensor, velocityTensor, timeValue}
+		optimizerInternalParameterArray[1] = momentumTensor
+		
+		optimizerInternalParameterArray[2] = velocityTensor
+		
+		optimizerInternalParameterArray[3] = timeValue
 
 		return firstDerivativeTensor
 
@@ -392,7 +398,7 @@ function Optimizer.AdaptiveMomentEstimationMaximum(parameterDictionary)
 
 		local exponentWeightTensor = optimizerInternalParameterArray[2] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
-		local timeValue = optimizerInternalParameterArray[3] or 1
+		local timeValue = (optimizerInternalParameterArray[3] or 0) + 1
 
 		local gradientTensor = firstDerivativeTensor
 
@@ -426,9 +432,11 @@ function Optimizer.AdaptiveMomentEstimationMaximum(parameterDictionary)
 
 		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensorPart1)
 
-		timeValue = timeValue + 1
-
-		optimizerInternalParameterArray = {momentTensor, exponentWeightTensor, timeValue}
+		optimizerInternalParameterArray[1] = momentTensor
+		
+		optimizerInternalParameterArray[2] = exponentWeightTensor
+		
+		optimizerInternalParameterArray[3] = timeValue
 
 		return firstDerivativeTensor
 
@@ -446,17 +454,17 @@ function Optimizer.Gravity(parameterDictionary)
 
 	local movingAverage = parameterDictionary.movingAverage or parameterDictionary[2] or 0.9
 
-	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
+	local weightDecayRate = parameterDictionary.weightDecayRate or parameterDictionary[3] or defaultWeightDecayRate
 
-	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[4] or {}
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[4]
 
-	local CalculateFunction = function(learningRate, tensor)
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[5] or {}
+
+	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousVelocityTensor = optimizerInternalParameterArray[1]
 
-		local currentTimeStep = optimizerInternalParameterArray[2] or 0
-
-		currentTimeStep = currentTimeStep + 1
+		local timeValue = (optimizerInternalParameterArray[2] or 0) + 1
 
 		if (not previousVelocityTensor) then
 
@@ -464,25 +472,35 @@ function Optimizer.Gravity(parameterDictionary)
 
 			local gaussianDensity = calculateGaussianDensity(0, standardDeviation)
 
-			previousVelocityTensor = AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), gaussianDensity)
+			previousVelocityTensor = AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(costFunctionDerivativeTensor), gaussianDensity)
 
 		end
 
-		local meanMovingAverage = ((movingAverage * currentTimeStep) + 1) / (currentTimeStep + 2)
+		local gradientTensor = firstDerivativeTensor
 
-		local absoluteMTensor = AqwamTensorLibrary:applyFunction(math.abs, tensor)
+		if (weightDecayRate ~= 0) then
 
-		local maxMTensor = AqwamTensorLibrary:findMaximumValue(absoluteMTensor)
+			local decayedWeightTensor = AqwamTensorLibrary:multiply(weightDecayRate, tensor)
 
-		local mTensor = AqwamTensorLibrary:divide(1, maxMTensor)
+			gradientTensor = AqwamTensorLibrary:add(gradientTensor, decayedWeightTensor)
 
-		local weirdLTensorPart1 = AqwamTensorLibrary:divide(tensor, mTensor)
+		end
+
+		local meanMovingAverage = ((movingAverage * timeValue) + 1) / (timeValue + 2)
+
+		local absoluteGradientTensor = AqwamTensorLibrary:applyFunction(math.abs, gradientTensor)
+
+		local maximumGradientValue = AqwamTensorLibrary:findMaximumValue(absoluteGradientTensor)
+
+		local mTensor = AqwamTensorLibrary:divide(1, maximumGradientValue)
+
+		local weirdLTensorPart1 = AqwamTensorLibrary:divide(gradientTensor, mTensor)
 
 		local weirdLTensorPart2 = AqwamTensorLibrary:power(weirdLTensorPart1, 2)
 
 		local weirdLTensorPart3 = AqwamTensorLibrary:add(1, weirdLTensorPart2)
 
-		local weirdLTensor = AqwamTensorLibrary:divide(tensor, weirdLTensorPart3)
+		local weirdLTensor = AqwamTensorLibrary:divide(gradientTensor, weirdLTensorPart3)
 
 		local velocityTensorPart1 = AqwamTensorLibrary:multiply(meanMovingAverage, previousVelocityTensor)
 
@@ -490,11 +508,11 @@ function Optimizer.Gravity(parameterDictionary)
 
 		local velocityTensor = AqwamTensorLibrary:add(velocityTensorPart1, velocityTensorPart2)
 
-		tensor = AqwamTensorLibrary:multiply(learningRate, velocityTensor) 
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, velocityTensor)
 
-		optimizerInternalParameterArray[1] = velocityTensor
+		optimizerInternalParameterArray[1] = velocityTensor 
 		
-		optimizerInternalParameterArray[2] = currentTimeStep
+		optimizerInternalParameterArray[2] = timeValue
 
 		return tensor
 
