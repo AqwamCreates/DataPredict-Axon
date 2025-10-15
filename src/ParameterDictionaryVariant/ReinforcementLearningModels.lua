@@ -416,7 +416,7 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local dimensionSizeArray = currentAdvantageValueTensor:getDimensionSizeArray()
 
 			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
 
@@ -769,7 +769,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		temporalDifferenceError:destroy{true}
+		temporalDifferenceErrorTensor:destroy{true}
 
 	end
 
@@ -1137,7 +1137,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
 
-		cost:destroy{true}
+		temporalDifferenceError:destroy{true}
 
 	end
 
