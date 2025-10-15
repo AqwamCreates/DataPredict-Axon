@@ -145,12 +145,12 @@ function EligibilityTrace:calculate(parameterDictionary)
 	temporalDifferenceError = AutomaticDifferentiationTensor:fetchValue{temporalDifferenceError}
 	
 	if (actionIndex) then
-
-		return AqwamTensorLibrary:multiply(temporalDifferenceError, eligibilityTraceTensor)
+		
+		return (temporalDifferenceError * eligibilityTraceTensor[1][actionIndex])
 
 	else
 
-		return (temporalDifferenceError * eligibilityTraceTensor[1][actionIndex])
+		return AqwamTensorLibrary:multiply(temporalDifferenceError, eligibilityTraceTensor)
 
 	end
 	
