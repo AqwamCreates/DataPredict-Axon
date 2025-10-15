@@ -34,14 +34,6 @@ ExperienceReplay.__index = ExperienceReplay
 
 local defaultBatchSize = 32
 
-local defaultAlpha = 0.6
-
-local defaultBeta = 0.4
-
-local defaultAggregateFunction = "Maximum"
-
-local defaultEpsilon = math.pow(10, -4)
-
 local aggregrateFunctionList = {
 
 	["Maximum"] = function (valueVector) 
@@ -179,16 +171,20 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 	parameterDictionary = parameterDictionary or {}
 	
 	local Model = parameterDictionary.Model
+	
+	if (not Model) then error("No Model!") end
 
-	local alpha = parameterDictionary.alpha
+	local alpha = parameterDictionary.alpha or 0.6
 
-	local beta = parameterDictionary.beta
+	local beta = parameterDictionary.beta or 0.4
 
-	local epsilon = parameterDictionary.epsilon
+	local epsilon = parameterDictionary.epsilon or 1e-16
+	
+	local aggregateFunction = parameterDictionary.aggregateFunction or "Maximum"
 
-	local replayBufferArray = parameterDictionary.replayBufferArray
+	local replayBufferArray = parameterDictionary.replayBufferArray or {}
 
-	local temporalDifferenceArray = parameterDictionary.temporalDifferenceErrorArray
+	local temporalDifferenceArray = parameterDictionary.temporalDifferenceErrorArray or {}
 
 	local priorityArray = parameterDictionary.priorityArray or {}
 
@@ -228,7 +224,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	local RunFunction = (function(UpdateFunction, replayBufferArray, batchSize)
 
-		if (not Model) then error("No Model!") end
+	
 
 		local batchArray = {}
 
