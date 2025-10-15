@@ -222,6 +222,20 @@ function ValueScheduler.MultipleStep(parameterDictionary)
 
 end
 
+function ValueScheduler.Multiplicative(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local functionToRun = parameterDictionary.functionToRun or parameterDictionary[1]
+
+	local timeValue = parameterDictionary.timeValue or parameterDictionary[2]
+
+	local CalculateFunction = function(value, timeValue) return (value * functionToRun(timeValue)) end
+
+	return ValueScheduler.new({CalculateFunction, timeValue}) 
+
+end
+
 function ValueScheduler:calculate(parameterDictionary)
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
