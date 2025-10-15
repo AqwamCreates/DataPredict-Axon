@@ -125,6 +125,8 @@ function EligibilityTrace:calculate(parameterDictionary)
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3]
 	
 	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[4]
+	
+	local isTemporalDifferenceErrorATensor = parameterDictionary.isTemporalDifferenceErrorATensor or parameterDictionary[5]
 
 	local eligibilityTraceTensor = self.eligibilityTraceTensor or AqwamTensorLibrary:createTensor(dimensionSizeArray, 0) 
 
@@ -134,7 +136,15 @@ function EligibilityTrace:calculate(parameterDictionary)
 	
 	temporalDifferenceError = AutomaticDifferentiationTensor:fetchValue{temporalDifferenceError}
 	
-	return (temporalDifferenceError * eligibilityTraceTensor[1][actionIndex])
+	if (isTemporalDifferenceErrorATensor) then
+		
+		return (temporalDifferenceError * eligibilityTraceTensor[1][actionIndex])
+		
+	else
+		
+		return AqwamTensorLibrary:multiply(temporalDifferenceError, eligibilityTraceTensor)
+		
+	end
 
 end
 
