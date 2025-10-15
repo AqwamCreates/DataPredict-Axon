@@ -514,7 +514,7 @@ function Optimizer.Gravity(parameterDictionary)
 		
 		optimizerInternalParameterArray[2] = timeValue
 
-		return tensor
+		return firstDerivativeTensor
 
 	end
 
