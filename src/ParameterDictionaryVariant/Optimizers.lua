@@ -780,15 +780,15 @@ function Optimizer.ResilientBackwardPropagation(parameterDictionary)
 
 		local multipliedGradientTensor = AqwamTensorLibrary:multiply(gradientTensor, previousGradientTensor)
 
-		for i, unwrappedMultipliedGradientVector in ipairs(multipliedGradientTensor) do
+		for i, subMultipliedGradientTensor in ipairs(multipliedGradientTensor) do
 
-			for j, unwrappedGradientValue in ipairs(unwrappedMultipliedGradientVector) do
+			for j, gradientValue in ipairs(subMultipliedGradientTensor) do
 
-				if (unwrappedGradientValue > 0) then
+				if (gradientValue > 0) then
 
 					learningRateTensor[i][j] = math.min(learningRateTensor[i][j] * etaPlus, maximumStepSize)
 
-				elseif (unwrappedGradientValue < 0) then
+				elseif (gradientValue < 0) then
 
 					learningRateTensor[i][j] = math.max(learningRateTensor[i][j] * etaMinus, minimumStepSize)
 
@@ -804,7 +804,9 @@ function Optimizer.ResilientBackwardPropagation(parameterDictionary)
 
 		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRateTensor, signTensor)
 
-		NewResilientBackwardPropagationOptimizer.optimizerInternalParameterArray = {gradientTensor, learningRateTensor}
+		optimizerInternalParameterArray[1] = gradientTensor
+		
+		optimizerInternalParameterArray[2] = learningRateTensor
 
 		return firstDerivativeTensor
 
@@ -818,19 +820,31 @@ function Optimizer.RootMeanSquarePropagation(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
-	local beta = parameterDictionary.beta or parameterDictionary[1] or 0.9
+	local beta = parameterDictionary.beta or defaultBeta
 
-	local epsilon = parameterDictionary.epsilon or parameterDictionary[2] or 1 * math.pow(10, -7)
+	local weightDecayRate = NewRootMeanSquarePropagationOptimizer.weightDecayRate or defaultWeightDecayRate
+
+	local epsilon = parameterDictionary.epsilon or defaultEpsilonValue
 
 	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[4] or {}
 
-	local CalculateFunction = function(learningRate, tensor)
+	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
-		local previousVelocity = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
+		local previousVelocity = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(costFunctionDerivativeTensor), 0)
 
-		local squaredCostFunctionDerivativeTensor = AqwamTensorLibrary:power(tensor, 2)
+		local gradientTensor = firstDerivativeTensor
+
+		if (weightDecayRate ~= 0) then
+
+			local decayedWeightTensor = AqwamTensorLibrary:multiply(weightDecayRate, tensor)
+
+			gradientTensor = AqwamTensorLibrary:add(gradientTensor, decayedWeightTensor)
+
+		end
+
+		local squaredCostFunctionDerivativeTensor = AqwamTensorLibrary:power(gradientTensor, 2)
 
 		local vTensorPart1 = AqwamTensorLibrary:multiply(beta, previousVelocity)
 
@@ -840,15 +854,15 @@ function Optimizer.RootMeanSquarePropagation(parameterDictionary)
 
 		local velocityNonZeroDivisorTensor = AqwamTensorLibrary:add(velocityTensor, epsilon)
 
-		local squaredRootVelocityTensor = AqwamTensorLibrary:power(velocityNonZeroDivisorTensor, 0.5)
+		local squaredRootVelocityTensor = AqwamTensorLibrary:applyFunction(math.sqrt, velocityNonZeroDivisorTensor)
 
-		local tensorPart1 = AqwamTensorLibrary:divide(tensor, squaredRootVelocityTensor)
+		local firstDerivativeTensorPart1 = AqwamTensorLibrary:divide(gradientTensor, squaredRootVelocityTensor)
 
-		tensor = AqwamTensorLibrary:multiply(learningRate, tensorPart1)
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensorPart1)
 
 		optimizerInternalParameterArray[1] = velocityTensor
 
-		return tensor
+		return firstDerivativeTensor
 
 	end
 
