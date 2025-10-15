@@ -1,4 +1,4 @@
-# DataPredict Axon™ Release Version
+# DataPredict™ Axon Release Version
 
 | Version               | Number Of Models | Number Of Recurrent Models | Number Of Optimizers | Number Of Value Schedulers | Number Of Cost Functions | Backward Incompatible Changes |
 |-----------------------|------------------|----------------------------|----------------------|----------------------------|--------------------------|-------------------------------|
