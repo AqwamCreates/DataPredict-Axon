@@ -570,59 +570,79 @@ function Optimizer.NesterovAcceleratedAdaptiveMomentEstimation(parameterDictiona
 	
 	parameterDictionary = parameterDictionary or {}
 
-	local beta1 = parameterDictionary.beta1 or parameterDictionary[1] or 0.9
+	local beta1 = parameterDictionary.beta1 or parameterDictionary[1] or defaultBeta1
 
-	local beta2 = parameterDictionary.beta2 or parameterDictionary[2] or 0.999
+	local beta2 = parameterDictionary.beta2 or parameterDictionary[2] or defaultBeta2
 
-	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or 1 * math.pow(10, -7)
+	local weightDecayRate = parameterDictionary.weightDecayRate or parameterDictionary[3] or defaultWeightDecayRate
 
-	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[4]
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[4] or defaultEpsilon
 
-	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[5] or {}
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[5]
 
-	local CalculateFunction = function(learningRate, tensor)
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[6] or {}
 
-		local previousMTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
+	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
-		local previousNTensor = optimizerInternalParameterArray[2] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
+		local previousMTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
-		local meanCostFunctionDerivativeTensor = AqwamTensorLibrary:divide(tensor, (1 - beta1))
+		local previousNTensor = optimizerInternalParameterArray[2] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
+
+		local timeValue = (optimizerInternalParameterArray[3] or 0) + 1
+
+		local gradientTensor = firstDerivativeTensor
+
+		if (weightDecayRate ~= 0) then
+
+			local decayedWeightTensor = AqwamTensorLibrary:multiply(weightDecayRate, tensor)
+
+			gradientTensor = AqwamTensorLibrary:add(gradientTensor, decayedWeightTensor)
+
+		end
+
+		local oneMinusBeta1 = (1 - beta1)
+
+		local meanCostFunctionDerivativeTensor = AqwamTensorLibrary:divide(gradientTensor, oneMinusBeta1)
 
 		local mTensorPart1 = AqwamTensorLibrary:multiply(beta1, previousMTensor)
 
-		local mTensorPart2 = AqwamTensorLibrary:multiply((1 - beta1), tensor)
+		local mTensorPart2 = AqwamTensorLibrary:multiply(oneMinusBeta1, gradientTensor)
 
 		local mTensor = AqwamTensorLibrary:add(mTensorPart1, mTensorPart2)
 
-		local meanMTensor = AqwamTensorLibrary:divide(mTensor, (1 - beta1))
+		local meanMTensor = AqwamTensorLibrary:divide(mTensor, oneMinusBeta1)
 
-		local squaredCostFunctionDerivatives = AqwamTensorLibrary:power(tensor, 2)
+		local squaredGradientDerivativeTensor = AqwamTensorLibrary:power(gradientTensor, 2)
 
 		local nTensorPart1 = AqwamTensorLibrary:multiply(beta2, previousNTensor)
 
-		local nTensorPart2 = AqwamTensorLibrary:multiply((1 - beta2), squaredCostFunctionDerivatives)
+		local nTensorPart2 = AqwamTensorLibrary:multiply((1 - beta2), squaredGradientDerivativeTensor)
 
 		local nTensor = AqwamTensorLibrary:add(nTensorPart1, nTensorPart2)
 
-		local meanNTensor = AqwamTensorLibrary:divide(nTensor, (1 - beta2))
+		local multipliedNTensor = AqwamTensorLibrary:multiply(beta2, nTensor)
 
-		local finalMTensorPart1 = AqwamTensorLibrary:multiply((1 - beta1), meanCostFunctionDerivativeTensor)
+		local meanNTensor = AqwamTensorLibrary:divide(multipliedNTensor, (1 - math.pow(beta2, timeValue)))
+
+		local finalMTensorPart1 = AqwamTensorLibrary:multiply(oneMinusBeta1, meanCostFunctionDerivativeTensor)
 
 		local finalMTensorPart2 = AqwamTensorLibrary:multiply(beta1, meanMTensor)
 
 		local finalMTensor = AqwamTensorLibrary:add(finalMTensorPart1, finalMTensorPart2)
 
-		local squareRootedDivisor = AqwamTensorLibrary:power(meanNTensor, 0.5)
+		local squareRootedDivisor = AqwamTensorLibrary:applyFunction(math.sqrt, meanNTensor)
 
-		local finalDivisor = AqwamTensorLibrary:add(squareRootedDivisor, epsilon)
+		local finalDivisor = AqwamTensorLibrary:add(squareRootedDivisor, NewNesterovAcceleratedAdaptiveMomentEstimationOptimizer.epsilon)
 
-		local tensorPart1 = AqwamTensorLibrary:divide(finalMTensor, finalDivisor)
+		local firstDerivativeTensorart1 = AqwamTensorLibrary:divide(finalMTensor, finalDivisor)
 
-		tensor = AqwamTensorLibrary:multiply(learningRate, tensorPart1)
+		firstDerivativeTensor = AqwamTensorLibrary:multiply(learningRate, firstDerivativeTensorart1)
 
 		optimizerInternalParameterArray[1] = mTensor
 		
 		optimizerInternalParameterArray[2] = nTensor
+		
+		optimizerInternalParameterArray[3] = timeValue
 
 		return tensor
 
