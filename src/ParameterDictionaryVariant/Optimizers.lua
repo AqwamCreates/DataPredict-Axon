@@ -188,9 +188,9 @@ function Optimizer.AdaptiveFactor(parameterDictionary)
 
 		local oneColumnTensor = AqwamTensorLibrary:createTensor({dimensionSizeArray[2], 1}, 1)
 
-		local transposedOneRowTensor = AqwamTensorLibrary:transpose(oneRowTensor)
+		local transposedOneRowTensor = AqwamTensorLibrary:transpose(oneRowTensor, {1, 2})
 
-		local transposedOneColumnTensor = AqwamTensorLibrary:transpose(oneColumnTensor)
+		local transposedOneColumnTensor = AqwamTensorLibrary:transpose(oneColumnTensor, {1, 2})
 
 		local dotProductOnTensor = AqwamTensorLibrary:dotProduct(oneRowTensor, transposedOneColumnTensor)
 
@@ -878,6 +878,8 @@ function Optimizer:calculate(parameterDictionary)
 	
 	local learningRate = parameterDictionary.learningRate or parameterDictionary[1]
 	
+	local firstDerivativeTensor = parameterDictionary.firstDerivativeTensor or parameterDictionary[2]
+	
 	local tensor = parameterDictionary.tensor or parameterDictionary[2]
 	
 	local CalculateFunction = self.CalculateFunction
@@ -888,7 +890,7 @@ function Optimizer:calculate(parameterDictionary)
 	
 	if (LearningRateValueScheduler) then learningRate = LearningRateValueScheduler:calculate{learningRate} end
 	
-	return CalculateFunction(learningRate, tensor)
+	return CalculateFunction(learningRate, firstDerivativeTensor, tensor)
 	
 end
 
