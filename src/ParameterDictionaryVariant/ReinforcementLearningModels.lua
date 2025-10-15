@@ -333,6 +333,8 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
 
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[3] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace
 
 	if (not Model) then error("No model.") end
 
@@ -349,14 +351,24 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
 
 		local lastValue = previousQValueTensor[1][actionIndex]
+		
+		local temporalDifferenceError = targetValue - lastValue
+		
+		local firstDerivativeValue
+		
+		if (EligibilityTrace) then
 
-		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
 
-		cost:differentiate()
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
+
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
-		cost:destroy{true}
+		temporalDifferenceError:destroy{true}
 
 	end
 
@@ -394,13 +406,23 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 		local lastValue = previousAdvantageValueTensor[1][actionIndex]
 
-		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
+		local temporalDifferenceError = targetValue - lastValue
 
-		cost:differentiate()
+		local firstDerivativeValue
+
+		if (EligibilityTrace) then
+
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
+
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
-		cost:destroy{true}
+		temporalDifferenceError:destroy{true}
 
 	end
 
@@ -452,17 +474,27 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 		local lastValue = previousQValueTensor[1][actionIndex]
 
-		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
+		local temporalDifferenceError = targetValue - lastValue
+
+		local firstDerivativeValue
+
+		if (EligibilityTrace) then
+
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
-		cost:differentiate()
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		cost:destroy{true}
+		temporalDifferenceError:destroy{true}
 
 	end
 
@@ -501,8 +533,18 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 		local lastValue = previousQValueTensor[1][actionIndex]
 
 		local temporalDifferenceError = targetValue - lastValue
+		
+		local firstDerivativeValue
 
-		temporalDifferenceError:differentiate()
+		if (EligibilityTrace) then
+
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
+
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
@@ -565,10 +607,20 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 			local previousQValueTensor = Model{previousFeatureTensor}
 
 			local previousQValue = previousQValueTensor[1][actionIndex]
+			
+			local temporalDifferenceError = minimumCurrentMaxQValue - previousQValue
+			
+			local firstDerivativeValue
 
-			local cost = CostFunctions.FastMeanSquaredError{minimumCurrentMaxQValue, previousQValue}
+			if (EligibilityTrace) then
 
-			cost:differentiate()
+				local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+				firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
+
+			end
+
+			temporalDifferenceError:differentiate{firstDerivativeValue}
 
 			WeightContainer:gradientAscent()
 
@@ -601,14 +653,24 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 		local currentQValueTensor = Model{currentStateTensor}
 
 		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
+		
+		local temporalDifferenceErrorTensor = targetQValueTensor - previousQValueTensor
+		
+		local firstDerivativeTensor
 
-		local costTensor = CostFunctions.FastMeanSquaredError{targetQValueTensor, previousQValueTensor}
+		if (EligibilityTrace) then
 
-		costTensor:differentiate()
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
+
+		temporalDifferenceErrorTensor:differentiate{firstDerivativeTensor}
 
 		WeightContainer:gradientAscent()
 
-		costTensor:destroy{true}
+		temporalDifferenceErrorTensor:destroy{true}
 
 	end
 
@@ -656,17 +718,27 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
 
-		local costTensor = CostFunctions.FastMeanSquaredError{targetQValueTensor, previousQValueTensor}
+		local temporalDifferenceErrorTensor = targetQValueTensor - previousQValueTensor
+
+		local firstDerivativeTensor
+
+		if (EligibilityTrace) then
+
+			local dimensionSizeArray = temporalDifferenceErrorTensor:getDimensionSizeArray()
+
+			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
-
-		costTensor:differentiate()
+		
+		temporalDifferenceErrorTensor:differentiate{firstDerivativeTensor}
 
 		WeightContainer:gradientAscent()
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		costTensor:destroy{true}
+		temporalDifferenceError:destroy{true}
 
 	end
 
@@ -700,9 +772,19 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
 
-		local costTensor = CostFunctions.FastMeanSquaredError{targetQValueTensor, previousQValueTensor}
+		local temporalDifferenceErrorTensor = targetQValueTensor - previousQValueTensor
 
-		costTensor:differentiate()
+		local firstDerivativeTensor
+
+		if (EligibilityTrace) then
+
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
+
+		temporalDifferenceErrorTensor:differentiate{firstDerivativeTensor}
 
 		WeightContainer:gradientAscent()
 
@@ -712,7 +794,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
 
-		costTensor:destroy{true}
+		firstDerivativeTensor:destroy{true}
 
 	end
 
@@ -784,13 +866,23 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 		local lastValue = previousQValueTensor[1][actionIndex]
 
-		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
+		local temporalDifferenceError = targetValue - lastValue
 
-		cost:differentiate()
+		local firstDerivativeValue
+
+		if (EligibilityTrace) then
+
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
+
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
-		cost:destroy{true}
+		temporalDifferenceError:destroy{true}
 
 	end
 
@@ -879,18 +971,28 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * expectedQValue)
 
 		local lastValue = previousQValueTensor[1][actionIndex]
+		
+		local temporalDifferenceError = targetValue - lastValue
 
-		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
+		local firstDerivativeValue
+
+		if (EligibilityTrace) then
+
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
-		cost:differentiate()
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		cost:destroy{true}
+		temporalDifferenceError:destroy{true}
 
 	end
 
@@ -966,9 +1068,19 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		local lastValue = previousQValueTensor[1][actionIndex]
 
-		local cost = CostFunctions.FastMeanSquaredError{targetValue, lastValue}
+		local temporalDifferenceError = targetValue - lastValue
 
-		cost:differentiate()
+		local firstDerivativeValue
+
+		if (EligibilityTrace) then
+
+			local dimensionSizeArray = temporalDifferenceError:getDimensionSizeArray()
+
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex, discountFactor, dimensionSizeArray}
+
+		end
+
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
