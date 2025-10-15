@@ -526,27 +526,39 @@ function Optimizer.Momentum(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 
-	local decayRate = parameterDictionary.decayRate or parameterDictionary[1] or 0.9
+	local decayRate = parameterDictionary.decayRate or parameterDictionary[1] or defaultDecayRate
 
-	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[2]
+	local weightDecayRate = NewMomentumOptimizer.weightDecayRate or parameterDictionary[2] or defaultWeightDecayRate
 
-	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[3] or {}
+	local LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
 
-	local CalculateFunction = function(learningRate, tensor)
+	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[4] or {}
 
-		local previousVelocityTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(tensor), 0)
+	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+
+		local previousVelocityTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
+
+		local gradientTensor = firstDerivativeTensor
+
+		if (weightDecayRate ~= 0) then
+
+			local decayedWeightTensor = AqwamTensorLibrary:multiply(weightDecayRate, tensor)
+
+			gradientTensor = AqwamTensorLibrary:add(gradientTensor, decayedWeightTensor)
+
+		end
 
 		local velocityTensorPart1 = AqwamTensorLibrary:multiply(decayRate, previousVelocityTensor)
 
-		local velocityTensorPart2 = AqwamTensorLibrary:multiply(learningRate, tensor)
+		local velocityTensorPart2 = AqwamTensorLibrary:multiply(learningRate, gradientTensor)
 
 		local velocityTensor = AqwamTensorLibrary:add(velocityTensorPart1, velocityTensorPart2)
 
-		tensor = velocityTensor
+		firstDerivativeTensor = velocityTensor
 
 		optimizerInternalParameterArray[1] = velocityTensor
 
-		return tensor
+		return firstDerivativeTensor
 
 	end
 
