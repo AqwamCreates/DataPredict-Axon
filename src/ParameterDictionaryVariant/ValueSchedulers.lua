@@ -252,6 +252,22 @@ function ValueScheduler.Polynomial(parameterDictionary)
 
 end
 
+function ValueScheduler.Step(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local otherTimeValue = parameterDictionary.timeValue or parameterDictionary[1] or 100
+
+	local decayRate = parameterDictionary.decayRate or parameterDictionary[2] or defaultDecayRate
+
+	local timeValue = parameterDictionary.otherTimeValue or parameterDictionary[3]
+
+	local CalculateFunction = function(value, timeValue) return (value * math.pow(decayRate, (math.floor(timeValue / otherTimeValue)))) end
+
+	return ValueScheduler.new({CalculateFunction, timeValue}) 
+
+end
+
 function ValueScheduler:calculate(parameterDictionary)
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
