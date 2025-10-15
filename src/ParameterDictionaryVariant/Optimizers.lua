@@ -632,7 +632,7 @@ function Optimizer.NesterovAcceleratedAdaptiveMomentEstimation(parameterDictiona
 
 		local squareRootedDivisor = AqwamTensorLibrary:applyFunction(math.sqrt, meanNTensor)
 
-		local finalDivisor = AqwamTensorLibrary:add(squareRootedDivisor, NewNesterovAcceleratedAdaptiveMomentEstimationOptimizer.epsilon)
+		local finalDivisor = AqwamTensorLibrary:add(squareRootedDivisor, epsilon)
 
 		local firstDerivativeTensorart1 = AqwamTensorLibrary:divide(finalMTensor, finalDivisor)
 
