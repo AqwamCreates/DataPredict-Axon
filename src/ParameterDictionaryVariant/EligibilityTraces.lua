@@ -146,7 +146,7 @@ function EligibilityTrace:getLambda()
 
 end
 
-function BaseEligibilityTrace:setLambda(lambda)
+function EligibilityTrace:setLambda(lambda)
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
@@ -154,7 +154,7 @@ function BaseEligibilityTrace:setLambda(lambda)
 
 end
 
-function BaseEligibilityTrace:reset()
+function EligibilityTrace:reset()
 	
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
