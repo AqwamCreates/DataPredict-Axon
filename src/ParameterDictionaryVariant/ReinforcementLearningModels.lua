@@ -134,7 +134,7 @@ function EligibilityTrace:increment(parameterDictionary)
 
 end
 
-function EligibilityTrace:increment(parameterDictionary)
+function EligibilityTrace:calculate(parameterDictionary)
 	
 	local temporalDifferenceError = parameterDictionary.temporalDifferenceError or parameterDictionary[1]
 	
