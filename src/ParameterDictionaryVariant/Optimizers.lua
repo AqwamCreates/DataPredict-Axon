@@ -76,9 +76,9 @@ function Optimizer.new(parameterDictionary)
 	
 	NewOptimizer.CalculateFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
 	
-	NewOptimizer.optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[2]
+	NewOptimizer.LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[2]
 	
-	NewOptimizer.LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[3]
+	NewOptimizer.optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[3]
 	
 	NewOptimizer.isAnObject = true
 	
@@ -136,7 +136,7 @@ function Optimizer.AdaptiveDelta(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -252,7 +252,7 @@ function Optimizer.AdaptiveFactor(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -296,7 +296,7 @@ function Optimizer.AdaptiveGradient(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -372,7 +372,7 @@ function Optimizer.AdaptiveMomentEstimation(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -442,7 +442,7 @@ function Optimizer.AdaptiveMomentEstimationMaximum(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -518,7 +518,7 @@ function Optimizer.Gravity(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -562,7 +562,7 @@ function Optimizer.Momentum(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -648,7 +648,7 @@ function Optimizer.NesterovAcceleratedAdaptiveMomentEstimation(parameterDictiona
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -690,7 +690,7 @@ function Optimizer.RootMeanSquarePropagation(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, optimizerInternalParameterArray, LearningRateValueScheduler})
+	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
