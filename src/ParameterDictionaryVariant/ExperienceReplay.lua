@@ -218,27 +218,27 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 	
 	local batchSize = parameterDictionary.batchSize or parameterDictionary[1] or defaultBatchSize
 	
-	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[3] 
+	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[2] 
 
-	local maximumBufferSize = parameterDictionary.maximumBufferSize or parameterDictionary[4]
+	local maximumBufferSize = parameterDictionary.maximumBufferSize or parameterDictionary[3]
 
-	local alpha = parameterDictionary.alpha or parameterDictionary[2] or 0.6
+	local alpha = parameterDictionary.alpha or parameterDictionary[4] or 0.6
 
-	local beta = parameterDictionary.beta or parameterDictionary[3] or 0.4
-
-	local epsilon = parameterDictionary.epsilon or parameterDictionary[4] or 1e-16
+	local beta = parameterDictionary.beta or parameterDictionary[5] or 0.4
 	
-	local aggregateFunction = parameterDictionary.aggregateFunction or "Maximum"
+	local aggregateFunction = parameterDictionary.aggregateFunction or parameterDictionary[6] or "Maximum"
 	
-	local numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[5]
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[7] or 1e-16
+	
+	local numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[8]
 
-	local replayBufferArray = parameterDictionary.replayBufferArray or {}
+	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[9] or {}
 
-	local temporalDifferenceArray = parameterDictionary.temporalDifferenceErrorArray or {}
+	local temporalDifferenceArray = parameterDictionary.temporalDifferenceErrorArray or parameterDictionary[10] or {}
 
-	local priorityArray = parameterDictionary.priorityArray or {}
+	local priorityArray = parameterDictionary.priorityArray or parameterDictionary[11] or {}
 
-	local weightArray = parameterDictionary.weightArray or {}
+	local weightArray = parameterDictionary.weightArray or parameterDictionary[12] or {}
 	
 	local aggregateFunctionToApply = aggregrateFunctionList[aggregateFunction]
 	
