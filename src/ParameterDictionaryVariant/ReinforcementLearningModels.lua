@@ -373,8 +373,12 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 		temporalDifferenceError:destroy{true}
 
 	end
+	
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+	
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -432,7 +436,11 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -508,7 +516,11 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -572,7 +584,11 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -651,7 +667,11 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -701,7 +721,11 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function() if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function() if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -773,7 +797,11 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -833,7 +861,11 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -925,7 +957,11 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -1039,7 +1075,11 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
@@ -1141,7 +1181,11 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction}
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
 end
 
