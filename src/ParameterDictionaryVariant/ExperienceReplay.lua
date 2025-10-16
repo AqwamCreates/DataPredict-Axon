@@ -46,9 +46,9 @@ local aggregrateFunctionList = {
 
 }
 
-local function removeFirstValueFromArrayIfExceedsBufferSize(targetArray, maxBufferSize)
+local function removeFirstValueFromArrayIfExceedsBufferSize(targetArray, maximumBufferSize)
 
-	if (#targetArray > maxBufferSize) then table.remove(targetArray, 1) end
+	if (#targetArray > maximumBufferSize) then table.remove(targetArray, 1) end
 
 end
 
@@ -161,7 +161,7 @@ function ExperienceReplay.NStepExperienceReplay(parameterDictionary)
 
 	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[6] or {}
 
-	local RunFunction = function(UpdateFunction, maximumBufferSize)
+	local RunFunction = function(UpdateFunction)
 
 		local replayBufferBatchArray = sampleBuffer(replayBufferArray, batchSize)
 
@@ -215,7 +215,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 	
 	local aggregateFunctionToApply = aggregrateFunctionList[aggregateFunction]
 	
-	local RunFunction = function(UpdateFunction, maximumBufferSize)
+	local RunFunction = function(UpdateFunction)
 
 		local batchArray = {}
 
@@ -289,7 +289,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	end
 
-	local AddTemporalDifferenceErrorFunction = function(maximumBufferSize)
+	local AddTemporalDifferenceErrorFunction = function()
 
 		local maximumPriority = 1
 
@@ -320,8 +320,6 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 		table.clear(weightArray)
 
 	end
-
-	
 
 	return ExperienceReplay.new({numberOfRunsToUpdate, maximumBufferSize, numberOfRuns, AddTemporalDifferenceErrorFunction, ResetFunction})
 
@@ -373,23 +371,23 @@ function ExperienceReplay:addExperience(...)
 
 	if (addExperienceFunction) then addExperienceFunction(...) end
 
-	self:removeFirstValueFromArrayIfExceedsBufferSize(replayBufferArray)
+	removeFirstValueFromArrayIfExceedsBufferSize(replayBufferArray, self.maximumBufferSize)
 
 end
 
 function ExperienceReplay:addTemporalDifferenceError(temporalDifferenceErrorVectorOrValue)
+	
+	local AddTemporalDifferenceErrorFunction = self.AddTemporalDifferenceErrorFunction
 
-	if (not self.isTemporalDifferenceErrorRequired) then return end
+	if (not AddTemporalDifferenceErrorFunction) then return end
 	
 	local temporalDifferenceErrorArray = self.temporalDifferenceErrorArray
 
 	table.insert(temporalDifferenceErrorArray, temporalDifferenceErrorVectorOrValue)
 
-	local AddTemporalDifferenceErrorFunction = self.AddTemporalDifferenceErrorFunction
-
 	if (AddTemporalDifferenceErrorFunction) then AddTemporalDifferenceErrorFunction(temporalDifferenceErrorVectorOrValue) end
 
-	self:removeFirstValueFromArrayIfExceedsBufferSize(temporalDifferenceErrorArray)
+	removeFirstValueFromArrayIfExceedsBufferSize(temporalDifferenceErrorArray, self.maximumBufferSize)
 
 end
 
