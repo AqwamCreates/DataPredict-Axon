@@ -34,7 +34,7 @@ ExperienceReplay.__index = ExperienceReplay
 
 local defaultBatchSize = 32
 
-local aggregrateFunctionList = {
+local aggregateFunctionList = {
 
 	["Maximum"] = function (valueVector) return valueVector:findMaximumValue() end,
 
@@ -61,10 +61,12 @@ local function sampleRandomBuffer(replayBufferArray, batchSize)
 	local replayBufferArraySize = #replayBufferArray
 
 	local lowestNumberOfBatchSize = math.min(batchSize, replayBufferArraySize)
+	
+	local RandomObject = Random.new()
 
 	for i = 1, lowestNumberOfBatchSize, 1 do
 
-		local index = Random.new():NextInteger(1, replayBufferArraySize)
+		local index = RandomObject:NextInteger(1, replayBufferArraySize)
 
 		table.insert(batchArray, replayBufferArray[index])
 
@@ -240,7 +242,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	local weightArray = parameterDictionary.weightArray or parameterDictionary[12] or {}
 	
-	local aggregateFunctionToApply = aggregrateFunctionList[aggregateFunction]
+	local aggregateFunctionToApply = aggregateFunctionList[aggregateFunction]
 	
 	local RunFunction = function(UpdateFunction)
 
