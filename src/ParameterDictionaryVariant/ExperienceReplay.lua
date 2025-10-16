@@ -52,6 +52,27 @@ local function removeFirstValueFromArrayIfExceedsBufferSize(targetArray, maximum
 
 end
 
+local function sampleRandomBuffer(replayBufferArray, batchSize)
+
+	local batchArray = {}
+
+	local replayBufferArray = replayBufferArray
+
+	local replayBufferArraySize = #replayBufferArray
+
+	local lowestNumberOfBatchSize = math.min(batchSize, replayBufferArraySize)
+
+	for i = 1, lowestNumberOfBatchSize, 1 do
+
+		local index = Random.new():NextInteger(1, replayBufferArraySize)
+
+		table.insert(batchArray, replayBufferArray[index])
+
+	end
+
+	return batchArray
+
+end
 
 local function sampleBuffer(replayBufferArray, batchSize)
 
@@ -140,7 +161,7 @@ function ExperienceReplay.UniformExperienceReplay(parameterDictionary)
 	
 	local RunFunction = function(UpdateFunction)
 		
-		local replayBufferBatchArray = sampleBuffer(replayBufferArray, batchSize)
+		local replayBufferBatchArray = sampleRandomBuffer(replayBufferArray, batchSize)
 
 		for _, experience in ipairs(replayBufferBatchArray) do UpdateFunction(table.unpack(experience)) end
 		
