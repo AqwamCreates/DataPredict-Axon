@@ -334,9 +334,9 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 		table.insert(weightArray, 0)
 
-		removeFirstValueFromArrayIfExceedsBufferSize(priorityArray)
+		removeFirstValueFromArrayIfExceedsBufferSize(priorityArray, maximumBufferSize)
 
-		removeFirstValueFromArrayIfExceedsBufferSize(weightArray)
+		removeFirstValueFromArrayIfExceedsBufferSize(weightArray, maximumBufferSize)
 
 	end
 	
