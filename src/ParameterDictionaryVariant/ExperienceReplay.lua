@@ -75,21 +75,27 @@ end
 
 local function sampleIndex(probabilityArray)
 
-	local randomProbability = math.random()
+	local sumProbability = 0
+
+	for i, probability in ipairs(probabilityArray) do
+
+		sumProbability = sumProbability + probability
+
+	end
+
+	local randomProbability = math.random() * sumProbability
 
 	local cumulativeProbability = 0
 
-	for i = #probabilityArray, 1, -1 do
-
-		local probability = probabilityArray[i]
+	for probabilityIndex, probability in ipairs(probabilityArray) do
 
 		cumulativeProbability = cumulativeProbability + probability
 
-		if (randomProbability >= cumulativeProbability) then continue end
-
-		return i, probability
+		if (randomProbability <= cumulativeProbability) then return probabilityIndex, probability end
 
 	end
+
+	return #probabilityArray, probabilityArray[#probabilityArray]
 
 end
 
@@ -269,7 +275,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 			priorityArray[index] = math.abs(temporalDifferenceErrorValueOrVector)
 
-			local outputMatrix = Model{replayBufferArray[i][1]}
+			local outputMatrix = Model{replayBufferArray[index][1]}
 
 			local lossMatrix = outputMatrix * temporalDifferenceErrorValueOrVector * importanceSamplingWeight
 
