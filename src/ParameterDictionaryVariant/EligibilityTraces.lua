@@ -64,7 +64,9 @@ function EligibilityTrace.AccumulatingTrace(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 	
-	parameterDictionary.IncrementFunction = function(eligibilityTraceTensor, actionIndex)
+	local lambda = parameterDictionary.lambda or parameterDictionary[1]
+	
+	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
 
 			eligibilityTraceTensor[1][actionIndex] = eligibilityTraceTensor[1][actionIndex] + 1
 
@@ -72,7 +74,7 @@ function EligibilityTrace.AccumulatingTrace(parameterDictionary)
 
 		end
 
-	return EligibilityTrace.new(parameterDictionary)
+	return EligibilityTrace.new({IncrementFunction, lambda})
 	
 end
 
@@ -96,11 +98,13 @@ function EligibilityTrace.DutchTrace(parameterDictionary)
 
 end
 
-function EligibilityTrace.ReplacingTrace()
+function EligibilityTrace.ReplacingTrace(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
+	
+	local lambda = parameterDictionary.lambda or parameterDictionary[1]
 
-	parameterDictionary.IncrementFunction = function(eligibilityTraceTensor, actionIndex)
+	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
 
 		eligibilityTraceTensor[1][actionIndex] = 1
 
@@ -108,7 +112,7 @@ function EligibilityTrace.ReplacingTrace()
 
 	end
 
-	return EligibilityTrace.new(parameterDictionary)
+	return EligibilityTrace.new({IncrementFunction, lambda}))
 
 end
 
