@@ -112,7 +112,7 @@ function EligibilityTrace.ReplacingTrace(parameterDictionary)
 
 	end
 
-	return EligibilityTrace.new({IncrementFunction, lambda}))
+	return EligibilityTrace.new({IncrementFunction, lambda})
 
 end
 
