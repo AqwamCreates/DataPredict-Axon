@@ -216,7 +216,7 @@ local function wrapUnaryOperation(operatorFunction, derivativeFunction)
 
 				local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
 
-				local partialDerivativeTensor = derivativeFunction(firstDerivativeTensor, tensorValue, resultValue)
+				local partialDerivativeTensor = derivativeFunction(firstDerivativeTensor, tensorValue, resultTensor)
 
 				tensor:differentiate{partialDerivativeTensor}
 
@@ -514,7 +514,7 @@ local unaryOperationDictionary = {
 	tan = {
 
 		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.tan, tensor) end,
-		derivativeFunction = function(firstDerivativeTensor,tensor) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, radianValue) return firstDerivativeValue * math.pow((1 / math.cos(radian)), 2) end, firstDerivativeTensor, tensor) end
+		derivativeFunction = function(firstDerivativeTensor,tensor) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, radianValue) return firstDerivativeValue * math.pow((1 / math.cos(radianValue)), 2) end, firstDerivativeTensor, tensor) end
 
 	},
 	
@@ -818,6 +818,8 @@ local dimensionOperationDictionary = {
 		operatorFunction = function(tensor, dimension) return AqwamTensorLibrary:mean(tensor, dimension) end,
 		derivativeFunction = function(firstDerivativeTensor, tensor, dimension)
 			
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
+			
 			if (dimension) then
 
 				totalNumberOfElements = dimensionSizeArray[dimension]
@@ -845,6 +847,8 @@ local dimensionOperationDictionary = {
 
 		operatorFunction = function(tensor, dimension) return AqwamTensorLibrary:standardDeviation(tensor, dimension) end,
 		derivativeFunction = function(firstDerivativeTensor, tensor, dimension)
+			
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 			if (dimension) then
 
@@ -873,7 +877,7 @@ local dimensionOperationDictionary = {
 		operatorFunction = function(tensor, dimension) return AqwamTensorLibrary:zScoreNormalization(tensor, dimension) end,
 		derivativeFunction = function(firstDerivativeTensor, tensor, dimension)
 
-			local standardDeviationTensor = AqwamTensorLibrary:standardDeviation(pureTensor, dimension)
+			local standardDeviationTensor = AqwamTensorLibrary:standardDeviation(tensor, dimension)
 
 			local firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, standardDeviationTensor)
 
