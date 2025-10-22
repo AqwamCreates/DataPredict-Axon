@@ -26,38 +26,414 @@
 
 --]]
 
-local DataPredictAxon = {}
+local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
-DataPredictAxon.AutomaticDifferentiationTensor = require(script.AutomaticDifferentiationTensor)
+local ExperienceReplay = {}
 
-DataPredictAxon.ActivationLayers = require(script.ActivationLayers)
+ExperienceReplay.__index = ExperienceReplay
 
-DataPredictAxon.CostFunctions = require(script.CostFunctions)
+local defaultBatchSize = 32
 
-DataPredictAxon.ConvolutionLayers = require(script.ConvolutionLayers)
+local defaultMaximumBatchSize = 100
 
-DataPredictAxon.PoolingLayers = require(script.PoolingLayers)
+local aggregateFunctionList = {
 
-DataPredictAxon.PaddingLayers = require(script.PaddingLayers)
+	["Maximum"] = function (valueVector) return valueVector:findMaximumValue() end,
 
-DataPredictAxon.DropoutLayers = require(script.DropoutLayers)
+	["Minimum"] = function (valueVector) return valueVector:findMinimumValue() end,
 
-DataPredictAxon.EncodingLayers = require(script.EncodingLayers)
+	["Sum"] = function (valueVector) return valueVector:sum() end,
 
-DataPredictAxon.WeightContainer = require(script.WeightContainer)
+	["Average"] = function (valueVector) return valueVector:mean() end,
 
-DataPredictAxon.Optimizers = require(script.Optimizers)
+}
 
-DataPredictAxon.ValueSchedulers = require(script.ValueSchedulers)
+local function removeFirstValueFromArrayIfExceedsBufferSize(targetArray, maximumBufferSize)
 
-DataPredictAxon.Regularizers = require(script.Regularizers)
+	if (#targetArray > maximumBufferSize) then table.remove(targetArray, 1) end
 
-DataPredictAxon.ReinforcementLearningModels = require(script.ReinforcementLearningModels)
+end
 
-DataPredictAxon.EligibilityTraces = require(script.EligibilityTraces)
+local function sampleRandomBuffer(replayBufferArray, batchSize)
 
-DataPredictAxon.ExperienceReplays = require(script.ExperienceReplays)
+	local batchArray = {}
 
-DataPredictAxon.RecurrentModels = require(script.RecurrentModels)
+	local replayBufferArray = replayBufferArray
 
-return DataPredictAxon
+	local replayBufferArraySize = #replayBufferArray
+
+	local lowestNumberOfBatchSize = math.min(batchSize, replayBufferArraySize)
+	
+	local RandomObject = Random.new()
+
+	for i = 1, lowestNumberOfBatchSize, 1 do
+
+		local index = RandomObject:NextInteger(1, replayBufferArraySize)
+
+		table.insert(batchArray, replayBufferArray[index])
+
+	end
+
+	return batchArray
+
+end
+
+local function sampleBuffer(replayBufferArray, batchSize)
+
+	local batchArray = {}
+
+	local replayBufferArray = replayBufferArray
+
+	local replayBufferArraySize = #replayBufferArray
+
+	local lowestNumberOfBatchSize = math.min(batchSize, replayBufferArraySize)
+
+	for i = 1, lowestNumberOfBatchSize, 1 do
+
+		table.insert(batchArray, replayBufferArray[i])
+
+	end
+
+	return batchArray
+
+end
+
+local function sampleIndex(probabilityArray)
+
+	local sumProbability = 0
+
+	for i, probability in ipairs(probabilityArray) do
+
+		sumProbability = sumProbability + probability
+
+	end
+
+	local randomProbability = math.random() * sumProbability
+
+	local cumulativeProbability = 0
+
+	for probabilityIndex, probability in ipairs(probabilityArray) do
+
+		cumulativeProbability = cumulativeProbability + probability
+
+		if (randomProbability <= cumulativeProbability) then return probabilityIndex, probability end
+
+	end
+
+	return #probabilityArray, probabilityArray[#probabilityArray]
+
+end
+
+
+function ExperienceReplay.new(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local NewExperienceReplay = {}
+
+	setmetatable(NewExperienceReplay, ExperienceReplay)
+
+	NewExperienceReplay.numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[1] or 1
+
+	NewExperienceReplay.numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[2] or 0
+	
+	NewExperienceReplay.RunFunction = parameterDictionary.RunFunction or parameterDictionary[3]
+	
+	NewExperienceReplay.ResetFunction = parameterDictionary.ResetFunction or parameterDictionary[4]
+	
+	NewExperienceReplay.AddExperienceFunction = parameterDictionary.AddExperienceFunction or parameterDictionary[5]
+
+	NewExperienceReplay.AddTemporalDifferenceErrorFunction = parameterDictionary.AddTemporalDifferenceErrorFunction or parameterDictionary[6]
+	
+	return NewExperienceReplay
+
+end
+
+function ExperienceReplay.UniformExperienceReplay(parameterDictionary)
+	
+	parameterDictionary = parameterDictionary or {}
+	
+	local batchSize = parameterDictionary.batchSize or parameterDictionary[1] or defaultBatchSize
+
+	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[2]
+
+	local maximumBufferSize = parameterDictionary.maximumBufferSize or parameterDictionary[3] or defaultMaximumBatchSize
+
+	local numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[4] 
+
+	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[5] or {}
+	
+	local RunFunction = function(UpdateFunction)
+		
+		local replayBufferBatchArray = sampleRandomBuffer(replayBufferArray, batchSize)
+
+		for _, experience in ipairs(replayBufferBatchArray) do UpdateFunction(table.unpack(experience)) end
+		
+	end
+	
+	local ResetFunction = function() table.clear(replayBufferArray) end
+	
+	local AddExperienceFunction = function(experience) 
+		
+		table.insert(replayBufferArray, experience)
+		
+		removeFirstValueFromArrayIfExceedsBufferSize(replayBufferArray, maximumBufferSize)
+		
+	end
+	
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction})
+	
+end
+
+
+function ExperienceReplay.NStepExperienceReplay(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+	
+	local batchSize = parameterDictionary.batchSize or parameterDictionary[1] or defaultBatchSize
+
+	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[2]
+
+	local maximumBufferSize = parameterDictionary.maximumBufferSize or parameterDictionary[3] or defaultMaximumBatchSize
+	
+	local nStep = parameterDictionary.nStep or parameterDictionary[4] or 3
+
+	local numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[5] 
+
+	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[6] or {}
+
+	local RunFunction = function(UpdateFunction)
+
+		local replayBufferBatchArray = sampleBuffer(replayBufferArray, batchSize)
+
+		local replayBufferArraySize = #replayBufferArray
+
+		local replayBufferBatchArraySize = #replayBufferBatchArray
+
+		local nStep = math.min(nStep, replayBufferBatchArraySize)
+
+		local finalBatchArrayIndex = (replayBufferBatchArraySize - nStep) + 1
+
+		for i = replayBufferBatchArraySize, finalBatchArrayIndex, -1 do UpdateFunction(table.unpack(replayBufferBatchArray[i])) end
+
+	end
+	
+	local ResetFunction = function() table.clear(replayBufferArray) end
+	
+	local AddExperienceFunction = function(experience) 
+
+		table.insert(replayBufferArray, experience)
+
+		removeFirstValueFromArrayIfExceedsBufferSize(replayBufferArray, maximumBufferSize)
+
+	end
+
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction})
+
+end
+
+function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+	
+	local Model = parameterDictionary.Model
+	
+	if (not Model) then error("No Model!") end
+	
+	local batchSize = parameterDictionary.batchSize or parameterDictionary[1] or defaultBatchSize
+	
+	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[2]
+
+	local maximumBufferSize = parameterDictionary.maximumBufferSize or parameterDictionary[3] or defaultMaximumBatchSize
+
+	local alpha = parameterDictionary.alpha or parameterDictionary[4] or 0.6
+
+	local beta = parameterDictionary.beta or parameterDictionary[5] or 0.4
+	
+	local aggregateFunction = parameterDictionary.aggregateFunction or parameterDictionary[6] or "Maximum"
+	
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[7] or 1e-16
+	
+	local numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[8]
+
+	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[9] or {}
+
+	local temporalDifferenceErrorArray = parameterDictionary.temporalDifferenceErrorArray or parameterDictionary[10] or {}
+
+	local priorityArray = parameterDictionary.priorityArray or parameterDictionary[11] or {}
+
+	local weightArray = parameterDictionary.weightArray or parameterDictionary[12] or {}
+	
+	local aggregateFunctionToApply = aggregateFunctionList[aggregateFunction]
+	
+	local RunFunction = function(UpdateFunction)
+
+		local batchArray = {}
+
+		local replayBufferArraySize = #replayBufferArray
+
+		local lowestNumberOfBatchSize = math.min(batchSize, replayBufferArraySize)		
+
+		local probabilityArray = {}
+
+		local sumPriorityAlpha = 0
+
+		for i, priority in ipairs(priorityArray) do
+
+			local priorityAlpha = math.pow(priority, alpha)
+
+			probabilityArray[i] = priorityAlpha
+
+			sumPriorityAlpha = sumPriorityAlpha + priorityAlpha
+
+		end
+
+		for i, probability in ipairs(probabilityArray) do
+
+			probabilityArray[i] = probability / sumPriorityAlpha
+
+		end
+
+		local sizeArray = AqwamTensorLibrary:getDimensionSizeArray(replayBufferArray[1][1])
+
+		local inputMatrix = AqwamTensorLibrary:createTensor(sizeArray, 1)
+
+		local sumLossMatrix
+
+		for i = 1, lowestNumberOfBatchSize, 1 do
+
+			local index, probability = sampleIndex(probabilityArray, sumPriorityAlpha)
+
+			local experience = replayBufferArray[index]
+
+			local temporalDifferenceErrorValueOrVector = temporalDifferenceErrorArray[index]
+
+			local importanceSamplingWeight = math.pow((lowestNumberOfBatchSize * probability), -beta) / math.max(table.unpack(weightArray), epsilon) 
+
+			if (type(temporalDifferenceErrorValueOrVector) ~= "number") then
+
+				temporalDifferenceErrorValueOrVector = aggregateFunctionToApply(temporalDifferenceErrorValueOrVector)
+
+			end
+
+			weightArray[index] = importanceSamplingWeight
+
+			priorityArray[index] = math.abs(temporalDifferenceErrorValueOrVector)
+
+			local outputMatrix = Model{replayBufferArray[index][1]}
+
+			local lossMatrix = outputMatrix * temporalDifferenceErrorValueOrVector * importanceSamplingWeight
+
+			if (sumLossMatrix) then
+
+				sumLossMatrix = sumLossMatrix + lossMatrix
+
+			else
+
+				sumLossMatrix = lossMatrix
+
+			end
+
+		end
+		
+		if (sumLossMatrix) then sumLossMatrix:differentiate() end
+
+	end
+	
+	local ResetFunction = function()
+		
+		table.clear(replayBufferArray) 
+
+		table.clear(temporalDifferenceErrorArray)
+
+		table.clear(priorityArray)
+
+		table.clear(weightArray)
+
+	end
+	
+	local AddExperienceFunction = function(experience)
+		
+		local maximumPriority = 1
+
+		for i, priority in ipairs(priorityArray) do
+
+			if (priority > maximumPriority) then
+
+				maximumPriority = priority
+
+			end
+
+		end
+		
+		table.insert(replayBufferArray, experience) 
+
+		table.insert(priorityArray, maximumPriority)
+
+		table.insert(weightArray, 0)
+		
+		removeFirstValueFromArrayIfExceedsBufferSize(replayBufferArray, maximumBufferSize)
+
+		removeFirstValueFromArrayIfExceedsBufferSize(priorityArray, maximumBufferSize)
+
+		removeFirstValueFromArrayIfExceedsBufferSize(weightArray, maximumBufferSize)
+		
+	end
+
+	local AddTemporalDifferenceErrorFunction = function(temporalDifferenceErrorVectorOrValue)
+		
+		table.insert(temporalDifferenceErrorArray, temporalDifferenceErrorVectorOrValue) 
+		
+		removeFirstValueFromArrayIfExceedsBufferSize(temporalDifferenceErrorArray, maximumBufferSize)
+
+	end
+	
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction, AddTemporalDifferenceErrorFunction})
+
+end
+
+function ExperienceReplay:reset()
+
+	self.numberOfRuns = 0
+
+	local ResetFunction = self.ResetFunction
+
+	if ResetFunction then ResetFunction() end
+
+end
+
+function ExperienceReplay:run(parameterDictionary)
+	
+	local numberOfRuns = self.numberOfRuns + 1
+
+	self.numberOfRuns = numberOfRuns
+
+	if (numberOfRuns < self.numberOfRunsToUpdate) then return end
+
+	self.numberOfRuns = 0
+	
+	local UpdateFunction = parameterDictionary.UpdateFunction or parameterDictionary[1]
+
+	self.RunFunction(UpdateFunction)
+
+end
+
+function ExperienceReplay:addExperience(parameterDictionary)
+
+	local AddExperienceFunction = self.AddExperienceFunction
+
+	if (AddExperienceFunction) then AddExperienceFunction(parameterDictionary) end
+
+end
+
+function ExperienceReplay:addTemporalDifferenceError(parameterDictionary)
+	
+	local temporalDifferenceErrorVectorOrValue = parameterDictionary.temporalDifferenceErrorVectorOrValue or parameterDictionary[1]
+	
+	local AddTemporalDifferenceErrorFunction = self.AddTemporalDifferenceErrorFunction
+
+	if (AddTemporalDifferenceErrorFunction) then AddTemporalDifferenceErrorFunction(temporalDifferenceErrorVectorOrValue) end
+
+end
+
+return ExperienceReplay
