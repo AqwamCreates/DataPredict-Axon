@@ -880,15 +880,11 @@ function Optimizer:calculate(parameterDictionary)
 	
 	local tensor = parameterDictionary.tensor or parameterDictionary[2]
 	
-	local CalculateFunction = self.CalculateFunction
-	
-	if (not CalculateFunction) then error("No calculate function.") end
-	
 	local LearningRateValueScheduler = self.LearningRateValueScheduler
 	
 	if (LearningRateValueScheduler) then learningRate = LearningRateValueScheduler:calculate{learningRate} end
 	
-	return CalculateFunction(learningRate, firstDerivativeTensor, tensor)
+	return self.CalculateFunction(learningRate, firstDerivativeTensor, tensor)
 	
 end
 
