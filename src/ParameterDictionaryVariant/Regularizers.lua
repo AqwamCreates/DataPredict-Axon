@@ -28,9 +28,9 @@
 
 local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
-local ErrorFunctions = require(script.Parent.ErrorFunctions)
+local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
 
-local showFunctionErrorDueToNonObjectCondition = ErrorFunctions.showFunctionErrorDueToNonObjectCondition
+local showFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.showFunctionErrorDueToNonObjectCondition
 
 local Regularizer = {}
 
