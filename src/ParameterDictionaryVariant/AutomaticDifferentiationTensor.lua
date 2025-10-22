@@ -1771,7 +1771,7 @@ end
 
 function AHAAutomaticDifferentiationTensor:isScalar()
 
-	return (type(AqwamTensorLibrary:fetchValue{self}) == "number")
+	return (type(AHAAutomaticDifferentiationTensor:fetchValue{self}) == "number")
 
 end
 
