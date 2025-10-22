@@ -32,6 +32,10 @@ local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferenti
 
 local CostFunctions = require(script.Parent.CostFunctions)
 
+local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
+
+local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
+
 local ReinforcementLearningModels = {}
 
 local defaultClipRatio = 0.3
@@ -167,6 +171,8 @@ function ReinforcementLearningModels.new(parameterDictionary)
 	self.episodeUpdateFunction = parameterDictionary.episodeUpdateFunction or parameterDictionary[3]
 	
 	self.resetFunction = parameterDictionary.resetFunction or parameterDictionary[4]
+	
+	self.isAnObject = true
 
 	return self
 
@@ -2364,6 +2370,8 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 end
 
 function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local categoricalUpdateFunction = self.categoricalUpdateFunction
 
@@ -2394,6 +2402,8 @@ function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
 end
 
 function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local diagonalGaussianUpdateFunction = self.diagonalGaussianUpdateFunction
 
@@ -2426,6 +2436,8 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
 end
 
 function ReinforcementLearningModels:episodeUpdate(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local episodeUpdateFunction = self.episodeUpdateFunction
 
@@ -2440,6 +2452,8 @@ function ReinforcementLearningModels:episodeUpdate(parameterDictionary)
 end
 
 function ReinforcementLearningModels:reset(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local resetFunction = self.resetFunction
 
