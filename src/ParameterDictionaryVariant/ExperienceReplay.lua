@@ -28,6 +28,8 @@
 
 local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
+local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferentiationTensor)
+
 local ExperienceReplay = {}
 
 ExperienceReplay.__index = ExperienceReplay
@@ -236,10 +238,6 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 	
-	local Model = parameterDictionary.Model or parameterDictionary[1]
-	
-	if (not Model) then error("No Model!") end
-	
 	local batchSize = parameterDictionary.batchSize or parameterDictionary[1] or defaultBatchSize
 	
 	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[2]
@@ -279,8 +277,10 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 		local sumPriorityAlpha = 0
 
 		for i, priority in ipairs(priorityArray) do
+			
+			local priorityValue = AutomaticDifferentiationTensor:fetchValue{priority}
 
-			local priorityAlpha = math.pow(priority, alpha)
+			local priorityAlpha = math.pow(priorityValue, alpha)
 
 			probabilityArray[i] = priorityAlpha
 
@@ -306,7 +306,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 			local importanceSamplingWeight = math.pow((lowestNumberOfBatchSize * probability), -beta) / math.max(table.unpack(weightArray), epsilon) 
 
-			if (type(temporalDifferenceErrorValueOrVector) ~= "number") then
+			if (not temporalDifferenceErrorValueOrVector:isScalar()) then
 
 				temporalDifferenceErrorValueOrVector = aggregateFunctionToApply(temporalDifferenceErrorValueOrVector)
 
@@ -314,11 +314,9 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 			weightArray[index] = importanceSamplingWeight
 
-			priorityArray[index] = math.abs(temporalDifferenceErrorValueOrVector)
+			priorityArray[index] = temporalDifferenceErrorValueOrVector:absolute()
 
-			local outputMatrix = Model(replayBufferArray[index][1])
-
-			local lossMatrix = outputMatrix * temporalDifferenceErrorValueOrVector * importanceSamplingWeight
+			local lossMatrix =  temporalDifferenceErrorValueOrVector * importanceSamplingWeight
 
 			if (sumLossMatrix) then
 
@@ -353,10 +351,12 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 		local maximumPriority = 1
 
 		for i, priority in ipairs(priorityArray) do
+			
+			local priorityValue = AutomaticDifferentiationTensor:fetchValue{priority}
 
-			if (priority > maximumPriority) then
+			if (priorityValue > maximumPriority) then
 
-				maximumPriority = priority
+				maximumPriority = priorityValue
 
 			end
 
