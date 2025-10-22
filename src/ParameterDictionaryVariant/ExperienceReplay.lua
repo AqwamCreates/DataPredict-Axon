@@ -30,6 +30,10 @@ local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
 local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferentiationTensor)
 
+local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
+
+local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
+
 local ExperienceReplay = {}
 
 ExperienceReplay.__index = ExperienceReplay
@@ -146,6 +150,8 @@ function ExperienceReplay.new(parameterDictionary)
 	NewExperienceReplay.AddExperienceFunction = parameterDictionary.AddExperienceFunction or parameterDictionary[5]
 
 	NewExperienceReplay.AddTemporalDifferenceErrorFunction = parameterDictionary.AddTemporalDifferenceErrorFunction or parameterDictionary[6]
+	
+	NewExperienceReplay.isAnObject = true
 	
 	return NewExperienceReplay
 
@@ -389,6 +395,8 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 end
 
 function ExperienceReplay:reset()
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	self.numberOfRuns = 0
 
@@ -399,6 +407,8 @@ function ExperienceReplay:reset()
 end
 
 function ExperienceReplay:run(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	local numberOfRuns = self.numberOfRuns + 1
 
@@ -415,6 +425,8 @@ function ExperienceReplay:run(parameterDictionary)
 end
 
 function ExperienceReplay:addExperience(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	local AddExperienceFunction = self.AddExperienceFunction
 
@@ -423,6 +435,8 @@ function ExperienceReplay:addExperience(parameterDictionary)
 end
 
 function ExperienceReplay:addTemporalDifferenceError(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	local temporalDifferenceErrorVectorOrValue = parameterDictionary.temporalDifferenceErrorVectorOrValue or parameterDictionary[1]
 	
