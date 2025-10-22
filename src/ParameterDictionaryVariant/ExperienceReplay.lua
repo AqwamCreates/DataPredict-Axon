@@ -167,7 +167,7 @@ function ExperienceReplay.UniformExperienceReplay(parameterDictionary)
 		
 		local replayBufferBatchArray = sampleRandomBuffer(replayBufferArray, batchSize)
 
-		for _, experience in ipairs(replayBufferBatchArray) do UpdateFunction(table.unpack(experience)) end
+		for _, experience in ipairs(replayBufferBatchArray) do UpdateFunction(experience) end
 		
 	end
 	
@@ -214,7 +214,7 @@ function ExperienceReplay.NStepExperienceReplay(parameterDictionary)
 
 		local finalBatchArrayIndex = (replayBufferBatchArraySize - nStep) + 1
 
-		for i = replayBufferBatchArraySize, finalBatchArrayIndex, -1 do UpdateFunction(table.unpack(replayBufferBatchArray[i])) end
+		for i = replayBufferBatchArraySize, finalBatchArrayIndex, -1 do UpdateFunction(replayBufferBatchArray[i]) end
 
 	end
 	
@@ -236,7 +236,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 	
-	local Model = parameterDictionary.Model
+	local Model = parameterDictionary.Model or parameterDictionary[1]
 	
 	if (not Model) then error("No Model!") end
 	
@@ -402,7 +402,7 @@ function ExperienceReplay:reset()
 
 end
 
-function ExperienceReplay:run(updateFunction)
+function ExperienceReplay:run(parameterDictionary)
 	
 	local numberOfRuns = self.numberOfRuns + 1
 
@@ -411,8 +411,10 @@ function ExperienceReplay:run(updateFunction)
 	if (numberOfRuns < self.numberOfRunsToUpdate) then return end
 
 	self.numberOfRuns = 0
+	
+	local UpdateFunction = parameterDictionary.UpdateFunction or parameterDictionary[1]
 
-	self.RunFunction(updateFunction)
+	self.RunFunction(UpdateFunction)
 
 end
 
