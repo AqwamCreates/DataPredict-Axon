@@ -1769,6 +1769,12 @@ function AHAAutomaticDifferentiationTensor:isAutomaticDifferentiationTensor()
 
 end
 
+function AHAAutomaticDifferentiationTensor:isScalar()
+
+	return (type(AqwamTensorLibrary:fetchValue{self}) == "number")
+
+end
+
 function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 
 	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
