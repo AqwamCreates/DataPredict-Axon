@@ -275,6 +275,8 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 		local probabilityArray = {}
 
 		local sumPriorityAlpha = 0
+		
+		local sumLossMatrix
 
 		for i, priority in ipairs(priorityArray) do
 			
@@ -293,8 +295,6 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 			probabilityArray[i] = probability / sumPriorityAlpha
 
 		end
-
-		local sumLossMatrix
 
 		for i = 1, lowestNumberOfBatchSize, 1 do
 
