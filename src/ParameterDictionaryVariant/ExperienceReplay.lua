@@ -320,7 +320,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 			priorityArray[index] = math.abs(temporalDifferenceErrorValueOrVector)
 
-			local outputMatrix = Model{replayBufferArray[index][1]}
+			local outputMatrix = Model(replayBufferArray[index][1])
 
 			local lossMatrix = outputMatrix * temporalDifferenceErrorValueOrVector * importanceSamplingWeight
 
