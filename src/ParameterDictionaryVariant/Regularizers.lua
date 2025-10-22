@@ -118,9 +118,7 @@ function Regularizer:calculate(parameterDictionary)
 	
 	local weightTensor = parameterDictionary.weightTensor or parameterDictionary[1]
 	
-	local CalculateFunction = self.CalculateFunction
-
-	if (CalculateFunction) then return CalculateFunction(weightTensor) end
+	return self.CalculateFunction(weightTensor)
 
 end
 
