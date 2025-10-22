@@ -30,15 +30,13 @@ local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
 local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferentiationTensor)
 
+local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
+
+local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
+
 local EligibilityTrace = {}
 
 EligibilityTrace.__index = EligibilityTrace
-
-local function showFunctionErrorDueToNonObjectCondition(showError)
-
-	if (showError) then error("This function can only be called if it is an object.") end
-
-end
 
 function EligibilityTrace.new(parameterDictionary)
 	
@@ -118,7 +116,7 @@ end
 
 function EligibilityTrace:increment(parameterDictionary)
 	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	parameterDictionary = parameterDictionary or {}
 	
@@ -139,6 +137,8 @@ function EligibilityTrace:increment(parameterDictionary)
 end
 
 function EligibilityTrace:calculate(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	local temporalDifferenceError = parameterDictionary.temporalDifferenceError or parameterDictionary[1]
 	
@@ -162,7 +162,7 @@ end
 
 function EligibilityTrace:getLambda()
 	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	return self.lambda
 
@@ -170,7 +170,7 @@ end
 
 function EligibilityTrace:setLambda(lambda)
 	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	self.lambda = lambda
 
@@ -178,7 +178,7 @@ end
 
 function EligibilityTrace:reset()
 	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	self.eligibilityTraceTensor = nil
 
