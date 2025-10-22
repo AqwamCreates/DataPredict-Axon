@@ -28,6 +28,10 @@
 
 local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
+local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
+
+local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
+
 local Optimizer = {}
 
 Optimizer.__index = Optimizer
@@ -39,12 +43,6 @@ local defaultBeta2 = 0.999
 local defaultWeightDecayRate = 0
 
 local defaultEpsilon = 1e-16
-
-local function showFunctionErrorDueToNonObjectCondition(showError)
-
-	if (showError) then error("This function can only be called if it is an object.") end
-
-end
 
 local function calculateGaussianDensity(mean, standardDeviation)
 
@@ -872,7 +870,7 @@ end
 
 function Optimizer:calculate(parameterDictionary)
 	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	parameterDictionary = parameterDictionary or {}
 	
