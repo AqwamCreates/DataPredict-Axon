@@ -424,7 +424,9 @@ function ExperienceReplay:addExperience(parameterDictionary)
 
 end
 
-function ExperienceReplay:addTemporalDifferenceError(temporalDifferenceErrorVectorOrValue)
+function ExperienceReplay:addTemporalDifferenceError(parameterDictionary)
+	
+	local temporalDifferenceErrorVectorOrValue = parameterDictionary.temporalDifferenceErrorVectorOrValue or parameterDictionary[1]
 	
 	local AddTemporalDifferenceErrorFunction = self.AddTemporalDifferenceErrorFunction
 
