@@ -370,7 +370,7 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 
 		WeightContainer:gradientAscent()
 
-		temporalDifferenceError:destroy{true}
+		return temporalDifferenceError
 
 	end
 	
@@ -431,8 +431,8 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
-
-		temporalDifferenceError:destroy{true}
+		
+		return temporalDifferenceError
 
 	end
 
@@ -512,7 +512,7 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		temporalDifferenceError:destroy{true}
+		return temporalDifferenceError
 
 	end
 
@@ -580,7 +580,7 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 
 		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
 
-		temporalDifferenceError:destroy{true}
+		return temporalDifferenceError
 
 	end
 
@@ -717,7 +717,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 		WeightContainer:gradientAscent()
 
-		temporalDifferenceErrorTensor:destroy{true}
+		return temporalDifferenceErrorTensor
 
 	end
 
@@ -793,7 +793,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		temporalDifferenceErrorTensor:destroy{true}
+		return temporalDifferenceErrorTensor
 
 	end
 
@@ -857,7 +857,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
 
-		firstDerivativeTensor:destroy{true}
+		return temporalDifferenceErrorTensor
 
 	end
 
@@ -953,7 +953,7 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 		WeightContainer:gradientAscent()
 
-		temporalDifferenceError:destroy{true}
+		return temporalDifferenceError
 
 	end
 
@@ -1071,7 +1071,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		temporalDifferenceError:destroy{true}
+		return temporalDifferenceError
 
 	end
 
@@ -1177,7 +1177,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
 
-		temporalDifferenceError:destroy{true}
+		return temporalDifferenceError
 
 	end
 
