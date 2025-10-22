@@ -28,6 +28,10 @@
 
 local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
+local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
+
+local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
+
 local WeightContainer = {}
 
 WeightContainer.__index = WeightContainer
@@ -117,6 +121,8 @@ function WeightContainer.new(parameterDictionary)
 	NewWeightContainer.updateWeightTensorInPlace = getValueOrDefaultValue(parameterDictionary.updateWeightTensorInPlace or parameterDictionary[2], defaultUpdateWeightTensorInPlace)
 	
 	NewWeightContainer.WeightTensorDataArray = {}
+	
+	NewWeightContainer.isAnObject = true
 
 	return NewWeightContainer
 
@@ -124,11 +130,15 @@ end
 
 function WeightContainer:setWeightTensorDataArray(parameterDictionary)
 	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	
 	self.WeightTensorDataArray = parameterDictionary
 	
 end
 
 function WeightContainer:gradientDescent()
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	local skipMissingGradientTensor = self.skipMissingGradientTensor
 	
@@ -200,6 +210,8 @@ end
 
 function WeightContainer:gradientAscent()
 	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	
 	local skipMissingGradientTensor = self.skipMissingGradientTensor
 
 	local updateWeightTensorInPlace = self.updateWeightTensorInPlace
@@ -270,6 +282,8 @@ end
 
 function WeightContainer:getWeightTensorArray(parameterDictionary)
 	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	
 	parameterDictionary = parameterDictionary or {}
 
 	local doNotDeepCopy = parameterDictionary.doNotDeepCopy or parameterDictionary[1]
@@ -290,6 +304,8 @@ end
 
 function WeightContainer:setWeightTensorArray(parameterDictionary)
 	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	
 	parameterDictionary = parameterDictionary or {}
 
 	local weightTensorArray = parameterDictionary.weightTensorArray or parameterDictionary[1]
@@ -307,6 +323,8 @@ function WeightContainer:setWeightTensorArray(parameterDictionary)
 end
 
 function WeightContainer:setLearningRate(parameterDictionary)
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	parameterDictionary = parameterDictionary or {}
 
