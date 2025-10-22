@@ -115,8 +115,10 @@ function Regularizer:calculate(parameterDictionary)
 	displayFunctionErrorDueToNonObjectCondition(self.isAnObject)
 	
 	local weightTensor = parameterDictionary.weightTensor or parameterDictionary[1]
+	
+	local CalculateFunction = self.CalculateFunction
 
-	if (self.CalculateFunction) then return self.CalculateFunction(weightTensor) end
+	if (CalculateFunction) then return CalculateFunction(weightTensor) end
 
 end
 
