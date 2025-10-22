@@ -167,7 +167,7 @@ function ExperienceReplay.UniformExperienceReplay(parameterDictionary)
 		
 		local replayBufferBatchArray = sampleRandomBuffer(replayBufferArray, batchSize)
 
-		for _, experience in ipairs(replayBufferBatchArray) do UpdateFunction(table.unpack(experience)) end
+		for _, experience in ipairs(replayBufferBatchArray) do UpdateFunction{experience} end
 		
 	end
 	
@@ -214,7 +214,7 @@ function ExperienceReplay.NStepExperienceReplay(parameterDictionary)
 
 		local finalBatchArrayIndex = (replayBufferBatchArraySize - nStep) + 1
 
-		for i = replayBufferBatchArraySize, finalBatchArrayIndex, -1 do UpdateFunction(table.unpack(replayBufferBatchArray[i])) end
+		for i = replayBufferBatchArraySize, finalBatchArrayIndex, -1 do UpdateFunction{table.unpack(replayBufferBatchArray[i])} end
 
 	end
 	
