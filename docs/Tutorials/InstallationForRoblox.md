@@ -6,9 +6,9 @@ To start, we must first link our deep learning library with our tensor library. 
 
 ### Deep Learning Library
 
-| Name             | Beta Version                                                                                            | Release Version                                                                                          |
-|------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| DataPredict Axon | [1.4.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredictAxon.rbxm) |[1.5](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredict%20Axon%20-%20Release%201.5.rbxm) |
+| Name             | Beta Version                                                                                                                 | Release Version                                                                                         |
+|------------------|------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| DataPredict Axon | [1.6](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredict%20Axon%20-%20Release%201.6.rbxm) | [1.5.0](https://github.com/AqwamCreates/DataPredict-Axon/blob/main/module_scripts/DataPredictAxon.rbxm) |
 
 ### Tensor Library
 
