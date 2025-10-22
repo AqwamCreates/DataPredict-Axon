@@ -54,6 +54,10 @@ DataPredictAxon.Regularizers = require(script.Regularizers)
 
 DataPredictAxon.ReinforcementLearningModels = require(script.ReinforcementLearningModels)
 
+DataPredictAxon.EligibilityTraces = require(script.EligibilityTraces)
+
+DataPredictAxon.ExperienceReplays = require(script.ExperienceReplays)
+
 DataPredictAxon.RecurrentModels = require(script.RecurrentModels)
 
 return DataPredictAxon
