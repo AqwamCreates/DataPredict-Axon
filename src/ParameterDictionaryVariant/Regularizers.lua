@@ -28,6 +28,10 @@
 
 local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
+local ErrorFunctions = require(script.Parent.ErrorFunctions)
+
+local showFunctionErrorDueToNonObjectCondition = ErrorFunctions.showFunctionErrorDueToNonObjectCondition
+
 local Regularizer = {}
 
 Regularizer.__index = Regularizer
@@ -108,6 +112,8 @@ end
 
 function Regularizer:calculate(parameterDictionary)
 	
+	showFunctionErrorDueToNonObjectCondition(self.isAnObject)
+	
 	local weightTensor = parameterDictionary.weightTensor or parameterDictionary[1]
 
 	if (self.CalculateFunction) then return self.CalculateFunction(weightTensor) end
@@ -115,12 +121,16 @@ function Regularizer:calculate(parameterDictionary)
 end
 
 function Regularizer:getLambda()
+	
+	showFunctionErrorDueToNonObjectCondition(self.isAnObject)
 
 	return self.lambda
 
 end
 
 function Regularizer:setLambda(parameterDictionary)
+	
+	showFunctionErrorDueToNonObjectCondition(self.isAnObject)
 
 	self.lambda = parameterDictionary.lambda or parameterDictionary[1]
 
