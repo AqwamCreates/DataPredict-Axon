@@ -2,7 +2,7 @@
 
 	--------------------------------------------------------------------
 
-	Aqwam's Machine, Deep And Reinforcement Learning Library (DataPredict)
+	Aqwam's Deep Learning Library (DataPredict Axon)
 
 	Author: Aqwam Harish Aiman
 	
@@ -16,7 +16,7 @@
 		
 	By using this library, you agree to comply with our Terms and Conditions in the link below:
 	
-	https://github.com/AqwamCreates/DataPredict/blob/main/docs/TermsAndConditions.md
+	https://github.com/AqwamCreates/DataPredict-Axon/blob/main/docs/TermsAndConditions.md
 	
 	--------------------------------------------------------------------
 	
@@ -26,334 +26,410 @@
 
 --]]
 
-local CategoricalPolicyBaseQuickSetup = require(script.Parent.CategoricalPolicyBaseQuickSetup)
+local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
-ParallelCategoricalPolicyQuickSetup = {}
+local ExperienceReplay = {}
 
-ParallelCategoricalPolicyQuickSetup.__index = ParallelCategoricalPolicyQuickSetup
+ExperienceReplay.__index = ExperienceReplay
 
-setmetatable(ParallelCategoricalPolicyQuickSetup, CategoricalPolicyBaseQuickSetup)
+local defaultBatchSize = 32
 
-local defaultShareExperienceReplay = false
+local defaultMaximumBatchSize = 100
 
-local defaultShareEligibilityTrace = false
+local aggregateFunctionList = {
 
-local defaultShareSelectedActionCountVector = false
+	["Maximum"] = function (valueVector) return valueVector:findMaximumValue() end,
 
-local defaultShareCurrentNumberOfReinforcements = false
+	["Minimum"] = function (valueVector) return valueVector:findMinimumValue() end,
 
-local defaultShareCurrentNumberOfEpisodes = false
+	["Sum"] = function (valueVector) return valueVector:sum() end,
 
-function ParallelCategoricalPolicyQuickSetup.new(parameterDictionary)
+	["Average"] = function (valueVector) return valueVector:mean() end,
+
+}
+
+local function removeFirstValueFromArrayIfExceedsBufferSize(targetArray, maximumBufferSize)
+
+	if (#targetArray > maximumBufferSize) then table.remove(targetArray, 1) end
+
+end
+
+local function sampleRandomBuffer(replayBufferArray, batchSize)
+
+	local batchArray = {}
+
+	local replayBufferArray = replayBufferArray
+
+	local replayBufferArraySize = #replayBufferArray
+
+	local lowestNumberOfBatchSize = math.min(batchSize, replayBufferArraySize)
+	
+	local RandomObject = Random.new()
+
+	for i = 1, lowestNumberOfBatchSize, 1 do
+
+		local index = RandomObject:NextInteger(1, replayBufferArraySize)
+
+		table.insert(batchArray, replayBufferArray[index])
+
+	end
+
+	return batchArray
+
+end
+
+local function sampleBuffer(replayBufferArray, batchSize)
+
+	local batchArray = {}
+
+	local replayBufferArray = replayBufferArray
+
+	local replayBufferArraySize = #replayBufferArray
+
+	local lowestNumberOfBatchSize = math.min(batchSize, replayBufferArraySize)
+
+	for i = 1, lowestNumberOfBatchSize, 1 do
+
+		table.insert(batchArray, replayBufferArray[i])
+
+	end
+
+	return batchArray
+
+end
+
+local function sampleIndex(probabilityArray)
+
+	local sumProbability = 0
+
+	for i, probability in ipairs(probabilityArray) do
+
+		sumProbability = sumProbability + probability
+
+	end
+
+	local randomProbability = math.random() * sumProbability
+
+	local cumulativeProbability = 0
+
+	for probabilityIndex, probability in ipairs(probabilityArray) do
+
+		cumulativeProbability = cumulativeProbability + probability
+
+		if (randomProbability <= cumulativeProbability) then return probabilityIndex, probability end
+
+	end
+
+	return #probabilityArray, probabilityArray[#probabilityArray]
+
+end
+
+
+function ExperienceReplay.new(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local NewExperienceReplay = {}
+
+	setmetatable(NewExperienceReplay, ExperienceReplay)
+
+	NewExperienceReplay.numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[1] or 1
+
+	NewExperienceReplay.numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[2] or 0
+	
+	NewExperienceReplay.RunFunction = parameterDictionary.RunFunction or parameterDictionary[3]
+	
+	NewExperienceReplay.ResetFunction = parameterDictionary.ResetFunction or parameterDictionary[4]
+	
+	NewExperienceReplay.AddExperienceFunction = parameterDictionary.AddExperienceFunction or parameterDictionary[5]
+
+	NewExperienceReplay.AddTemporalDifferenceErrorFunction = parameterDictionary.AddTemporalDifferenceErrorFunction or parameterDictionary[6]
+	
+	return NewExperienceReplay
+
+end
+
+function ExperienceReplay.UniformExperienceReplay(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
 	
-	local NewParallelCategoricalPolicyQuickSetup = CategoricalPolicyBaseQuickSetup.new(parameterDictionary)
+	local batchSize = parameterDictionary.batchSize or parameterDictionary[1] or defaultBatchSize
+
+	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[2]
+
+	local maximumBufferSize = parameterDictionary.maximumBufferSize or parameterDictionary[3] or defaultMaximumBatchSize
+
+	local numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[4] 
+
+	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[5] or {}
 	
-	setmetatable(NewParallelCategoricalPolicyQuickSetup, ParallelCategoricalPolicyQuickSetup)
+	local RunFunction = function(UpdateFunction)
+		
+		local replayBufferBatchArray = sampleRandomBuffer(replayBufferArray, batchSize)
+
+		for _, experience in ipairs(replayBufferBatchArray) do UpdateFunction(table.unpack(experience)) end
+		
+	end
 	
-	NewParallelCategoricalPolicyQuickSetup:setName("ParallelCategoricalPolicyQuickSetup")
+	local ResetFunction = function() table.clear(replayBufferArray) end
 	
-	-- Share toggles
+	local AddExperienceFunction = function(experience) 
+		
+		table.insert(replayBufferArray, experience)
+		
+		removeFirstValueFromArrayIfExceedsBufferSize(replayBufferArray, maximumBufferSize)
+		
+	end
 	
-	NewParallelCategoricalPolicyQuickSetup.shareExperienceReplay = NewParallelCategoricalPolicyQuickSetup:getValueOrDefaultValue(parameterDictionary.shareExperienceReplay or defaultShareExperienceReplay)
-	
-	NewParallelCategoricalPolicyQuickSetup.shareEligibilityTrace = NewParallelCategoricalPolicyQuickSetup:getValueOrDefaultValue(parameterDictionary.shareEligibilityTrace or defaultShareEligibilityTrace)
-	
-	NewParallelCategoricalPolicyQuickSetup.shareSelectedActionCountVector = NewParallelCategoricalPolicyQuickSetup:getValueOrDefaultValue(parameterDictionary.shareSelectedActionCountVector or defaultShareSelectedActionCountVector)
-	
-	NewParallelCategoricalPolicyQuickSetup.shareCurrentNumberOfReinforcements = NewParallelCategoricalPolicyQuickSetup:getValueOrDefaultValue(parameterDictionary.shareCurrentNumberOfReinforcements or defaultShareCurrentNumberOfReinforcements)
-	
-	NewParallelCategoricalPolicyQuickSetup.shareCurrentNumberOfEpisodes = NewParallelCategoricalPolicyQuickSetup:getValueOrDefaultValue(parameterDictionary.shareCurrentNumberOfEpisodes or defaultShareCurrentNumberOfEpisodes)
-	
-	-- Dictionaries
-
-	NewParallelCategoricalPolicyQuickSetup.ExperienceReplayDictionary = parameterDictionary.ExperienceReplayDictionary or {}
-
-	NewParallelCategoricalPolicyQuickSetup.EligibilityTraceDictionary = parameterDictionary.EligibilityTraceDictionary or {}
-
-	NewParallelCategoricalPolicyQuickSetup.previousFeatureVectorDictionary = parameterDictionary.previousFeatureVectorDictionary or {}
-
-	NewParallelCategoricalPolicyQuickSetup.previousActionDictionary = parameterDictionary.previousActionDictionary or {}
-	
-	NewParallelCategoricalPolicyQuickSetup.selectedActionCountVectorDictionary = parameterDictionary.selectedActionCountVectorDictionary or {}
-	
-	NewParallelCategoricalPolicyQuickSetup.currentNumberOfReinforcementsDictionary = parameterDictionary.currentNumberOfReinforcementsDictionary or {}
-	
-	NewParallelCategoricalPolicyQuickSetup.currentNumberOfEpisodesDictionary = parameterDictionary.currentNumberOfEpisodesDictionary or {}
-	
-	NewParallelCategoricalPolicyQuickSetup:setReinforceFunction(function(agentIndex, currentFeatureVector, rewardValue, returnOriginalOutput)
-		
-		local Model = NewParallelCategoricalPolicyQuickSetup.Model
-
-		if (not Model) then error("No model.") end
-		
-		local isOriginalValueNotAVector = (type(currentFeatureVector) ~= "table")
-		
-		local numberOfReinforcementsPerEpisode = NewParallelCategoricalPolicyQuickSetup.numberOfReinforcementsPerEpisode
-		
-		local experienceReplayIndex = (NewParallelCategoricalPolicyQuickSetup.shareExperienceReplay and 1) or agentIndex
-		
-		local eligibilityTraceIndex = (NewParallelCategoricalPolicyQuickSetup.shareEligibilityTrace and 1) or agentIndex
-		
-		local selectedActionCountVectorIndex = (NewParallelCategoricalPolicyQuickSetup.shareSelectedActionCountVector and 1) or agentIndex
-		
-		local numberOfReinforcementsIndex = (NewParallelCategoricalPolicyQuickSetup.shareCurrentNumberOfReinforcements and 1) or agentIndex
-		
-		local numberOfEpisodesIndex = (NewParallelCategoricalPolicyQuickSetup.shareCurrentNumberOfEpisodes and 1) or agentIndex
-		
-		local previousFeatureVectorDictionary = NewParallelCategoricalPolicyQuickSetup.previousFeatureVectorDictionary
-		
-		local previousActionDictionary = NewParallelCategoricalPolicyQuickSetup.previousActionDictionary
-		
-		local selectedActionCountVectorDictionary = NewParallelCategoricalPolicyQuickSetup.selectedActionCountVectorDictionary
-		
-		local currentNumberOfReinforcementsDictionary = NewParallelCategoricalPolicyQuickSetup.currentNumberOfReinforcementsDictionary
-		
-		local currentNumberOfEpisodesDictionary = NewParallelCategoricalPolicyQuickSetup.currentNumberOfEpisodesDictionary
-		
-		local previousFeatureVector = previousFeatureVectorDictionary[agentIndex]
-		
-		local previousAction = previousActionDictionary[agentIndex]
-		
-		local selectedActionCountVector = selectedActionCountVectorDictionary[selectedActionCountVectorIndex]
-		
-		local ExperienceReplay = NewParallelCategoricalPolicyQuickSetup.ExperienceReplayDictionary[experienceReplayIndex]
-		
-		local EligibilityTrace = NewParallelCategoricalPolicyQuickSetup.EligibilityTraceDictionary[eligibilityTraceIndex]
-		
-		local currentNumberOfReinforcements = (currentNumberOfReinforcementsDictionary[numberOfReinforcementsIndex] or 0) + 1
-		
-		local currentNumberOfEpisodes = currentNumberOfEpisodesDictionary[numberOfEpisodesIndex] or 1
-		
-		local ActionsList = Model:getActionsList()
-
-		local actionVector = Model:predict(currentFeatureVector, true)
-		
-		local isEpisodeEnd = (currentNumberOfReinforcements >= numberOfReinforcementsPerEpisode)
-
-		local terminalStateValue = 0
-
-		local temporalDifferenceError
-
-		if (isOriginalValueNotAVector) then currentFeatureVector = currentFeatureVector[1][1] end
-
-		local actionIndex, selectedActionCountVector = NewParallelCategoricalPolicyQuickSetup:selectAction(actionVector, selectedActionCountVector, currentNumberOfReinforcements)
-
-		local action = ActionsList[actionIndex]
-
-		local actionValue = actionVector[1][actionIndex]
-
-		if (isEpisodeEnd) then terminalStateValue = 1 end
-
-		if (previousFeatureVector) then
-
-			local updateFunction = NewParallelCategoricalPolicyQuickSetup.updateFunction
-
-			temporalDifferenceError = Model:categoricalUpdate(previousFeatureVector, previousAction, rewardValue, currentFeatureVector, terminalStateValue)
-
-			if (updateFunction) then updateFunction(terminalStateValue) end
-
-		end
-
-		if (isEpisodeEnd) then
-
-			local episodeUpdateFunction = NewParallelCategoricalPolicyQuickSetup.episodeUpdateFunction
-
-			currentNumberOfReinforcements = 0
-
-			currentNumberOfEpisodes = currentNumberOfEpisodes + 1
-
-			Model:episodeUpdate(terminalStateValue)
-
-			if episodeUpdateFunction then episodeUpdateFunction(terminalStateValue) end
-
-		end
-
-		if (ExperienceReplay) and (previousFeatureVector) then
-
-			ExperienceReplay:addExperience(previousFeatureVector, previousAction, rewardValue, currentFeatureVector, terminalStateValue)
-
-			ExperienceReplay:addTemporalDifferenceError(temporalDifferenceError)
-
-			ExperienceReplay:run(function(storedPreviousFeatureVector, storedAction, storedRewardValue, storedCurrentFeatureVector, storedTerminalStateValue)
-
-				return Model:categoricalUpdate(storedPreviousFeatureVector, storedAction, storedRewardValue, storedCurrentFeatureVector, storedTerminalStateValue)
-
-			end)
-
-		end
-
-		previousActionDictionary[agentIndex] = action
-
-		currentNumberOfReinforcementsDictionary[agentIndex] = currentNumberOfReinforcements
-
-		currentNumberOfEpisodesDictionary[agentIndex] = currentNumberOfEpisodes
-
-		previousFeatureVectorDictionary[agentIndex] = currentFeatureVector
-		
-		selectedActionCountVectorDictionary[selectedActionCountVectorIndex] = selectedActionCountVector
-		
-		if (NewParallelCategoricalPolicyQuickSetup.isOutputPrinted) then
-			
-			print("Agent index: " .. agentIndex .. "\t\tEpisode: " .. currentNumberOfEpisodes .. "\t\tReinforcement Count: " .. currentNumberOfReinforcements) 
-			
-		end
-
-		if (returnOriginalOutput) then return actionVector end
-
-		return action, actionValue
-		
-	end)
-	
-	return NewParallelCategoricalPolicyQuickSetup
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction})
 	
 end
 
-function ParallelCategoricalPolicyQuickSetup:start()
+
+function ExperienceReplay.NStepExperienceReplay(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
 	
-	if (self.isRunning) then error("It is already active.") end
+	local batchSize = parameterDictionary.batchSize or parameterDictionary[1] or defaultBatchSize
+
+	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[2]
+
+	local maximumBufferSize = parameterDictionary.maximumBufferSize or parameterDictionary[3] or defaultMaximumBatchSize
 	
-	local functionToRun = coroutine.create(function()
-		
-		self.isRunning = true
-		
-		local Model = self.Model
+	local nStep = parameterDictionary.nStep or parameterDictionary[4] or 3
 
-		local numberOfReinforcementsPerEpisode = self.numberOfReinforcementsPerEpisode
+	local numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[5] 
 
-		local updateFunction = self.updateFunction
+	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[6] or {}
 
-		local episodeUpdateFunction = self.episodeUpdateFunction
+	local RunFunction = function(UpdateFunction)
 
-		local inputQueueArray = self.inputQueueArray
+		local replayBufferBatchArray = sampleBuffer(replayBufferArray, batchSize)
 
-		local agentIndexQueueOutputArray = self.agentIndexOutputQueueArray
+		local replayBufferArraySize = #replayBufferArray
 
-		local outputQueueArray = self.outputQueueArray
+		local replayBufferBatchArraySize = #replayBufferBatchArray
 
-		local ActionsList = Model:getActionsList()
+		local nStep = math.min(nStep, replayBufferBatchArraySize)
 
-		local agentIndex
+		local finalBatchArrayIndex = (replayBufferBatchArraySize - nStep) + 1
 
-		local previousFeatureVector
+		for i = replayBufferBatchArraySize, finalBatchArrayIndex, -1 do UpdateFunction(table.unpack(replayBufferBatchArray[i])) end
 
-		local previousAction
+	end
+	
+	local ResetFunction = function() table.clear(replayBufferArray) end
+	
+	local AddExperienceFunction = function(experience) 
 
-		local rewardValue
+		table.insert(replayBufferArray, experience)
 
-		local currentFeatureVector
+		removeFirstValueFromArrayIfExceedsBufferSize(replayBufferArray, maximumBufferSize)
 
-		local terminalStateValue
+	end
 
-		local isEpisodeEnd
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction})
 
-		local ExperienceReplay
+end
 
-		local EligibilityTrace
-		
-		local selectedActionCountVector
-		
-		local currentNumberOfReinforcements
+function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
-		local isOriginalValueNotAVector
+	parameterDictionary = parameterDictionary or {}
+	
+	local Model = parameterDictionary.Model
+	
+	if (not Model) then error("No Model!") end
+	
+	local batchSize = parameterDictionary.batchSize or parameterDictionary[1] or defaultBatchSize
+	
+	local numberOfRunsToUpdate = parameterDictionary.numberOfRunsToUpdate or parameterDictionary[2]
 
-		local actionVector
+	local maximumBufferSize = parameterDictionary.maximumBufferSize or parameterDictionary[3] or defaultMaximumBatchSize
 
-		local actionIndex
+	local alpha = parameterDictionary.alpha or parameterDictionary[4] or 0.6
 
-		local action
+	local beta = parameterDictionary.beta or parameterDictionary[5] or 0.4
+	
+	local aggregateFunction = parameterDictionary.aggregateFunction or parameterDictionary[6] or "Maximum"
+	
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[7] or 1e-16
+	
+	local numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[8]
 
-		local actionValue
+	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[9] or {}
 
-		local temporalDifferenceError
+	local temporalDifferenceErrorArray = parameterDictionary.temporalDifferenceErrorArray or parameterDictionary[10] or {}
 
-		local outputArray
+	local priorityArray = parameterDictionary.priorityArray or parameterDictionary[11] or {}
 
-		while(self.isRunning) do
+	local weightArray = parameterDictionary.weightArray or parameterDictionary[12] or {}
+	
+	local aggregateFunctionToApply = aggregateFunctionList[aggregateFunction]
+	
+	local RunFunction = function(UpdateFunction)
 
-			while (#inputQueueArray == 0) do task.wait() end
+		local batchArray = {}
 
-			agentIndex, previousFeatureVector, previousAction, rewardValue, currentFeatureVector, terminalStateValue, isEpisodeEnd, ExperienceReplay, EligibilityTrace, selectedActionCountVector, currentNumberOfReinforcements = table.unpack(inputQueueArray[1])
+		local replayBufferArraySize = #replayBufferArray
 
-			isOriginalValueNotAVector = (type(currentFeatureVector) ~= "table")
+		local lowestNumberOfBatchSize = math.min(batchSize, replayBufferArraySize)		
 
-			if (isOriginalValueNotAVector) then currentFeatureVector = {{currentFeatureVector}} end
+		local probabilityArray = {}
 
-			actionVector = Model:predict(currentFeatureVector, true)
+		local sumPriorityAlpha = 0
 
-			Model.EligibilityTrace = EligibilityTrace
+		for i, priority in ipairs(priorityArray) do
 
-			if (isOriginalValueNotAVector) then currentFeatureVector = currentFeatureVector[1][1] end
+			local priorityAlpha = math.pow(priority, alpha)
 
-			actionIndex, selectedActionCountVector = self:selectAction(actionVector, selectedActionCountVector, currentNumberOfReinforcements)
+			probabilityArray[i] = priorityAlpha
 
-			action = ActionsList[actionIndex]
+			sumPriorityAlpha = sumPriorityAlpha + priorityAlpha
 
-			actionValue = actionVector[1][actionIndex]
+		end
 
-			if (previousFeatureVector) then
+		for i, probability in ipairs(probabilityArray) do
 
-				temporalDifferenceError = Model:categoricalUpdate(previousFeatureVector, previousAction, rewardValue, currentFeatureVector, terminalStateValue)
+			probabilityArray[i] = probability / sumPriorityAlpha
 
-				if (updateFunction) then updateFunction(terminalStateValue, agentIndex) end
+		end
+
+		local sizeArray = AqwamTensorLibrary:getDimensionSizeArray(replayBufferArray[1][1])
+
+		local inputMatrix = AqwamTensorLibrary:createTensor(sizeArray, 1)
+
+		local sumLossMatrix
+
+		for i = 1, lowestNumberOfBatchSize, 1 do
+
+			local index, probability = sampleIndex(probabilityArray, sumPriorityAlpha)
+
+			local experience = replayBufferArray[index]
+
+			local temporalDifferenceErrorValueOrVector = temporalDifferenceErrorArray[index]
+
+			local importanceSamplingWeight = math.pow((lowestNumberOfBatchSize * probability), -beta) / math.max(table.unpack(weightArray), epsilon) 
+
+			if (type(temporalDifferenceErrorValueOrVector) ~= "number") then
+
+				temporalDifferenceErrorValueOrVector = aggregateFunctionToApply(temporalDifferenceErrorValueOrVector)
 
 			end
 
-			if (isEpisodeEnd) then
+			weightArray[index] = importanceSamplingWeight
 
-				Model:episodeUpdate(terminalStateValue)
+			priorityArray[index] = math.abs(temporalDifferenceErrorValueOrVector)
 
-				if episodeUpdateFunction then episodeUpdateFunction(terminalStateValue, agentIndex) end
+			local outputMatrix = Model{replayBufferArray[index][1]}
 
-			end
+			local lossMatrix = outputMatrix * temporalDifferenceErrorValueOrVector * importanceSamplingWeight
 
-			if (ExperienceReplay) and (previousFeatureVector) then
+			if (sumLossMatrix) then
 
-				ExperienceReplay:addExperience(previousFeatureVector, previousAction, rewardValue, currentFeatureVector, terminalStateValue)
+				sumLossMatrix = sumLossMatrix + lossMatrix
 
-				ExperienceReplay:addTemporalDifferenceError(temporalDifferenceError)
+			else
 
-				ExperienceReplay:run(function(storedPreviousFeatureVector, storedAction, storedRewardValue, storedCurrentFeatureVector, storedTerminalStateValue)
-
-					return Model:categoricalUpdate(storedPreviousFeatureVector, storedAction, storedRewardValue, storedCurrentFeatureVector, storedTerminalStateValue)
-
-				end)
+				sumLossMatrix = lossMatrix
 
 			end
-
-			outputArray = {action, actionValue, actionVector, selectedActionCountVector}
-
-			table.remove(inputQueueArray, 1)
-
-			table.insert(outputQueueArray, outputArray)
-
-			table.insert(agentIndexQueueOutputArray, agentIndex)
 
 		end
 		
-	end)
-	
-	coroutine.resume(functionToRun)
-	
-end
+		if (sumLossMatrix) then sumLossMatrix:differentiate() end
 
-function ParallelCategoricalPolicyQuickSetup:reset()
+	end
 	
-	self.previousFeatureVectorDictionary = {}
-
-	self.previousActionDictionary = {}
-	
-	self.selectedActionCountVectorDictionary = {}
-
-	self.currentNumberOfReinforcementsDictionary  = {}
-
-	self.currentNumberOfEpisodesDictionary  = {}
-	
-	for _, ExperienceReplay in ipairs(self.ExperienceReplayDictionary) do ExperienceReplay:reset() end
-	
-	for _, EligibilityTrace in ipairs(self.EligibilityTraceDictionary) do EligibilityTrace:reset() end
+	local ResetFunction = function()
 		
+		table.clear(replayBufferArray) 
+
+		table.clear(temporalDifferenceErrorArray)
+
+		table.clear(priorityArray)
+
+		table.clear(weightArray)
+
+	end
+	
+	local AddExperienceFunction = function(experience)
+		
+		local maximumPriority = 1
+
+		for i, priority in ipairs(priorityArray) do
+
+			if (priority > maximumPriority) then
+
+				maximumPriority = priority
+
+			end
+
+		end
+		
+		table.insert(replayBufferArray, experience) 
+
+		table.insert(priorityArray, maximumPriority)
+
+		table.insert(weightArray, 0)
+		
+		removeFirstValueFromArrayIfExceedsBufferSize(replayBufferArray, maximumBufferSize)
+
+		removeFirstValueFromArrayIfExceedsBufferSize(priorityArray, maximumBufferSize)
+
+		removeFirstValueFromArrayIfExceedsBufferSize(weightArray, maximumBufferSize)
+		
+	end
+
+	local AddTemporalDifferenceErrorFunction = function(temporalDifferenceErrorVectorOrValue)
+		
+		table.insert(temporalDifferenceErrorArray, temporalDifferenceErrorVectorOrValue) 
+		
+		removeFirstValueFromArrayIfExceedsBufferSize(temporalDifferenceErrorArray, maximumBufferSize)
+
+	end
+	
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction, AddTemporalDifferenceErrorFunction})
+
 end
 
-return ParallelCategoricalPolicyQuickSetup
+function ExperienceReplay:reset()
+
+	self.numberOfRuns = 0
+
+	local ResetFunction = self.ResetFunction
+
+	if ResetFunction then ResetFunction() end
+
+end
+
+function ExperienceReplay:run(updateFunction)
+	
+	local numberOfRuns = self.numberOfRuns + 1
+
+	self.numberOfRuns = numberOfRuns
+
+	if (numberOfRuns < self.numberOfRunsToUpdate) then return end
+
+	self.numberOfRuns = 0
+
+	self.RunFunction(updateFunction)
+
+end
+
+function ExperienceReplay:addExperience(parameterDictionary)
+
+	local AddExperienceFunction = self.AddExperienceFunction
+
+	if (AddExperienceFunction) then AddExperienceFunction(parameterDictionary) end
+
+end
+
+function ExperienceReplay:addTemporalDifferenceError(temporalDifferenceErrorVectorOrValue)
+	
+	local AddTemporalDifferenceErrorFunction = self.AddTemporalDifferenceErrorFunction
+
+	if (AddTemporalDifferenceErrorFunction) then AddTemporalDifferenceErrorFunction(temporalDifferenceErrorVectorOrValue) end
+
+end
+
+return ExperienceReplay
