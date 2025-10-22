@@ -294,10 +294,6 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 		end
 
-		local sizeArray = AqwamTensorLibrary:getDimensionSizeArray(replayBufferArray[1][1])
-
-		local inputMatrix = AqwamTensorLibrary:createTensor(sizeArray, 1)
-
 		local sumLossMatrix
 
 		for i = 1, lowestNumberOfBatchSize, 1 do
