@@ -28,17 +28,15 @@
 
 local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
+local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
+
+local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
+
 local ValueScheduler = {}
 
 ValueScheduler.__index = ValueScheduler
 
 local defaultDecayRate = 0.5
-
-local function showFunctionErrorDueToNonObjectCondition(showError)
-
-	if (showError) then error("This function can only be called if it is an object.") end
-
-end
 
 function ValueScheduler.new(parameterDictionary)
 	
@@ -310,7 +308,7 @@ end
 
 function ValueScheduler:calculate(parameterDictionary)
 	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	parameterDictionary = parameterDictionary or {}
 	
@@ -335,6 +333,8 @@ function ValueScheduler:calculate(parameterDictionary)
 end
 
 function ValueScheduler:reset()
+	
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	self.timeValue = 0
 	
