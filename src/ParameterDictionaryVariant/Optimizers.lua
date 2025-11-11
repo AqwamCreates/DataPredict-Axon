@@ -28,6 +28,10 @@
 
 local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
+local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
+
+local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
+
 local Optimizer = {}
 
 Optimizer.__index = Optimizer
@@ -39,12 +43,6 @@ local defaultBeta2 = 0.999
 local defaultWeightDecayRate = 0
 
 local defaultEpsilon = 1e-16
-
-local function showFunctionErrorDueToNonObjectCondition(showError)
-
-	if (showError) then error("This function can only be called if it is an object.") end
-
-end
 
 local function calculateGaussianDensity(mean, standardDeviation)
 
@@ -872,7 +870,7 @@ end
 
 function Optimizer:calculate(parameterDictionary)
 	
-	showFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	parameterDictionary = parameterDictionary or {}
 	
@@ -882,26 +880,22 @@ function Optimizer:calculate(parameterDictionary)
 	
 	local tensor = parameterDictionary.tensor or parameterDictionary[2]
 	
-	local CalculateFunction = self.CalculateFunction
-	
-	if (not CalculateFunction) then error("No calculate function.") end
-	
 	local LearningRateValueScheduler = self.LearningRateValueScheduler
 	
 	if (LearningRateValueScheduler) then learningRate = LearningRateValueScheduler:calculate{learningRate} end
 	
-	return CalculateFunction(learningRate, firstDerivativeTensor, tensor)
+	return self.CalculateFunction(learningRate, firstDerivativeTensor, tensor)
 	
 end
 
 function Optimizer:reset()
-	
+
 	local LearningRateValueScheduler = self.LearningRateValueScheduler
-	
+
 	table.clear(self.optimizerInternalParameterArray)
-	
+
 	if (LearningRateValueScheduler) then LearningRateValueScheduler:reset() end
-	
+
 end
 
 return Optimizer
