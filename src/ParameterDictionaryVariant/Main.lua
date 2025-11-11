@@ -50,11 +50,15 @@ DataPredictAxon.Optimizers = require(script.Optimizers)
 
 DataPredictAxon.ValueSchedulers = require(script.ValueSchedulers)
 
+DataPredictAxon.GradientClippers = require(script.GradientClippers)
+
 DataPredictAxon.Regularizers = require(script.Regularizers)
 
 DataPredictAxon.ReinforcementLearningModels = require(script.ReinforcementLearningModels)
 
 DataPredictAxon.EligibilityTraces = require(script.EligibilityTraces)
+
+DataPredictAxon.ExperienceReplays = require(script.ExperienceReplays)
 
 DataPredictAxon.RecurrentModels = require(script.RecurrentModels)
 
