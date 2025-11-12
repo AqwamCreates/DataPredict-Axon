@@ -518,7 +518,7 @@ local unaryOperationDictionary = {
 	
 	exponent = {
 
-		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.exponent, tensor) end,
+		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.exp, tensor) end,
 		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:multiply(firstDerivativeTensor, tensor) end
 
 	},
@@ -2077,6 +2077,18 @@ function AHAAutomaticDifferentiationTensor:__newindex(index, value)
 
 	rawset(self, index, value)
 
+end
+
+function AHAAutomaticDifferentiationTensor:getString()
+	
+	local tensor = self.tensor
+	
+	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{tensor, true}
+	
+	if (type(pureTensor) == "number") then return tostring(pureTensor) end
+	
+	return AqwamTensorLibrary:generateTensorWithCommaString(pureTensor)
+	
 end
 
 function AHAAutomaticDifferentiationTensor:destroy(parameterDictionary)
