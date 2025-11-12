@@ -112,7 +112,7 @@ end
 
 function Regularizer:calculate(parameterDictionary)
 	
-	displayFunctionErrorDueToNonObjectCondition(self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
 	parameterDictionary = parameterDictionary or {}
 	
@@ -124,7 +124,7 @@ end
 
 function Regularizer:getLambda()
 	
-	displayFunctionErrorDueToNonObjectCondition(self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	return self.lambda
 
@@ -132,7 +132,7 @@ end
 
 function Regularizer:setLambda(parameterDictionary)
 	
-	displayFunctionErrorDueToNonObjectCondition(self.isAnObject)
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
 	self.lambda = parameterDictionary.lambda or parameterDictionary[1]
 
