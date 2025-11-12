@@ -1,3 +1,4 @@
 remote_theme: just-the-docs/just-the-docs
+render_with_liquid: false
 color_scheme: dark
 nav_enabled: false
