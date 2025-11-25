@@ -196,7 +196,7 @@ function ReinforcementLearningModels.MonteCarloControl(parameterDictionary)
 
 	local rewardValueArray = {}
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		table.insert(featureTensorArray, previousFeatureTensor)
 
@@ -264,7 +264,7 @@ function ReinforcementLearningModels.OffPolicyMonteCarloControl(parameterDiction
 
 	local rewardValueArray = {}
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local actionTensor = Model{previousFeatureTensor}
 
@@ -346,7 +346,7 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local previousQValueTensor = Model{previousFeatureTensor}
 
@@ -356,7 +356,7 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
 
-		local lastValue = previousQValueTensor[1][actionIndex]
+		local lastValue = previousQValueTensor[1][previousActionIndex]
 		
 		local temporalDifferenceError = targetValue - lastValue
 		
@@ -366,9 +366,9 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 			
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
@@ -404,7 +404,7 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local previousAdvantageValueTensor, previousVValueTensor = Model{previousFeatureTensor}
 
@@ -418,7 +418,7 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
 
-		local lastValue = previousAdvantageValueTensor[1][actionIndex]
+		local lastValue = previousAdvantageValueTensor[1][previousActionIndex]
 
 		local temporalDifferenceError = targetValue - lastValue
 
@@ -428,9 +428,9 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 			local dimensionSizeArray = currentAdvantageValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
@@ -472,7 +472,7 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local randomProbability = math.random()
 
@@ -494,7 +494,7 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * maxQValue)
 
-		local lastValue = previousQValueTensor[1][actionIndex]
+		local lastValue = previousQValueTensor[1][previousActionIndex]
 
 		local temporalDifferenceError = targetValue - lastValue
 
@@ -504,9 +504,9 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
@@ -548,7 +548,7 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local PrimaryWeightTensorArray = WeightContainer:getWeightTensorArray{true}
 
@@ -560,7 +560,7 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 
 		local previousQValueTensor = Model{previousFeatureTensor}
 
-		local lastValue = previousQValueTensor[1][actionIndex]
+		local lastValue = previousQValueTensor[1][previousActionIndex]
 
 		local temporalDifferenceError = targetValue - lastValue
 		
@@ -570,9 +570,9 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
@@ -620,7 +620,7 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local maxQValueArray = {}
 
@@ -642,7 +642,7 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 			
 			local dimensionSizeArray = maxQValueArray[1]:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
 			
 		end
@@ -653,7 +653,7 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 
 			local previousQValueTensor = Model{previousFeatureTensor}
 
-			local previousQValue = previousQValueTensor[1][actionIndex]
+			local previousQValue = previousQValueTensor[1][previousActionIndex]
 			
 			local temporalDifferenceError = minimumCurrentMaxQValue - previousQValue
 			
@@ -661,7 +661,7 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 
 			if (EligibilityTrace) then
 
-				firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex}
+				firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 			end
 
@@ -697,7 +697,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentStateTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentStateTensor, terminalStateValue)
 
 		local previousQValueTensor = Model{previousFeatureTensor}
 
@@ -713,7 +713,7 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
 			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor}
 
@@ -757,7 +757,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local randomProbability = math.random()
 
@@ -785,7 +785,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
 			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor}
 
@@ -829,7 +829,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local PrimaryWeightTensorArray = WeightContainer:getWeightTensorArray{true}
 
@@ -847,7 +847,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
 			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor}
 
@@ -893,7 +893,7 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local numberOfGreedyActions = 0
 
@@ -939,7 +939,7 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * expectedQValue)
 
-		local lastValue = previousQValueTensor[1][actionIndex]
+		local lastValue = previousQValueTensor[1][previousActionIndex]
 
 		local temporalDifferenceError = targetValue - lastValue
 
@@ -949,9 +949,9 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
@@ -995,7 +995,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local numberOfGreedyActions = 0
 
@@ -1053,7 +1053,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * expectedQValue)
 
-		local lastValue = previousQValueTensor[1][actionIndex]
+		local lastValue = previousQValueTensor[1][previousActionIndex]
 		
 		local temporalDifferenceError = targetValue - lastValue
 
@@ -1063,9 +1063,9 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
@@ -1109,7 +1109,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local numberOfGreedyActions = 0
 
@@ -1157,7 +1157,7 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		local targetValue = rewardValue + (discountFactor * (1 - terminalStateValue) * expectedQValue)
 
-		local lastValue = previousQValueTensor[1][actionIndex]
+		local lastValue = previousQValueTensor[1][previousActionIndex]
 
 		local temporalDifferenceError = targetValue - lastValue
 
@@ -1167,9 +1167,9 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
 
-			EligibilityTrace:increment{actionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, actionIndex}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
@@ -1213,7 +1213,7 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 
 	local rewardValueArray = {}
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local actionTensor = Model{previousFeatureTensor}
 
@@ -1309,7 +1309,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 
 	local criticValueArray = {}
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local actionTensor = ActorModel{previousFeatureTensor}
 
@@ -1447,7 +1447,7 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 
 	local criticValueArray = {}
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local actionTensor = ActorModel{previousFeatureTensor}
 
@@ -1555,7 +1555,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 	local advantageValueArray = {}
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local actionTensor = ActorModel{previousFeatureTensor}
 
@@ -1687,7 +1687,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 
 	local rewardValueArray = {}
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		ActorWeightContainer:setWeightTensorArray{currentActorWeightTensorArray, true}
 
@@ -1861,7 +1861,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 
 	local upperClipRatioValue = 1 + clipRatio
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		ActorWeightContainer:setWeightTensorArray{currentActorWeightTensorArray, true}
 
@@ -2031,15 +2031,15 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 	if (not CriticWeightContainer) then error("No actor weight container.") end
 
-	local function update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local function update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, previousActionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 
 		local PreviousCriticWeightTensorArrayArray = {}
 
 		local previousLogActionProbabilityValue
 
-		if (actionIndex) then
+		if (previousActionIndex) then
 
-			previousLogActionProbabilityValue = previousLogActionProbabilityTensor[1][actionIndex]
+			previousLogActionProbabilityValue = previousLogActionProbabilityTensor[1][previousActionIndex]
 
 		else
 
@@ -2103,7 +2103,7 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 	end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local previousActionTensor = ActorModel{previousFeatureTensor}
 
@@ -2117,7 +2117,7 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 		local currentLogActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{currentActionProbabilityTensor}
 
-		update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+		update(previousFeatureTensor, previousLogActionProbabilityTensor, currentLogActionProbabilityTensor, previousActionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
 
 	end
 
@@ -2385,19 +2385,21 @@ function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
 
 	local previousFeatureTensor = parameterDictionary.previousFeatureTensor or parameterDictionary[1]
 
-	local actionIndex = parameterDictionary.actionIndex or parameterDictionary[2]
+	local previousActionIndex = parameterDictionary.previousActionIndex or parameterDictionary[2]
 
 	local rewardValue = parameterDictionary.rewardValue or parameterDictionary[3]
 
 	local currentFeatureTensor = parameterDictionary.currentFeatureTensor or parameterDictionary[4]
+	
+	local currentActionIndex = parameterDictionary.currentActionIndex or parameterDictionary[5]
 
-	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[5]
+	local terminalStateValue = parameterDictionary.terminalStateValue or parameterDictionary[6]
 
 	previousFeatureTensor = AutomaticDifferentiationTensor.coerce{previousFeatureTensor}
 
 	currentFeatureTensor = AutomaticDifferentiationTensor.coerce{currentFeatureTensor}
 
-	return categoricalUpdateFunction(previousFeatureTensor, actionIndex, rewardValue, currentFeatureTensor, terminalStateValue)
+	return categoricalUpdateFunction(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 end
 
