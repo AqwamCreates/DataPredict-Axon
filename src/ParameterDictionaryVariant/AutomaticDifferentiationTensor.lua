@@ -1805,7 +1805,7 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 		
 		originDimensionSizeArray = table.create(numberOfDimensions, 1)
 		
-		targetDimensionSizeArray = table.clone(newDimensionSizeArray)
+		targetDimensionSizeArray = table.clone(dimensionSizeArray)
 		
 		originDimensionSizeArray[dimension] = i
 		
