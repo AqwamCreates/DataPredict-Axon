@@ -697,17 +697,17 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 	if (not WeightContainer) then error("No weight container.") end
 
-	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentStateTensor, terminalStateValue)
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
 
 		local previousQValueTensor = Model{previousFeatureTensor}
 
-		local currentQValueTensor = Model{currentStateTensor}
+		local currentQValueTensor = Model{currentFeatureTensor}
 
-		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
+		local targetQValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor[1][currentActionIndex])
 		
-		local temporalDifferenceErrorTensor = targetQValueTensor - previousQValueTensor
+		local temporalDifferenceError = targetQValue - previousQValueTensor[1][previousActionIndex]
 		
-		local firstDerivativeTensor
+		local firstDerivativeValue
 
 		if (EligibilityTrace) then
 
@@ -715,15 +715,15 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
-		temporalDifferenceErrorTensor:differentiate{firstDerivativeTensor}
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
-		return temporalDifferenceErrorTensor
+		return temporalDifferenceError
 
 	end
 
@@ -775,11 +775,11 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 		local currentQValueTensor = Model{currentFeatureTensor}
 
-		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
+		local targetQValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor[1][currentActionIndex])
 
-		local temporalDifferenceErrorTensor = targetQValueTensor - previousQValueTensor
+		local temporalDifferenceError = targetQValue - previousQValueTensor[1][previousActionIndex]
 
-		local firstDerivativeTensor
+		local firstDerivativeValue
 
 		if (EligibilityTrace) then
 
@@ -787,19 +787,19 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 		
-		temporalDifferenceErrorTensor:differentiate{firstDerivativeTensor}
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
 		WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate] = WeightContainer:getWeightTensorArray{true}
 
-		return temporalDifferenceErrorTensor
+		return temporalDifferenceError
 
 	end
 
@@ -837,11 +837,11 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 		local previousQValueTensor = Model{previousFeatureTensor}
 
-		local targetQValueTensor = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor)
+		local targetQValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentQValueTensor[1][currentActionIndex])
 
-		local temporalDifferenceErrorTensor = targetQValueTensor - previousQValueTensor
+		local temporalDifferenceError = targetQValue - previousQValueTensor[1][previousActionIndex]
 
-		local firstDerivativeTensor
+		local firstDerivativeValue
 		
 		if (EligibilityTrace) then
 
@@ -849,11 +849,11 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
 
-			firstDerivativeTensor = EligibilityTrace:calculate{temporalDifferenceErrorTensor}
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
 		end
 
-		temporalDifferenceErrorTensor:differentiate{firstDerivativeTensor}
+		temporalDifferenceError:differentiate{firstDerivativeValue}
 
 		WeightContainer:gradientAscent()
 
@@ -863,7 +863,7 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 		WeightContainer:setWeightTensorArray{TargetWeightTensorArray, true}
 
-		return temporalDifferenceErrorTensor
+		return temporalDifferenceError
 
 	end
 
