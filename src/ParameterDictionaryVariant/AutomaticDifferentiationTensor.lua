@@ -1785,11 +1785,18 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 	
 	local cumulativeSumTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
 	
-	dimensionSizeArray[dimension] = 1
+	local newDimensionSizeArray = {table.unpack(dimensionSizeArray)}
 	
-	local randomProbabilityTensor = AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
+	newDimensionSizeArray[dimension] = 1
 	
-	local indexTensor
+	local randomProbabilityTensor = AqwamTensorLibrary:createRandomUniformTensor(newDimensionSizeArray)
+	
+	local indexTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
+	
+	for i = 1, dimensionSizeArray[dimension], 1 do
+		
+		
+	end
 
 	return AHAAutomaticDifferentiationTensor.new({indexTensor, nil, inputTensorArray})
 
