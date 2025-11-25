@@ -1761,6 +1761,40 @@ end
 
 --------------------------------------------------------------------------------------
 
+function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+	
+	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+
+	local dimension = parameterDictionary.dimension or parameterDictionary[1]
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
+	
+	if (dimension <= 0) then error("The dimension cannot be less than or equal to zero.") end
+	
+	if (dimension > #dimensionSizeArray) then error("The dimension cannot be greater than the tensor's number of dimensions.") end
+	
+	local inputTensorArray = {self}
+	
+	local absoluteTensor = AqwamTensorLibrary:applyFunction(math.abs, selfTensorValue)
+	
+	local sumAbsoluteTensor = AqwamTensorLibrary:sum(absoluteTensor, dimension)
+	
+	local probabilityTensor = AqwamTensorLibrary:divide(absoluteTensor, sumAbsoluteTensor)
+	
+	local cumulativeSumTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
+	
+	dimensionSizeArray[dimension] = 1
+	
+	local indexTensor
+
+	return AHAAutomaticDifferentiationTensor.new({indexTensor, nil, inputTensorArray})
+
+end
+
+--------------------------------------------------------------------------------------
+
 function AHAAutomaticDifferentiationTensor:isAutomaticDifferentiationTensor()
 
 	return true
