@@ -1773,7 +1773,9 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 	
 	if (dimension <= 0) then error("The dimension cannot be less than or equal to zero.") end
 	
-	if (dimension > #dimensionSizeArray) then error("The dimension cannot be greater than the tensor's number of dimensions.") end
+	local numberOfDimensions = #dimensionSizeArray
+	
+	if (dimension > numberOfDimensions) then error("The dimension cannot be greater than the tensor's number of dimensions.") end
 	
 	local inputTensorArray = {self}
 	
@@ -1785,7 +1787,7 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 	
 	local cumulativeSumTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
 	
-	local newDimensionSizeArray = {table.unpack(dimensionSizeArray)}
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
 	
 	newDimensionSizeArray[dimension] = 1
 	
@@ -1793,8 +1795,23 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 	
 	local indexTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
 	
+	local subProbabilityTensor
+	
+	local originDimensionSizeArray
+	
+	local targetDimensionSizeArray
+
 	for i = 1, dimensionSizeArray[dimension], 1 do
 		
+		originDimensionSizeArray = table.create(numberOfDimensions, 1)
+		
+		targetDimensionSizeArray = table.clone(newDimensionSizeArray)
+		
+		originDimensionSizeArray[dimension] = i
+		
+		targetDimensionSizeArray[dimension] = i
+		
+		subProbabilityTensor = AqwamTensorLibrary:extract(probabilityTensor, originDimensionSizeArray, targetDimensionSizeArray)
 		
 	end
 
