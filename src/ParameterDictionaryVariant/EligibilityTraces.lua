@@ -66,7 +66,7 @@ function EligibilityTrace.AccumulatingTrace(parameterDictionary)
 	
 	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
 
-			eligibilityTraceTensor[1][actionIndex] = eligibilityTraceTensor[1][actionIndex] + 1
+			eligibilityTraceTensor[actionIndex] = eligibilityTraceTensor[actionIndex] + 1
 
 			return eligibilityTraceTensor
 
@@ -86,7 +86,7 @@ function EligibilityTrace.DutchTrace(parameterDictionary)
 
 	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
 
-		eligibilityTraceTensor[1][actionIndex] = ((1 - alpha) * eligibilityTraceTensor[1][actionIndex]) + 1
+		eligibilityTraceTensor[actionIndex] = ((1 - alpha) * eligibilityTraceTensor[actionIndex]) + 1
 
 		return eligibilityTraceTensor
 
@@ -104,7 +104,7 @@ function EligibilityTrace.ReplacingTrace(parameterDictionary)
 
 	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
 
-		eligibilityTraceTensor[1][actionIndex] = 1
+		eligibilityTraceTensor[actionIndex] = 1
 
 		return eligibilityTraceTensor
 
@@ -150,7 +150,7 @@ function EligibilityTrace:calculate(parameterDictionary)
 	
 	if (actionIndex) then
 		
-		return (temporalDifferenceError * eligibilityTraceTensor[1][actionIndex])
+		return (temporalDifferenceError * eligibilityTraceTensor[actionIndex])
 
 	else
 
