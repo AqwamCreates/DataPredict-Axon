@@ -124,9 +124,9 @@ function EligibilityTrace:increment(parameterDictionary)
 	
 	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[2]
 	
-	local dimensionSizeArray = parameterDictionary.dimensionSizeArray or parameterDictionary[3]
+	local numberOfActions = parameterDictionary.numberOfActions or parameterDictionary[3]
 
-	local eligibilityTraceTensor = self.eligibilityTraceTensor or AqwamTensorLibrary:createTensor(dimensionSizeArray, 0) 
+	local eligibilityTraceTensor = self.eligibilityTraceTensor or AqwamTensorLibrary:createTensor({numberOfActions}, 0) 
 
 	eligibilityTraceTensor = AqwamTensorLibrary:multiply(eligibilityTraceTensor, discountFactor * self.lambda)
 
