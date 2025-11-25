@@ -1701,7 +1701,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 
 		local oldPolicyActionProbabilityTensor = calculateCategoricalProbability(oldPolicyActionTensor)
 
-		local ratioActionProbabilityTensor = currentPolicyActionProbabilityTensor / oldPolicyActionProbabilityTensor
+		local ratioActionProbability = currentPolicyActionProbabilityTensor[1][previousActionIndex] / oldPolicyActionProbabilityTensor[1][previousActionIndex]
 
 		local previousCriticValue = CriticModel{previousFeatureTensor}
 
@@ -1709,7 +1709,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 
 		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
 
-		table.insert(ratioActionProbabilityTensorArray, ratioActionProbabilityTensor)
+		table.insert(ratioActionProbabilityTensorArray, ratioActionProbability)
 
 		table.insert(advantageValueArray, advantageValue)
 
@@ -1875,7 +1875,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 
 		local oldPolicyActionProbabilityTensor = calculateCategoricalProbability(oldPolicyActionTensor)
 
-		local ratioActionProbabilityTensor = currentPolicyActionProbabilityTensor / oldPolicyActionProbabilityTensor
+		local ratioActionProbability = currentPolicyActionProbabilityTensor[1][previousActionIndex] / oldPolicyActionProbabilityTensor[1][previousActionIndex]
 
 		local previousCriticValue = CriticModel{previousFeatureTensor}
 
@@ -1883,7 +1883,7 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 
 		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
 
-		table.insert(ratioActionProbabilityTensorArray, ratioActionProbabilityTensor)
+		table.insert(ratioActionProbabilityTensorArray, ratioActionProbability)
 
 		table.insert(advantageValueArray, advantageValue)
 
