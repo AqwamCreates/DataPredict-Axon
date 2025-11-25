@@ -1785,11 +1785,11 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 	
 	local probabilityTensor = AqwamTensorLibrary:divide(absoluteTensor, sumAbsoluteTensor)
 	
-	local cumulativeSumTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
-	
 	local newDimensionSizeArray = table.clone(dimensionSizeArray)
 	
 	newDimensionSizeArray[dimension] = 1
+	
+	local cumulativeProbabilityTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
 	
 	local randomProbabilityTensor = AqwamTensorLibrary:createRandomUniformTensor(newDimensionSizeArray)
 	
@@ -1800,6 +1800,8 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 	local originDimensionSizeArray
 	
 	local targetDimensionSizeArray
+	
+	local indexFunction
 
 	for i = 1, dimensionSizeArray[dimension], 1 do
 		
@@ -1812,6 +1814,20 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 		targetDimensionSizeArray[dimension] = i
 		
 		subProbabilityTensor = AqwamTensorLibrary:extract(probabilityTensor, originDimensionSizeArray, targetDimensionSizeArray)
+		
+		cumulativeProbabilityTensor = AqwamTensorLibrary:add(cumulativeProbabilityTensor, subProbabilityTensor)
+		
+		indexFunction = function(index, cumulativeProbabilityValue, randomProbabilityValue)
+
+			if (index ~= 0) then return index end
+
+			if (cumulativeProbabilityValue >= randomProbabilityValue) then return i end
+			
+			return 0
+
+		end
+		
+		indexTensor = AqwamTensorLibrary:applyFunction(indexFunction, indexTensor, cumulativeProbabilityTensor, randomProbabilityTensor)
 		
 	end
 
