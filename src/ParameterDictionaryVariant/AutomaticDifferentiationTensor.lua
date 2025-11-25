@@ -1761,6 +1761,66 @@ end
 
 --------------------------------------------------------------------------------------
 
+function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+	
+	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
+
+	local dimension = parameterDictionary.dimension or parameterDictionary[1]
+	
+	local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
+	
+	if (dimension <= 0) then error("The dimension cannot be less than or equal to zero.") end
+	
+	local numberOfDimensions = #dimensionSizeArray
+	
+	if (dimension > numberOfDimensions) then error("The dimension cannot be greater than the tensor's number of dimensions.") end
+	
+	local inputTensorArray = {self}
+	
+	local absoluteTensor = AqwamTensorLibrary:applyFunction(math.abs, selfTensorValue)
+	
+	local sumAbsoluteTensor = AqwamTensorLibrary:sum(absoluteTensor, dimension)
+	
+	local probabilityTensor = AqwamTensorLibrary:divide(absoluteTensor, sumAbsoluteTensor)
+	
+	local cumulativeSumTensor = AqwamTensorLibrary:createTensor(dimensionSizeArray)
+	
+	local newDimensionSizeArray = table.clone(dimensionSizeArray)
+	
+	newDimensionSizeArray[dimension] = 1
+	
+	local randomProbabilityTensor = AqwamTensorLibrary:createRandomUniformTensor(newDimensionSizeArray)
+	
+	local indexTensor = AqwamTensorLibrary:createTensor(newDimensionSizeArray)
+	
+	local subProbabilityTensor
+	
+	local originDimensionSizeArray
+	
+	local targetDimensionSizeArray
+
+	for i = 1, dimensionSizeArray[dimension], 1 do
+		
+		originDimensionSizeArray = table.create(numberOfDimensions, 1)
+		
+		targetDimensionSizeArray = table.clone(newDimensionSizeArray)
+		
+		originDimensionSizeArray[dimension] = i
+		
+		targetDimensionSizeArray[dimension] = i
+		
+		subProbabilityTensor = AqwamTensorLibrary:extract(probabilityTensor, originDimensionSizeArray, targetDimensionSizeArray)
+		
+	end
+
+	return AHAAutomaticDifferentiationTensor.new({indexTensor, nil, inputTensorArray})
+
+end
+
+--------------------------------------------------------------------------------------
+
 function AHAAutomaticDifferentiationTensor:isAutomaticDifferentiationTensor()
 
 	return true

@@ -1,5 +1,9 @@
 # DataPredict™ Axon Beta Version
 
+## Version 1.7
+
+[1.7.0](Beta/1-7-0.md) -- 25/11/2025
+
 ## Version 1.6
 
 [1.6.0](Beta/1-6-0.md) -- 12/11/2025
