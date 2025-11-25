@@ -364,9 +364,9 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 		
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 			
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -426,9 +426,9 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentAdvantageValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentAdvantageValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -502,9 +502,9 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -568,9 +568,9 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -640,11 +640,10 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 		
 		if (EligibilityTrace) then
 			
-			local dimensionSizeArray = maxQValueArray[1]:getDimensionSizeArray()
+			local numberOfActions = maxQValueArray[1]:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			
 		end
 		
 		for i = 1, 2, 1 do
@@ -711,9 +710,9 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -783,9 +782,9 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -845,9 +844,9 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 		
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -947,9 +946,9 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -1061,9 +1060,9 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
@@ -1165,9 +1164,9 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 		if (EligibilityTrace) then
 
-			local dimensionSizeArray = currentQValueTensor:getDimensionSizeArray()
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
-			EligibilityTrace:increment{previousActionIndex, discountFactor, dimensionSizeArray}
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
 			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
 
