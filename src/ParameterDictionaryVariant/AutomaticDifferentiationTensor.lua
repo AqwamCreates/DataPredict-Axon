@@ -1787,6 +1787,8 @@ function AHAAutomaticDifferentiationTensor:sample(parameterDictionary)
 	
 	dimensionSizeArray[dimension] = 1
 	
+	local randomProbabilityTensor = AqwamTensorLibrary:createRandomUniformTensor(dimensionSizeArray)
+	
 	local indexTensor
 
 	return AHAAutomaticDifferentiationTensor.new({indexTensor, nil, inputTensorArray})
