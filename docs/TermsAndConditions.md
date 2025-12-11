@@ -1,6 +1,7 @@
 # TERMS AND CONDITIONS
 
 ## License
+
 These terms and conditions (“Agreement”) is a legal agreement between you (or company or organization) recognized as “User” and Aqwam Harish Aiman recognised as “Licensor” for the use of DataPredict Axon Library (“Library”) within this terms and conditions. By using or possessing the Library, User, agrees to be bound by the terms of this Agreement.
 
 ## Definitions
@@ -47,7 +48,7 @@ These terms and conditions (“Agreement”) is a legal agreement between you (o
  
   * Determine the timing and manner of such release.
 
-* User may not remove codes that the Licensor has released under MIT license pursuant to this Agreement.
+* The User may not remove codes that the Licensor has released under MIT license pursuant to this Agreement.
 
 * The User agrees that release of Interacting assets under MIT license constitutes reasonable alternative consideration and benefit in lieu for the use and posession of the Library. This remedy represents the parties' good faith estimate of fair compensation.
 
