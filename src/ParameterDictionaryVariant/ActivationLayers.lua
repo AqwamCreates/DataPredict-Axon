@@ -344,7 +344,13 @@ function ActivationLayer.FastSigmoidLinearUnit(parameterDictionary)
 			
 			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
-			local partialDerivativeFunctionToApply = function (z) return (1 + math.exp(-z) + (z * math.exp(-z))) / (1 + math.exp(-z))^2 end
+			local partialDerivativeFunctionToApply = function (z)
+				
+				local sigmoidValue = 1 / (1 + math.exp(-z))
+				
+				return (sigmoidValue * (1 + (z * (1 - sigmoidValue))))
+				
+			end
 
 			local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureTensor)
 
