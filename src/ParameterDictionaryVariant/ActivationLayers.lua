@@ -284,7 +284,7 @@ function ActivationLayer.FastExponentLinearUnit(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local negativeSlopeFactor = parameterDictionary.negativeSlopeFactor or parameterDictionary[2] or 0.01
+	local negativeSlopeFactor = parameterDictionary.negativeSlopeFactor or parameterDictionary[2] or 1
 
 	local functionToApply = function (z) return if (z > 0) then z else ((math.exp(z) - 1) * negativeSlopeFactor) end
 
@@ -636,7 +636,7 @@ function ActivationLayer.ExponentLinearUnit(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local negativeSlopeFactor = parameterDictionary.negativeSlopeFactor or parameterDictionary[2] or 0.01
+	local negativeSlopeFactor = parameterDictionary.negativeSlopeFactor or parameterDictionary[2] or 1
 
 	return AutomaticDifferentiationTensor.maximum{tensor, (AutomaticDifferentiationTensor.exponent{tensor} - 1) * negativeSlopeFactor}
 
