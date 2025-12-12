@@ -1394,7 +1394,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 
 		CriticWeightContainer:gradientDescent()
 
-		table.clear(actionProbabilityTensorArray)
+		table.clear(actionProbabilityArray)
 
 		table.clear(advantageValueArray)
 
@@ -1406,7 +1406,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 	
 	local resetFunction = function()
 
-		table.clear(actionProbabilityTensorArray)
+		table.clear(actionProbabilityArray)
 
 		table.clear(advantageValueArray)
 
