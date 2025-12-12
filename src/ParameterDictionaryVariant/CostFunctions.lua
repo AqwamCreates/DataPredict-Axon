@@ -64,6 +64,94 @@ local function collapseTensor(tensor, targetDimensionSizeArray)
 
 end
 
+function CostFunctions.FastEpsilonInsentitiveLoss(parameterDictionary)
+
+	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
+
+	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
+
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or 1
+
+	local cValue = parameterDictionary.cValue or parameterDictionary[4] or 1
+	
+	local inputTensorArray = {generatedLabelTensor, labelTensor}
+	
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+	local errorTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
+
+	local epsilonErrorTensor = AqwamTensorLibrary:subtract(errorTensor, epsilon)
+
+	local positiveSlackVariableTensor = AqwamTensorLibrary:applyFunction(math.max, 0, epsilonErrorTensor)
+
+	local negativeSlackVariableTensor = AqwamTensorLibrary:applyFunction(math.max, 0, -epsilonErrorTensor)
+
+	local slackVariableTensor = AqwamTensorLibrary:add(positiveSlackVariableTensor, negativeSlackVariableTensor)
+
+	local sumSlackVariableValue = AqwamTensorLibrary:sum(slackVariableTensor)
+
+	local numberOfData = getNumberOfData(labelTensor)
+
+	local resultValue = (cValue * sumSlackVariableValue) / numberOfData
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		local generatedLabelTensor = inputTensorArray[1]
+
+		local labelTensor = inputTensorArray[2]
+
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+		local functionToApply = function(errorValue) return ((errorValue > epsilon) and (errorValue - epsilon)) or ((errorValue < -epsilon) and (errorValue + epsilon)) or 0 end
+
+		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:applyFunction(functionToApply, errorTensor)
+		
+		partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(cValue, partialFirstDerivativeTensorPart1)
+		
+		partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(partialFirstDerivativeTensorPart1, numberOfData)
+
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+
+				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensorPart1)
+
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
+
+				generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
+
+			end
+
+		end
+
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+
+				local negativeFirstDerivativeTensor = AqwamTensorLibrary:multiply(-1, firstDerivativeTensor, partialFirstDerivativeTensorPart1)
+
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+
+				local collapsedNegativeFirstDerivativeTensor = collapseTensor(negativeFirstDerivativeTensor, dimensionSizeArray)
+
+				labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
 function CostFunctions.FastHingeLoss(parameterDictionary)
 
 	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
@@ -101,16 +189,16 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 		local indicatorFunction = function(x) return ((x > 0) and 1) or 0 end
 
 		local indicatorTensor = AqwamTensorLibrary:applyFunction(indicatorFunction, hingeLossTensorPart2)
+		
+		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(indicatorTensor, -numberOfData)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
 			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
 				
-				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(-1, pureLabelTensor, indicatorTensor) 
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensorPart1, pureLabelTensor) 
 
 				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)
-				
-				firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, numberOfData)
 
 				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
 
@@ -126,17 +214,15 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 
 			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
 				
-				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(-1, labelTensor, indicatorTensor) 
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensorPart1, labelTensor) 
 
 				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)
-				
-				firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, numberOfData)
 
 				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
 
-				local collapsedNegativeFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
+				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 
-				labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
+				labelTensor:differentiate{collapsedFirstDerivativeTensor}
 
 			end
 
@@ -629,6 +715,36 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 end
 
 ------------------------------------------
+
+function CostFunctions.EpsilonInsentitiveLoss(parameterDictionary)
+
+	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
+
+	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
+	
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or 1
+	
+	local cValue = parameterDictionary.cValue or parameterDictionary[4] or 1
+	
+	local errorTensor = generatedLabelTensor - labelTensor
+	
+	local epsilonErrorTensor = errorTensor - epsilon
+	
+	local positiveSlackVariableTensor = AutomaticDifferentiationTensor.maximum{0, epsilonErrorTensor}
+	
+	local negativeSlackVariableTensor = AutomaticDifferentiationTensor.maximum{0, -epsilonErrorTensor}
+	
+	local slackVariableTensor = positiveSlackVariableTensor + negativeSlackVariableTensor
+	
+	local sumSlackVariableValue = slackVariableTensor:sum()
+
+	local numberOfData = getNumberOfData(labelTensor)
+
+	local resultValue = (cValue * sumSlackVariableValue) / numberOfData
+
+	return resultValue
+
+end
 
 function CostFunctions.HingeLoss(parameterDictionary)
 
