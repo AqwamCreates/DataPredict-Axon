@@ -32,6 +32,8 @@ DataPredictAxon.AutomaticDifferentiationTensor = require(script.AutomaticDiffere
 
 DataPredictAxon.ActivationLayers = require(script.ActivationLayers)
 
+DataPredictAxon.LinkLayers = require(script.LinkLayers)
+
 DataPredictAxon.CostFunctions = require(script.CostFunctions)
 
 DataPredictAxon.RegularizationFunctions = require(script.RegularizationFunctions)
