@@ -42,17 +42,13 @@ function LinkLayer.FastLogit(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local functionToApply = function(z)
-		
-		local x = math.clamp(z, epsilon, epsilonComplement)
-
-		return math.log(x / (1 - x))	
-		
-	end
+	local functionToApply = function(z) return math.log(z / (1 - z)) end
 
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+	
+	local clampedTensor = AqwamTensorLibrary:applyFunction(math.clamp, pureTensor, epsilon, epsilonComplement)
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
 
 	local PartialFirstDerivativeFunction
 
@@ -68,7 +64,7 @@ function LinkLayer.FastLogit(parameterDictionary)
 
 			local functionToApply = function (z) return 1 / (z * (1 - z)) end
 
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
 
@@ -128,11 +124,13 @@ function LinkLayer.FastLogLog(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local functionToApply = function(z) return math.log(-math.log(math.clamp(z, epsilon, 1))) end
+	local functionToApply = function(z) return math.log(-math.log(z)) end
 
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+	
+	local clampedTensor = AqwamTensorLibrary:applyFunction(math.clamp, pureTensor, epsilon, 1)
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
 
 	local PartialFirstDerivativeFunction
 
@@ -148,7 +146,7 @@ function LinkLayer.FastLogLog(parameterDictionary)
 
 			local functionToApply = function (z) return 1 / -math.log(z) end
 
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
 
@@ -208,9 +206,11 @@ function LinkLayer.FastComplementLogLog(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local functionToApply = function(z) return math.log(-math.log(1 - math.clamp(z, 0, epsilonComplement))) end
+	local functionToApply = function(z) return math.log(-math.log(1 - z)) end
 
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+	
+	local clampedTensor = AqwamTensorLibrary:applyFunction(math.clamp, pureTensor, 0, epsilonComplement)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -228,7 +228,7 @@ function LinkLayer.FastComplementLogLog(parameterDictionary)
 
 			local functionToApply = function (z) return 1 / ((1 - z) * math.log((1 - z))) end
 
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
 
@@ -288,9 +288,11 @@ function LinkLayer.FastPoisson(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local functionToApply = function(z) return math.log(math.clamp(z, epsilon, 1)) end
+	local functionToApply = function(z) return math.log(z) end
 
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+	
+	local clampedTensor = AqwamTensorLibrary:applyFunction(math.clamp, pureTensor, epsilon, 1)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
@@ -308,7 +310,7 @@ function LinkLayer.FastPoisson(parameterDictionary)
 
 			local functionToApply = function (z) return 1 / z end
 
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
 
