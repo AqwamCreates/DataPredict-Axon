@@ -512,7 +512,7 @@ local unaryOperationDictionary = {
 	tan = {
 
 		operatorFunction = function(tensor) return AqwamTensorLibrary:applyFunction(math.tan, tensor) end,
-		derivativeFunction = function(firstDerivativeTensor,tensor) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, radianValue) return firstDerivativeValue * math.pow((1 / math.cos(radianValue)), 2) end, firstDerivativeTensor, tensor) end
+		derivativeFunction = function(firstDerivativeTensor, tensor) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, radianValue) return firstDerivativeValue * math.pow((1 / math.cos(radianValue)), 2) end, firstDerivativeTensor, tensor) end
 
 	},
 	
