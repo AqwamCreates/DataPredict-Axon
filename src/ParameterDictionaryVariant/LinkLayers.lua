@@ -282,7 +282,7 @@ function LinkLayer.FastInverseComplementLogLog(parameterDictionary)
 
 end
 
-function LinkLayer.FastPoisson(parameterDictionary)
+function LinkLayer.FastLog(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -292,9 +292,9 @@ function LinkLayer.FastPoisson(parameterDictionary)
 
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 	
-	local clampedTensor = AqwamTensorLibrary:applyFunction(math.clamp, pureTensor, epsilon, 1)
+	local maximumTensor = AqwamTensorLibrary:applyFunction(math.max, pureTensor, epsilon)
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, maximumTensor)
 
 	local PartialFirstDerivativeFunction
 
@@ -310,7 +310,7 @@ function LinkLayer.FastPoisson(parameterDictionary)
 
 			local functionToApply = function (z) return 1 / z end
 
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, maximumTensor)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
 
@@ -324,7 +324,7 @@ function LinkLayer.FastPoisson(parameterDictionary)
 
 end
 
-function LinkLayer.FastInversePoisson(parameterDictionary)
+function LinkLayer.FastInverseLog(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -426,7 +426,7 @@ function LinkLayer.InverseComplementaryLogLog(parameterDictionary)
 
 end
 
-function LinkLayer.Poisson(parameterDictionary)
+function LinkLayer.Log(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
@@ -436,7 +436,7 @@ function LinkLayer.Poisson(parameterDictionary)
 
 end
 
-function LinkLayer.InversePoisson(parameterDictionary)
+function LinkLayer.InverseLog(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
