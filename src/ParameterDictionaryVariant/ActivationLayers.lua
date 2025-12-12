@@ -126,7 +126,7 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local functionToApply = function(z) return (1 / (1 + math.exp(-1 * z))) end
+	local functionToApply = function(z) return (1 / (1 + math.exp(-z))) end
 	
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
