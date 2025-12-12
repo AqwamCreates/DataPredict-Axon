@@ -34,13 +34,15 @@ local ReqularizationFunctions = {}
 
 local defaultLambda = 0.01
 
+local defaultNumberOfData = 1
+
 function ReqularizationFunctions.FastLasso(parameterDictionary)
 
 	local weightTensor = parameterDictionary.weightTensor or parameterDictionary[1]
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[2] or defaultLambda
 
-	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3]
+	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3] or defaultNumberOfData
 
 	local inputTensorArray = {weightTensor}
 
@@ -84,7 +86,7 @@ function ReqularizationFunctions.FastRidge(parameterDictionary)
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[2] or defaultLambda
 
-	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3]
+	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3] or defaultNumberOfData
 	
 	local inputTensorArray = {weightTensor}
 	
@@ -126,7 +128,7 @@ function ReqularizationFunctions.FastElasticNet(parameterDictionary)
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[2] or defaultLambda
 
-	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3]
+	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3] or defaultNumberOfData
 
 	local inputTensorArray = {weightTensor}
 
@@ -176,7 +178,7 @@ function ReqularizationFunctions.Lasso(parameterDictionary)
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[2] or defaultLambda
 
-	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3]
+	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3] or defaultNumberOfData
 
 	local absoluteWeightTensor = lambda * weightTensor:absolute()
 
@@ -194,7 +196,7 @@ function ReqularizationFunctions.Ridge(parameterDictionary)
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[2] or defaultLambda
 	
-	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3]
+	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3] or defaultNumberOfData
 	
 	local absoluteWeightTensor = lambda * weightTensor^2
 
@@ -212,7 +214,7 @@ function ReqularizationFunctions.ElasticNet(parameterDictionary)
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[2] or defaultLambda
 
-	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3]
+	local numberOfData = parameterDictionary.numberOfData or parameterDictionary[3] or defaultNumberOfData
 
 	local elasticNetWeightTensor = lambda * (weightTensor^2 + weightTensor:absolute())
 
