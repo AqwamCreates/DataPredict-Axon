@@ -535,6 +535,13 @@ local unaryOperationDictionary = {
 		operatorFunction = function(tensor) return AqwamTensorLibrary:findMinimumValue(tensor) end,
 		derivativeFunction = function(firstDerivativeTensor, tensor, resultValue) return AqwamTensorLibrary:applyFunction(function(firstDerivativeValue, value) return ((value == resultValue) and value) or 0 end, firstDerivativeTensor, tensor) end
 
+	},
+	
+	inverse = {
+
+		operatorFunction = function(tensor) return AqwamTensorLibrary:inverse(tensor) end,
+		derivativeFunction = function(firstDerivativeTensor, tensor, resultTensor) return AqwamTensorLibrary:unaryMinus(AqwamTensorLibrary:dotProduct(resultTensor, firstDerivativeTensor, resultTensor)) end
+
 	}
 	
 }
