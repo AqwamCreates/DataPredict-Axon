@@ -360,6 +360,52 @@ function ActivationLayer.FastSigmoidLinearUnit(parameterDictionary)
 
 end
 
+function ActivationLayer.FastSwish(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local functionToApply = function (z) return z / (1 + math.exp(-z)) end
+
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+
+	local PartialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			local partialDerivativeFunctionToApply = function (a, z) 
+				
+				local sigmoidValue = 1 / (1 + math.exp(-z))
+				
+				return (sigmoidValue + (a * (1 - sigmoidValue)))
+				
+			end
+
+			local gradientTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, resultTensor, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
+
+		end
+
+	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+
+end
+
 function ActivationLayer.FastGaussian(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
@@ -648,7 +694,17 @@ function ActivationLayer.SigmoidLinearUnit(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	return 1 / (1 + AutomaticDifferentiationTensor.exponent{-tensor})
+	return tensor / (1 + AutomaticDifferentiationTensor.exponent{-tensor})
+
+end
+
+function ActivationLayer.Swish(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	return tensor / (1 + AutomaticDifferentiationTensor.exponent{-tensor})
 
 end
 
