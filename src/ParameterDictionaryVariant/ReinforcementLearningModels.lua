@@ -82,11 +82,11 @@ local function calculateCategoricalProbability(valueTensor)
 
 	local exponentValueTensor = AutomaticDifferentiationTensor.exponent{subtractedZTensor}
 
-	local exponentValueSumTensor = exponentValueTensor:sum{2}
+	local sumExponentValue = exponentValueTensor:sum{2}
 
-	local targetActionTensor = exponentValueTensor / exponentValueSumTensor
+	local targetActionTensor = exponentValueTensor / sumExponentValue
 
-	return exponentValueTensor
+	return targetActionTensor
 
 end
 
