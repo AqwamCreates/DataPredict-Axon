@@ -54,28 +54,6 @@ function Regularizer.new(parameterDictionary)
 
 end
 
-function Regularizer.ElasticNet(parameterDictionary)
-	
-	parameterDictionary = parameterDictionary or {}
-	
-	local lambda = parameterDictionary.lambda or parameterDictionary[1] or defaultLambda
-	
-	local CalculateFunction = function(weightTensor)
-		
-		local signMatrix = AqwamTensorLibrary:applyFunction(math.sign, weightTensor)
-
-		local regularizationMatrixPart1 = AqwamTensorLibrary:multiply(lambda, signMatrix)
-
-		local regularizationMatrixPart2 = AqwamTensorLibrary:multiply(2, lambda, weightTensor)
-
-		return AqwamTensorLibrary:add(regularizationMatrixPart1, regularizationMatrixPart2)
-		
-	end
-	
-	return Regularizer.new({CalculateFunction})
-	
-end
-
 function Regularizer.Lasso(parameterDictionary)
 	
 	parameterDictionary = parameterDictionary or {}
@@ -103,6 +81,28 @@ function Regularizer.Ridge(parameterDictionary)
 	local CalculateFunction = function(weightTensor)
 
 		return AqwamTensorLibrary:multiply(2, lambda, weightTensor)
+
+	end
+
+	return Regularizer.new({CalculateFunction})
+
+end
+
+function Regularizer.ElasticNet(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local lambda = parameterDictionary.lambda or parameterDictionary[1] or defaultLambda
+
+	local CalculateFunction = function(weightTensor)
+
+		local signMatrix = AqwamTensorLibrary:applyFunction(math.sign, weightTensor)
+
+		local regularizationMatrixPart1 = AqwamTensorLibrary:multiply(lambda, signMatrix)
+
+		local regularizationMatrixPart2 = AqwamTensorLibrary:multiply(2, lambda, weightTensor)
+
+		return AqwamTensorLibrary:add(regularizationMatrixPart1, regularizationMatrixPart2)
 
 	end
 
