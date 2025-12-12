@@ -1526,6 +1526,104 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 
 end
 
+function ReinforcementLearningModels.TemporalDifferenceActorCritic(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local ActorModel = parameterDictionary.ActorModel or parameterDictionary[1]
+
+	local ActorWeightContainer = parameterDictionary.ActorWeightContainer or parameterDictionary[2]
+
+	local CriticModel = parameterDictionary.CriticModel or parameterDictionary[3]
+
+	local CriticWeightContainer = parameterDictionary.CriticWeightContainer or parameterDictionary[4]
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[5] or defaultDiscountFactor
+	
+	local EligibilityTrace = parameterDictionary.EligibilityTrace or parameterDictionary[6]
+
+	if (not ActorModel) then error("No actor model.") end
+
+	if (not ActorWeightContainer) then error("No actor weight container.") end
+
+	if (not CriticModel) then error("No critic model.") end
+
+	if (not CriticWeightContainer) then error("No actor weight container.") end
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
+
+		local actionTensor = ActorModel{previousFeatureTensor}
+
+		local previousCriticValue = CriticModel{previousFeatureTensor}
+
+		local currentCriticValue = CriticModel{currentFeatureTensor}
+
+		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
+
+		local temporalDifferenceError = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
+
+		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
+		
+		local actorLossTensor = logActionProbabilityTensor * temporalDifferenceError
+		
+		local firstDerivativeValue
+
+		if (EligibilityTrace) then
+
+			local numberOfActions = actorLossTensor:getDimensionSizeArray()[2]
+
+			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
+
+			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+
+		end
+		
+		actorLossTensor:differentiate{}
+
+		temporalDifferenceError:differentiate{firstDerivativeValue}
+		
+		ActorWeightContainer:gradientAscent()
+
+		CriticWeightContainer:gradientDescent()
+		
+		return temporalDifferenceError
+
+	end
+
+	local diagonalGaussianUpdateFunction = function(previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue)
+
+		local actionMeanTensor, actionStandardDeviationTensor = ActorModel{previousFeatureTensor}
+
+		local previousCriticValue = CriticModel{previousFeatureTensor}
+
+		local currentCriticValue = CriticModel{currentFeatureTensor}
+
+		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
+
+		local temporalDifferenceError = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
+		
+		local actorLossTensor = actionProbabilityTensor * temporalDifferenceError
+		
+		actorLossTensor:differentiate{}
+		
+		temporalDifferenceError:differentiate{}
+
+		ActorWeightContainer:gradientAscent()
+
+		CriticWeightContainer:gradientDescent()
+		
+		return temporalDifferenceError
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	local resetFunction = function() if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
+
+end
+
 function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
