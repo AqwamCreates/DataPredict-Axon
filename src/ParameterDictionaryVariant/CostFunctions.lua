@@ -82,9 +82,11 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 
 	local hingeLossTensor = AqwamTensorLibrary:applyFunction(math.max, 0, hingeLossTensorPart1)
 
-	local sumHingeLossTensorTensor = AqwamTensorLibrary:sum(hingeLossTensor)
+	local sumHingeLossTensorValue = AqwamTensorLibrary:sum(hingeLossTensor)
 
 	local numberOfData = getNumberOfData(labelTensor)
+	
+	local resultValue = sumHingeLossTensorValue / numberOfData
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
