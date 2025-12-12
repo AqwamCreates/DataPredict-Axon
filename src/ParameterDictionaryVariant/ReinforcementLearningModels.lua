@@ -1300,7 +1300,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 
 	if (not AdvantageFunction) then error("No advantage function.") end
 
-	local actionProbabilityTensorArray = {}
+	local actionProbabilityArray = {}
 
 	local advantageValueArray = {}
 
@@ -1317,10 +1317,12 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 		local advantageValue = AdvantageFunction{previousFeatureTensor}
 
 		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
+		
+		local actionProbability = actionProbabilityTensor[1][previousActionIndex]
 
-		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
+		local logActionProbability = AutomaticDifferentiationTensor.logarithm{actionProbability}
 
-		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
+		table.insert(actionProbabilityArray, logActionProbability)
 
 		table.insert(advantageValueArray, advantageValue)
 
@@ -1340,7 +1342,7 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 
 		local actionProbabilityTensor = calculateDiagonalGaussianProbability(actionMeanTensor, actionStandardDeviationTensor, actionNoiseTensor)
 
-		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
+		table.insert(actionProbabilityArray, actionProbabilityTensor)
 
 		table.insert(advantageValueArray, advantageValue)
 
@@ -1372,19 +1374,19 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 
 		end
 
-		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
+		for h, actionProbability in ipairs(actionProbabilityArray) do
 
 			local criticCost = CostFunctions.FastMeanSquaredError{rewardToGoArray[h], criticValueArray[h]}
 
-			local actorLossTensor = actionProbabilityTensor * advantageValueArray[h]
+			local actorLoss = actionProbability * advantageValueArray[h]
 
 			criticCost:differentiate()
 
-			actorLossTensor:differentiate()
+			actorLoss:differentiate()
 
 			criticCost:destroy{true}
 
-			actorLossTensor:destroy{true}
+			actorLoss:destroy{true}
 
 		end
 
@@ -1561,16 +1563,18 @@ function ReinforcementLearningModels.TemporalDifferenceActorCritic(parameterDict
 		local actionProbabilityTensor = calculateCategoricalProbability(actionTensor)
 
 		local temporalDifferenceError = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
-
-		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
 		
-		local actorLossTensor = logActionProbabilityTensor * temporalDifferenceError
+		local actionProbability = actionProbabilityTensor[1][previousActionIndex]
+
+		local logActionProbability = AutomaticDifferentiationTensor.logarithm{actionProbability}
+		
+		local actorLoss = logActionProbability * temporalDifferenceError
 		
 		local firstDerivativeValue
 
 		if (EligibilityTrace) then
 
-			local numberOfActions = actorLossTensor:getDimensionSizeArray()[2]
+			local numberOfActions = actionProbabilityTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
@@ -1578,7 +1582,7 @@ function ReinforcementLearningModels.TemporalDifferenceActorCritic(parameterDict
 
 		end
 		
-		actorLossTensor:differentiate{}
+		actorLoss:differentiate{}
 
 		temporalDifferenceError:differentiate{firstDerivativeValue}
 		
@@ -1648,7 +1652,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 	if (not CriticWeightContainer) then error("No actor weight container.") end
 
-	local actionProbabilityTensorArray = {}
+	local actionProbabilityArray = {}
 
 	local advantageValueArray = {}
 
@@ -1664,9 +1668,11 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
 
-		local logActionProbabilityTensor = AutomaticDifferentiationTensor.logarithm{actionProbabilityTensor}
+		local actionProbability = actionProbabilityTensor[1][previousActionIndex]
 
-		table.insert(actionProbabilityTensorArray, logActionProbabilityTensor)
+		local logActionProbability = AutomaticDifferentiationTensor.logarithm{actionProbability}
+
+		table.insert(actionProbabilityArray, logActionProbability)
 
 		table.insert(advantageValueArray, advantageValue)
 
@@ -1684,7 +1690,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 		local advantageValue = rewardValue + (discountFactor * (1 - terminalStateValue) * currentCriticValue) - previousCriticValue
 
-		table.insert(actionProbabilityTensorArray, actionProbabilityTensor)
+		table.insert(actionProbabilityArray, actionProbabilityTensor)
 
 		table.insert(advantageValueArray, advantageValue)
 
@@ -1710,19 +1716,19 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 		end
 
-		for h, actionProbabilityTensor in ipairs(actionProbabilityTensorArray) do
+		for h, actionProbability in ipairs(actionProbabilityArray) do
 
 			local advantageValue = advantageValueArray[h]
 
-			local actorLossTensor = actionProbabilityTensor * advantageValue
+			local actorLoss = actionProbability * advantageValue
 
 			advantageValue:differentiate()
 
-			actorLossTensor:differentiate()
+			actorLoss:differentiate()
 
 			advantageValue:destroy{true}
 
-			actorLossTensor:destroy{true}
+			actorLoss:destroy{true}
 
 		end
 
@@ -1730,7 +1736,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 		CriticWeightContainer:gradientDescent()
 
-		table.clear(actionProbabilityTensorArray)
+		table.clear(actionProbabilityArray)
 
 		table.clear(advantageValueArray)
 
@@ -1738,7 +1744,7 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 	
 	local resetFunction = function()
 
-		table.clear(actionProbabilityTensorArray)
+		table.clear(actionProbabilityArray)
 
 		table.clear(advantageValueArray)
 
