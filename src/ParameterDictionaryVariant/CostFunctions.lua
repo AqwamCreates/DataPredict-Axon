@@ -64,6 +64,86 @@ local function collapseTensor(tensor, targetDimensionSizeArray)
 
 end
 
+function CostFunctions.FastHingeLoss(parameterDictionary)
+
+	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
+
+	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
+	
+	local inputTensorArray = {generatedLabelTensor, labelTensor}
+	
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+	
+	local hingeLossTensorPart1 = AqwamTensorLibrary:multiply(pureLabelTensor, pureGeneratedLabelTensor)
+
+	local hingeLossTensorPart2 = AqwamTensorLibrary:subtract(1, hingeLossTensorPart1)
+
+	local hingeLossTensor = AqwamTensorLibrary:applyFunction(math.max, 0, hingeLossTensorPart1)
+
+	local sumHingeLossTensorTensor = AqwamTensorLibrary:sum(hingeLossTensor)
+
+	local numberOfData = getNumberOfData(labelTensor)
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		local generatedLabelTensor = inputTensorArray[1]
+
+		local labelTensor = inputTensorArray[2]
+
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+		local scale = 1 / numberOfData
+
+		local indicatorFunction = function(x) return ((x > 0) and 1) or 0 end
+
+		local indicatorTensor = AqwamTensorLibrary:applyFunction(indicatorFunction, hingeLossTensorPart2)
+
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+				
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(-1, pureLabelTensor, indicatorTensor) 
+
+				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
+
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
+
+				generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
+
+			end
+
+		end
+
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+				
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(-1, labelTensor, indicatorTensor) 
+
+				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor, scale)
+
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+
+				local collapsedNegativeFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
+
+				labelTensor:differentiate{collapsedNegativeFirstDerivativeTensor}
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
 function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 	
 	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
@@ -547,6 +627,26 @@ function CostFunctions.FastMeanSquaredError(parameterDictionary)
 end
 
 ------------------------------------------
+
+function CostFunctions.HingeLoss(parameterDictionary)
+
+	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
+
+	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
+	
+	local hingeLossTensorPart1 = 1 - (generatedLabelTensor * labelTensor)
+
+	local hingeLossTensor = AutomaticDifferentiationTensor.maximum{0, hingeLossTensorPart1}
+
+	local sumHingeLossTensorTensor = hingeLossTensor:sum()
+
+	local numberOfData = getNumberOfData(labelTensor)
+
+	local resultValue = sumHingeLossTensorTensor / numberOfData
+
+	return resultValue
+
+end
 
 function CostFunctions.BinaryCrossEntropy(parameterDictionary)
 
