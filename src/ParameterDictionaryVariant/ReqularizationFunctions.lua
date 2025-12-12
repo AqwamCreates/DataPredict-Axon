@@ -157,8 +157,10 @@ function ReqularizationFunctions.FastElasticNet(parameterDictionary)
 		local firstDerivativeTensorPart2 = AqwamTensorLibrary:add(firstDerivativeTensorPart1, signTensor)
 		
 		firstDerivativeTensor = AqwamTensorLibrary:multiply(lambda, firstDerivativeTensorPart2, firstDerivativeTensor)
+		
+		firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, numberOfData)
 
-		return AqwamTensorLibrary:divide(firstDerivativeTensor, numberOfData)
+		weightTensor:differentiate{firstDerivativeTensor}
 
 	end
 
