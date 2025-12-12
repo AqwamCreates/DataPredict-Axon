@@ -146,7 +146,7 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 
 			local functionToApply = function (a) return (a * (1 - a)) end
 
-			local gradientTensor = = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+			local gradientTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
