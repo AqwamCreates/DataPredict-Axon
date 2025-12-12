@@ -146,7 +146,7 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 
 			local functionToApply = function (a) return (a * (1 - a)) end
 
-			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+			local chainRuleFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, resultTensor)
 
 			tensor:differentiate{chainRuleFirstDerivativeTensor}
 
