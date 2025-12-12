@@ -510,17 +510,7 @@ function CostFunctions.FastMeanAbsoluteError(parameterDictionary)
 
 		local lossTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
 		
-		local functionToApply = function(x)
-			
-			if (x > 0) then return 1
-				
-			elseif (x < 0) then return -1
-				
-			else return 0 end
-			
-		end
-		
-		lossTensor = AqwamTensorLibrary:applyFunction(functionToApply, lossTensor)
+		lossTensor = AqwamTensorLibrary:applyFunction(math.sign, lossTensor)
 
 		firstDerivativeTensor = AqwamTensorLibrary:multiply(lossTensor, firstDerivativeTensor)
 		
