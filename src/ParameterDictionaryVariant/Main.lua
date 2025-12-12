@@ -34,6 +34,8 @@ DataPredictAxon.ActivationLayers = require(script.ActivationLayers)
 
 DataPredictAxon.CostFunctions = require(script.CostFunctions)
 
+DataPredictAxon.RegularizationFunctions = require(script.RegularizationFunctions)
+
 DataPredictAxon.ConvolutionLayers = require(script.ConvolutionLayers)
 
 DataPredictAxon.PoolingLayers = require(script.PoolingLayers)
