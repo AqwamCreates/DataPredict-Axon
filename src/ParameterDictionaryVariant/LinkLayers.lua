@@ -32,7 +32,7 @@ local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferenti
 
 local LinkLayer = {}
 
-local epsilon = 1e-16
+local epsilon = 1e-14
 
 local epsilonComplement = 1 - epsilon
 
