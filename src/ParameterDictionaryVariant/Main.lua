@@ -66,4 +66,6 @@ DataPredictAxon.ExperienceReplays = require(script.ExperienceReplays)
 
 DataPredictAxon.RecurrentModels = require(script.RecurrentModels)
 
+DataPredictAxon.QuickSetups = require(script.QuickSetups)
+
 return DataPredictAxon
