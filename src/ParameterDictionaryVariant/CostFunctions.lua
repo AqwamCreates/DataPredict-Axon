@@ -194,7 +194,7 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 		
 		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(cValue, indicatorTensor)
 		
-		partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(indicatorTensor, numberOfData)
+		partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(indicatorTensor, -numberOfData)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
