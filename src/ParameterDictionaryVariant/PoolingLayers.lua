@@ -252,13 +252,13 @@ function PoolingLayers.FastMaximumUnpooling1D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -300,7 +300,7 @@ function PoolingLayers.FastMaximumUnpooling1D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -386,13 +386,13 @@ function PoolingLayers.FastMaximumUnpooling2D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -438,7 +438,7 @@ function PoolingLayers.FastMaximumUnpooling2D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -536,13 +536,13 @@ function PoolingLayers.FastMaximumUnpooling3D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -594,7 +594,7 @@ function PoolingLayers.FastMaximumUnpooling3D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -658,13 +658,13 @@ function PoolingLayers.FastAveragePooling1D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -708,7 +708,7 @@ function PoolingLayers.FastAveragePooling1D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -790,13 +790,13 @@ function PoolingLayers.FastAveragePooling2D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -852,7 +852,7 @@ function PoolingLayers.FastAveragePooling2D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -944,13 +944,13 @@ function PoolingLayers.FastAveragePooling3D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -1012,7 +1012,7 @@ function PoolingLayers.FastAveragePooling3D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -1076,13 +1076,13 @@ function PoolingLayers.FastMinimumPooling1D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -1124,7 +1124,7 @@ function PoolingLayers.FastMinimumPooling1D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -1206,13 +1206,13 @@ function PoolingLayers.FastMinimumPooling2D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -1264,7 +1264,7 @@ function PoolingLayers.FastMinimumPooling2D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -1356,13 +1356,13 @@ function PoolingLayers.FastMinimumPooling3D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -1420,7 +1420,7 @@ function PoolingLayers.FastMinimumPooling3D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -1484,13 +1484,13 @@ function PoolingLayers.FastMaximumPooling1D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -1532,7 +1532,7 @@ function PoolingLayers.FastMaximumPooling1D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -1614,13 +1614,13 @@ function PoolingLayers.FastMaximumPooling2D(parameterDictionary)
 
 	end
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 			
@@ -1670,7 +1670,7 @@ function PoolingLayers.FastMaximumPooling2D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
@@ -1763,13 +1763,13 @@ function PoolingLayers.FastMaximumPooling3D(parameterDictionary)
 	end
 	
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			local tensor = inputTensorArray[1]
 
@@ -1827,7 +1827,7 @@ function PoolingLayers.FastMaximumPooling3D(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, inputTensorArray})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
 end
 
