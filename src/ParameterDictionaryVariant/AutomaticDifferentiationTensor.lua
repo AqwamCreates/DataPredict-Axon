@@ -727,6 +727,16 @@ local operationDictionary = {
 		end,
 
 		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+			
+			local expandedPureTensorArray = {}
+
+			expandedPureTensorArray[1] = inputTensorArray[1]
+
+			for i = 2, #inputTensorArray, 1 do
+
+				expandedPureTensorArray[i - 1], expandedPureTensorArray[i] = AqwamTensorLibrary:broadcast(inputTensorArray[i - 1], inputTensorArray[i])
+
+			end
 
 			local functionToApply = function(firstDerivativeValue, ...)
 
@@ -777,6 +787,16 @@ local operationDictionary = {
 		end,
 
 		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+			
+			local expandedPureTensorArray = {}
+
+			expandedPureTensorArray[1] = inputTensorArray[1]
+
+			for i = 2, #inputTensorArray, 1 do
+
+				expandedPureTensorArray[i - 1], expandedPureTensorArray[i] = AqwamTensorLibrary:broadcast(inputTensorArray[i - 1], inputTensorArray[i])
+
+			end
 
 			local functionToApply = function(firstDerivativeValue, ...)
 
