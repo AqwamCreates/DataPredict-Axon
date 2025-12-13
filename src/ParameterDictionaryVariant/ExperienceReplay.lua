@@ -418,9 +418,9 @@ function ExperienceReplay:run(parameterDictionary)
 
 	self.numberOfRuns = 0
 	
-	local UpdateFunction = parameterDictionary.UpdateFunction or parameterDictionary[1]
+	local updateFunction = parameterDictionary.updateFunction or parameterDictionary[1]
 
-	self.runFunction(UpdateFunction)
+	self.runFunction(updateFunction)
 
 end
 
