@@ -627,7 +627,7 @@ local metaMethodOperationDictionary = {
 			
 			if (tensorIndex == 1) then return AqwamTensorLibrary:multiply(firstDerivativeTensor, divisorTensor) end
 			
-			local numeratorTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, inputTensorArray[1])
+			local numeratorTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, inputTensorArray[1], -1)
 			
 			local squaredDivisorTensor = AqwamTensorLibrary:power(divisorTensor, 2)
 			
