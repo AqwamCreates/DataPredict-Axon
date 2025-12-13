@@ -46,7 +46,7 @@ function GradientClipper.new(parameterDictionary)
 
 	setmetatable(NewGradientClipper, GradientClipper)
 	
-	NewGradientClipper.ClipFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
+	NewGradientClipper.clipFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
 	
 	NewGradientClipper.Optimizer = parameterDictionary.Optimizer or parameterDictionary[2]
 	
@@ -68,9 +68,9 @@ function GradientClipper.ClipValue(parameterDictionary)
 	
 	local functionToApply = function(value) return math.clamp(value, minimumValue, maximumValue) end
 
-	local ClipFunction = function(firstDerivativeTensor) return AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor) end
+	local clipFunction = function(firstDerivativeTensor) return AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor) end
 
-	return GradientClipper.new({ClipFunction, Optimizer}) 
+	return GradientClipper.new({clipFunction, Optimizer}) 
 
 end
 
@@ -84,7 +84,7 @@ function GradientClipper.ClipNormalization(parameterDictionary)
 
 	local Optimizer = parameterDictionary.Optimizer or parameterDictionary[3]
 
-	local ClipFunction = function(firstDerivativeTensor) 
+	local clipFunction = function(firstDerivativeTensor) 
 
 		local squaredFirstDerivativeTensor = AqwamTensorLibrary:power(firstDerivativeTensor, normalizationValue)
 
@@ -102,7 +102,7 @@ function GradientClipper.ClipNormalization(parameterDictionary)
 		
 	end
 
-	return GradientClipper.new({ClipFunction, Optimizer}) 
+	return GradientClipper.new({clipFunction, Optimizer}) 
 
 end
 
@@ -116,13 +116,13 @@ function GradientClipper:calculate(parameterDictionary)
 
 	local firstDerivativeTensor = parameterDictionary.firstDerivativeTensor or parameterDictionary[2]
 
-	local ClipFunction = self.ClipFunction
+	local clipFunction = self.clipFunction
 	
 	local Optimizer = self.Optimizer
 	
-	if (not ClipFunction) then error("No calculate function.") end
+	if (not clipFunction) then error("No calculate function.") end
 	
-	firstDerivativeTensor = ClipFunction(firstDerivativeTensor)
+	firstDerivativeTensor = clipFunction(firstDerivativeTensor)
 	
 	if (Optimizer) then
 		
