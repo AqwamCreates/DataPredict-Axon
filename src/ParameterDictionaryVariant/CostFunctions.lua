@@ -158,6 +158,8 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 
 	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
 	
+	local cValue = parameterDictionary.cValue or parameterDictionary[3] or 1
+	
 	local inputTensorArray = {generatedLabelTensor, labelTensor}
 	
 	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
@@ -168,13 +170,13 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 
 	local hingeLossTensorPart2 = AqwamTensorLibrary:subtract(1, hingeLossTensorPart1)
 
-	local hingeLossTensor = AqwamTensorLibrary:applyFunction(math.max, 0, hingeLossTensorPart1)
+	local hingeLossTensor = AqwamTensorLibrary:applyFunction(math.max, 0, hingeLossTensorPart2)
 
 	local sumHingeLossTensorValue = AqwamTensorLibrary:sum(hingeLossTensor)
 
 	local numberOfData = getNumberOfData(labelTensor)
 	
-	local resultValue = sumHingeLossTensorValue / numberOfData
+	local resultValue = (cValue * sumHingeLossTensorValue) / numberOfData
 
 	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
 
@@ -190,7 +192,9 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 
 		local indicatorTensor = AqwamTensorLibrary:applyFunction(indicatorFunction, hingeLossTensorPart2)
 		
-		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(indicatorTensor, -numberOfData)
+		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(cValue, indicatorTensor)
+		
+		partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(indicatorTensor, numberOfData)
 
 		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
 
@@ -214,7 +218,7 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 
 			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
 				
-				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensorPart1, labelTensor) 
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensorPart1, pureGeneratedLabelTensor) 
 
 				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)
 
@@ -752,6 +756,8 @@ function CostFunctions.HingeLoss(parameterDictionary)
 
 	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
 	
+	local cValue = parameterDictionary.cValue or parameterDictionary[3] or 1
+	
 	local hingeLossTensorPart1 = 1 - (generatedLabelTensor * labelTensor)
 
 	local hingeLossTensor = AutomaticDifferentiationTensor.maximum{0, hingeLossTensorPart1}
@@ -760,7 +766,7 @@ function CostFunctions.HingeLoss(parameterDictionary)
 
 	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumHingeLossTensorTensor / numberOfData
+	local resultValue = (cValue * sumHingeLossTensorTensor) / numberOfData
 
 	return resultValue
 
