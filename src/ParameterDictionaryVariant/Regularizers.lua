@@ -46,7 +46,7 @@ function Regularizer.new(parameterDictionary)
 
 	setmetatable(NewRegularizer, Regularizer)
 
-	NewRegularizer.CalculateFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
+	NewRegularizer.calculateFunction = parameterDictionary.calculateFunction or parameterDictionary[1]
 
 	NewRegularizer.isAnObject = true
 
@@ -60,7 +60,7 @@ function Regularizer.Lasso(parameterDictionary)
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[1] or defaultLambda
 
-	local CalculateFunction = function(weightTensor)
+	local calculateFunction = function(weightTensor)
 
 		local signTensor = AqwamTensorLibrary:applyFunction(math.sign, weightTensor)
 
@@ -68,7 +68,7 @@ function Regularizer.Lasso(parameterDictionary)
 
 	end
 
-	return Regularizer.new({CalculateFunction})
+	return Regularizer.new({calculateFunction})
 
 end
 
@@ -78,13 +78,13 @@ function Regularizer.Ridge(parameterDictionary)
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[1] or defaultLambda
 
-	local CalculateFunction = function(weightTensor)
+	local calculateFunction = function(weightTensor)
 
 		return AqwamTensorLibrary:multiply(2, lambda, weightTensor)
 
 	end
 
-	return Regularizer.new({CalculateFunction})
+	return Regularizer.new({calculateFunction})
 
 end
 
@@ -94,7 +94,7 @@ function Regularizer.ElasticNet(parameterDictionary)
 
 	local lambda = parameterDictionary.lambda or parameterDictionary[1] or defaultLambda
 
-	local CalculateFunction = function(weightTensor)
+	local calculateFunction = function(weightTensor)
 
 		local signMatrix = AqwamTensorLibrary:applyFunction(math.sign, weightTensor)
 
@@ -106,7 +106,7 @@ function Regularizer.ElasticNet(parameterDictionary)
 
 	end
 
-	return Regularizer.new({CalculateFunction})
+	return Regularizer.new({calculateFunction})
 
 end
 
@@ -118,7 +118,7 @@ function Regularizer:calculate(parameterDictionary)
 	
 	local weightTensor = parameterDictionary.weightTensor or parameterDictionary[1]
 	
-	return self.CalculateFunction(weightTensor)
+	return self.calculateFunction(weightTensor)
 
 end
 
