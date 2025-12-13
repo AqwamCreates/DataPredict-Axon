@@ -772,7 +772,7 @@ local operationDictionary = {
 
 			end
 
-			return AqwamTensorLibrary:applyFunction(math.max, table.unpack(expandedPureTensorArray))
+			return AqwamTensorLibrary:applyFunction(math.min, table.unpack(expandedPureTensorArray))
 
 		end,
 
