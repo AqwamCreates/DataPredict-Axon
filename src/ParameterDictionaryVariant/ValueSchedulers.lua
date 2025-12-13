@@ -46,7 +46,7 @@ function ValueScheduler.new(parameterDictionary)
 
 	setmetatable(NewValueScheduler, ValueScheduler)
 	
-	NewValueScheduler.CalculateFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
+	NewValueScheduler.calculateFunction = parameterDictionary.calculateFunction or parameterDictionary[1]
 	
 	NewValueScheduler.timeValue = parameterDictionary.timeValue or parameterDictionary[2] or 0
 	
@@ -64,7 +64,7 @@ function ValueScheduler.Chained(parameterDictionary)
 	
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[2]
 
-	local CalculateFunction = function(value, timeValue)
+	local calculateFunction = function(value, timeValue)
 
 		for _, ValueScheduler in ipairs(ValueSchedulerArray) do value = ValueScheduler:calculate(value, timeValue) end
 
@@ -72,7 +72,7 @@ function ValueScheduler.Chained(parameterDictionary)
 
 	end
 
-	return ValueScheduler.new({CalculateFunction, timeValue})
+	return ValueScheduler.new({calculateFunction, timeValue})
 	
 end
 
@@ -86,7 +86,7 @@ function ValueScheduler.Constant(parameterDictionary)
 	
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[3]
 
-	local CalculateFunction = function(value, timeValue)
+	local calculateFunction = function(value, timeValue)
 
 		if (timeValue <= timeValue) then return value end
 
@@ -94,7 +94,7 @@ function ValueScheduler.Constant(parameterDictionary)
 
 	end
 	
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 	
 end
 
@@ -108,7 +108,7 @@ function ValueScheduler.CosineAnnealing(parameterDictionary)
 
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[3]
 
-	local CalculateFunction = function(value, timeValue)
+	local calculateFunction = function(value, timeValue)
 
 		local multiplyValuePart1 = 1 + math.cos((timeValue * math.pi) / maximumTimeValue)
 
@@ -120,7 +120,7 @@ function ValueScheduler.CosineAnnealing(parameterDictionary)
 
 	end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -132,9 +132,9 @@ function ValueScheduler.Exponential(parameterDictionary)
 
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[2]
 
-	local CalculateFunction = function(value, timeValue) return (value * math.exp(-decayRate * timeValue)) end
+	local calculateFunction = function(value, timeValue) return (value * math.exp(-decayRate * timeValue)) end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -144,9 +144,9 @@ function ValueScheduler.InverseSquareRoot(parameterDictionary)
 
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[1]
 
-	local CalculateFunction = function(value, timeValue) return (value / math.pow(timeValue, 0.5)) end
+	local calculateFunction = function(value, timeValue) return (value / math.pow(timeValue, 0.5)) end
 
-	return ValueScheduler.new({CalculateFunction, timeValue})
+	return ValueScheduler.new({calculateFunction, timeValue})
 
 end
 
@@ -158,9 +158,9 @@ function ValueScheduler.InverseTime(parameterDictionary)
 
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[2]
 
-	local CalculateFunction = function(value, timeValue) return (value / (1 + (decayRate * timeValue))) end
+	local calculateFunction = function(value, timeValue) return (value / (1 + (decayRate * timeValue))) end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -176,7 +176,7 @@ function ValueScheduler.Linear(parameterDictionary)
 	
 	local timeValue = parameterDictionary.otherTimeValue or parameterDictionary[4]
 
-	local CalculateFunction = function(value, timeValue)
+	local calculateFunction = function(value, timeValue)
 
 		if (timeValue >= otherTimeValue) then return (value * endFactor) end
 
@@ -186,7 +186,7 @@ function ValueScheduler.Linear(parameterDictionary)
 
 	end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -200,7 +200,7 @@ function ValueScheduler.MultipleStep(parameterDictionary)
 
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[3]
 
-	local CalculateFunction = function(value, timeValue)
+	local calculateFunction = function(value, timeValue)
 
 		local decayCount = 0
 
@@ -216,7 +216,7 @@ function ValueScheduler.MultipleStep(parameterDictionary)
 
 	end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -228,9 +228,9 @@ function ValueScheduler.Multiplicative(parameterDictionary)
 
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[2]
 
-	local CalculateFunction = function(value, timeValue) return (value * functionToRun(timeValue)) end
+	local calculateFunction = function(value, timeValue) return (value * functionToRun(timeValue)) end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -244,9 +244,9 @@ function ValueScheduler.Polynomial(parameterDictionary)
 
 	local timeValue = parameterDictionary.timeValue or parameterDictionary[3]
 
-	local CalculateFunction = function(value, timeValue) return (value * math.pow((1 - (timeValue / totalTimeValue)), power)) end
+	local calculateFunction = function(value, timeValue) return (value * math.pow((1 - (timeValue / totalTimeValue)), power)) end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -274,7 +274,7 @@ function ValueScheduler.Sequential(parameterDictionary)
 
 	if (numberOfValueSchedulers ~= numberOfTimeValueArray) then error("The number of value schedulers is not equal to the number of time values.") end
 
-	local CalculateFunction = function(value, timeValue) 
+	local calculateFunction = function(value, timeValue) 
 
 		for i, ValueScheduler in ipairs(ValueSchedulerArray) do
 
@@ -286,7 +286,7 @@ function ValueScheduler.Sequential(parameterDictionary)
 		
 	end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -300,9 +300,9 @@ function ValueScheduler.Step(parameterDictionary)
 
 	local timeValue = parameterDictionary.otherTimeValue or parameterDictionary[3]
 
-	local CalculateFunction = function(value, timeValue) return (value * math.pow(decayRate, (math.floor(timeValue / otherTimeValue)))) end
+	local calculateFunction = function(value, timeValue) return (value * math.pow(decayRate, (math.floor(timeValue / otherTimeValue)))) end
 
-	return ValueScheduler.new({CalculateFunction, timeValue}) 
+	return ValueScheduler.new({calculateFunction, timeValue}) 
 
 end
 
@@ -316,15 +316,15 @@ function ValueScheduler:calculate(parameterDictionary)
 	
 	local valueToScale = parameterDictionary.valueToScale or parameterDictionary[2]
 	
-	local CalculateFunction = self.CalculateFunction
+	local calculateFunction = self.calculateFunction
 	
-	if (not CalculateFunction) then error("No calculate function.") end
+	if (not calculateFunction) then error("No calculate function.") end
 	
 	local timeValue = self.timeValue + 1
 	
 	self.timeValue = timeValue
 	
-	valueToSchedule = CalculateFunction(valueToSchedule, timeValue)
+	valueToSchedule = calculateFunction(valueToSchedule, timeValue)
 	
 	if (not valueToScale) then return valueToSchedule end
 	
