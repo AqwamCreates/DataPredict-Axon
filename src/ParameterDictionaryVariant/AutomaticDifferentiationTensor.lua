@@ -712,7 +712,7 @@ local operationDictionary = {
 
 		operatorFunction = function(inputTensorArray) 
 
-			expandedPureTensorArray = {}
+			local expandedPureTensorArray = {}
 
 			expandedPureTensorArray[1] = inputTensorArray[1]
 
@@ -762,7 +762,7 @@ local operationDictionary = {
 
 		operatorFunction = function(inputTensorArray) 
 
-			expandedPureTensorArray = {}
+			local expandedPureTensorArray = {}
 
 			expandedPureTensorArray[1] = inputTensorArray[1]
 
@@ -772,7 +772,7 @@ local operationDictionary = {
 
 			end
 
-			return AqwamTensorLibrary:applyFunction(math.max, table.unpack(expandedPureTensorArray))
+			return AqwamTensorLibrary:applyFunction(math.min, table.unpack(expandedPureTensorArray))
 
 		end,
 
