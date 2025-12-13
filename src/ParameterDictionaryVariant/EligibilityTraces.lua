@@ -46,7 +46,7 @@ function EligibilityTrace.new(parameterDictionary)
 
 	setmetatable(NewEligibilityTrace, EligibilityTrace)
 	
-	NewEligibilityTrace.IncrementFunction = parameterDictionary.IncrementFunction or parameterDictionary[1]
+	NewEligibilityTrace.incrementFunction = parameterDictionary.incrementFunction or parameterDictionary[1]
 	
 	NewEligibilityTrace.lambda = parameterDictionary.lambda or parameterDictionary[2] or 0.5
 
@@ -64,7 +64,7 @@ function EligibilityTrace.AccumulatingTrace(parameterDictionary)
 	
 	local lambda = parameterDictionary.lambda or parameterDictionary[1]
 	
-	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
+	local incrementFunction = function(eligibilityTraceTensor, actionIndex)
 
 			eligibilityTraceTensor[actionIndex] = eligibilityTraceTensor[actionIndex] + 1
 
@@ -72,7 +72,7 @@ function EligibilityTrace.AccumulatingTrace(parameterDictionary)
 
 		end
 
-	return EligibilityTrace.new({IncrementFunction, lambda})
+	return EligibilityTrace.new({incrementFunction, lambda})
 	
 end
 
@@ -84,7 +84,7 @@ function EligibilityTrace.DutchTrace(parameterDictionary)
 
 	local alpha = parameterDictionary.alpha or parameterDictionary[2] or 0.5
 
-	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
+	local incrementFunction = function(eligibilityTraceTensor, actionIndex)
 
 		eligibilityTraceTensor[actionIndex] = ((1 - alpha) * eligibilityTraceTensor[actionIndex]) + 1
 
@@ -92,7 +92,7 @@ function EligibilityTrace.DutchTrace(parameterDictionary)
 
 	end
 
-	return EligibilityTrace.new({IncrementFunction, lambda})
+	return EligibilityTrace.new({incrementFunction, lambda})
 
 end
 
@@ -102,7 +102,7 @@ function EligibilityTrace.ReplacingTrace(parameterDictionary)
 	
 	local lambda = parameterDictionary.lambda or parameterDictionary[1]
 
-	local IncrementFunction = function(eligibilityTraceTensor, actionIndex)
+	local incrementFunction = function(eligibilityTraceTensor, actionIndex)
 
 		eligibilityTraceTensor[actionIndex] = 1
 
@@ -110,7 +110,7 @@ function EligibilityTrace.ReplacingTrace(parameterDictionary)
 
 	end
 
-	return EligibilityTrace.new({IncrementFunction, lambda})
+	return EligibilityTrace.new({incrementFunction, lambda})
 
 end
 
@@ -130,7 +130,7 @@ function EligibilityTrace:increment(parameterDictionary)
 
 	eligibilityTraceTensor = AqwamTensorLibrary:multiply(eligibilityTraceTensor, discountFactor * self.lambda)
 
-	eligibilityTraceTensor = self.IncrementFunction(eligibilityTraceTensor, actionIndex)
+	eligibilityTraceTensor = self.incrementFunction(eligibilityTraceTensor, actionIndex)
 	
 	self.eligibilityTraceTensor = eligibilityTraceTensor
 
