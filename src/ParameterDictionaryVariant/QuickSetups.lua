@@ -151,6 +151,8 @@ function QuickSetup.CategoricalQuickSetup(parameterDictionary)
 		previousFeatureTensor = nil
 		
 		previousActionIndex = nil
+
+		Model:reset()
 		
 	end
 
@@ -243,6 +245,8 @@ function QuickSetup.DiagonalGaussian(parameterDictionary)
 		previousFeatureTensor = nil
 
 		previousActionTensor = nil
+		
+		Model:reset()
 
 	end
 
