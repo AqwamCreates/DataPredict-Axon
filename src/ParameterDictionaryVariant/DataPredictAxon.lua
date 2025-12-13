@@ -32,7 +32,11 @@ DataPredictAxon.AutomaticDifferentiationTensor = require(script.AutomaticDiffere
 
 DataPredictAxon.ActivationLayers = require(script.ActivationLayers)
 
+DataPredictAxon.LinkLayers = require(script.LinkLayers)
+
 DataPredictAxon.CostFunctions = require(script.CostFunctions)
+
+DataPredictAxon.RegularizationFunctions = require(script.RegularizationFunctions)
 
 DataPredictAxon.ConvolutionLayers = require(script.ConvolutionLayers)
 
@@ -50,6 +54,8 @@ DataPredictAxon.Optimizers = require(script.Optimizers)
 
 DataPredictAxon.ValueSchedulers = require(script.ValueSchedulers)
 
+DataPredictAxon.GradientClippers = require(script.GradientClippers)
+
 DataPredictAxon.Regularizers = require(script.Regularizers)
 
 DataPredictAxon.ReinforcementLearningModels = require(script.ReinforcementLearningModels)
@@ -59,5 +65,7 @@ DataPredictAxon.EligibilityTraces = require(script.EligibilityTraces)
 DataPredictAxon.ExperienceReplays = require(script.ExperienceReplays)
 
 DataPredictAxon.RecurrentModels = require(script.RecurrentModels)
+
+DataPredictAxon.QuickSetups = require(script.QuickSetups)
 
 return DataPredictAxon
