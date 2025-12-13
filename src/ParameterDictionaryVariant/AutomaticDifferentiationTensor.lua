@@ -761,8 +761,14 @@ local operationDictionary = {
 				return (isMaximum and firstDerivativeValue) or 0
 
 			end
+			
+			local firstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor, table.unpack(expandedPureTensorArray))
+			
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(inputTensorArray[tensorIndex])
+			
+			firstDerivativeTensor = collapseTensor(firstDerivativeTensor) 
 
-			return AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor, table.unpack(expandedPureTensorArray))
+			return firstDerivativeTensor
 
 		end
 
@@ -822,7 +828,13 @@ local operationDictionary = {
 
 			end
 
-			return AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor, table.unpack(expandedPureTensorArray))
+			local firstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, firstDerivativeTensor, table.unpack(expandedPureTensorArray))
+
+			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(inputTensorArray[tensorIndex])
+
+			firstDerivativeTensor = collapseTensor(firstDerivativeTensor)
+			
+			return firstDerivativeTensor
 
 		end
 
