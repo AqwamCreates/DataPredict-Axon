@@ -766,7 +766,7 @@ local operationDictionary = {
 			
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(inputTensorArray[tensorIndex])
 			
-			firstDerivativeTensor = collapseTensor(firstDerivativeTensor) 
+			firstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray) 
 
 			return firstDerivativeTensor
 
@@ -832,7 +832,7 @@ local operationDictionary = {
 
 			local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(inputTensorArray[tensorIndex])
 
-			firstDerivativeTensor = collapseTensor(firstDerivativeTensor)
+			firstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
 			
 			return firstDerivativeTensor
 
