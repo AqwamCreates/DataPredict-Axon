@@ -38,6 +38,8 @@ local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displa
 
 local ReinforcementLearningModels = {}
 
+local defaultNStep = 3
+
 local defaultClipRatio = 0.3
 
 local defaultEpsilon = 0.5
@@ -383,6 +385,102 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 	
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+
+end
+
+function ReinforcementLearningModels.DeepNStepQLearning(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+	
+	local nStep = parameterDictionary.nStep or parameterDictionary[3] or defaultNStep
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+
+	local replayBufferArray = {}
+
+	if (not Model) then error("No model.") end
+
+	if (not WeightContainer) then error("No weight container.") end
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
+		
+		table.insert(replayBufferArray, {previousFeatureTensor, previousActionIndex, rewardValue, terminalStateValue})
+		
+		local currentNStep = #replayBufferArray
+
+		if (currentNStep < nStep) and (terminalStateValue == 0) then return 0 end
+
+		if (currentNStep > nStep) then 
+
+			table.remove(replayBufferArray, 1)
+
+			currentNStep = currentNStep - 1
+
+		end
+
+		if (currentNStep < nStep) and (terminalStateValue == 0) then return 0 end
+
+		if (currentNStep > nStep) then 
+
+			table.remove(replayBufferArray, 1)
+
+			currentNStep = currentNStep - 1
+
+		end
+		
+		local returnValue = 0
+
+		local experience
+
+		local rewardValueAtStepI
+
+		local terminalStateValueAtStepI
+
+		for i = currentNStep, 1, -1 do
+
+			experience = replayBufferArray[i]
+
+			rewardValueAtStepI = experience[3]
+
+			terminalStateValueAtStepI = experience[4]
+
+			returnValue = rewardValueAtStepI + (discountFactor * (1 - terminalStateValueAtStepI) * returnValue)
+
+		end
+
+		local firstExperience = replayBufferArray[1]
+
+		local previousQValueTensor = Model{firstExperience[1]}
+
+		local currentQValueTensor = Model{currentFeatureTensor}
+
+		local maxQValue = currentQValueTensor:findMaximumValue()
+		
+		local bootstrapValue = math.pow(discountFactor, currentNStep) * maxQValue
+
+		local nStepTarget = returnValue + bootstrapValue
+
+		local lastValue = previousQValueTensor[1][previousActionIndex]
+
+		local temporalDifferenceError = nStepTarget - lastValue
+
+		temporalDifferenceError:differentiate{}
+
+		WeightContainer:gradientAscent()
+
+		return temporalDifferenceError
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue) table.clear(replayBufferArray) end
+
+	local resetFunction = function(terminalStateValue) table.clear(replayBufferArray) end
 
 	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
@@ -734,6 +832,100 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 end
 
+function ReinforcementLearningModels.DeepNStepStateActionRewardStateAction(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+	
+	local nStep = parameterDictionary.nStep or parameterDictionary[3] or defaultNStep
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[4] or defaultDiscountFactor
+
+	local replayBufferArray = {}
+
+	if (not Model) then error("No model.") end
+
+	if (not WeightContainer) then error("No weight container.") end
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
+
+		table.insert(replayBufferArray, {previousFeatureTensor, previousActionIndex, rewardValue, terminalStateValue})
+
+		local currentNStep = #replayBufferArray
+
+		if (currentNStep < nStep) and (terminalStateValue == 0) then return 0 end
+
+		if (currentNStep > nStep) then 
+
+			table.remove(replayBufferArray, 1)
+
+			currentNStep = currentNStep - 1
+
+		end
+
+		if (currentNStep < nStep) and (terminalStateValue == 0) then return 0 end
+
+		if (currentNStep > nStep) then 
+
+			table.remove(replayBufferArray, 1)
+
+			currentNStep = currentNStep - 1
+
+		end
+
+		local returnValue = 0
+
+		local experience
+
+		local rewardValueAtStepI
+
+		local terminalStateValueAtStepI
+
+		for i = currentNStep, 1, -1 do
+
+			experience = replayBufferArray[i]
+
+			rewardValueAtStepI = experience[3]
+
+			terminalStateValueAtStepI = experience[4]
+
+			returnValue = rewardValueAtStepI + (discountFactor * (1 - terminalStateValueAtStepI) * returnValue)
+
+		end
+
+		local firstExperience = replayBufferArray[1]
+
+		local previousQValueTensor = Model{firstExperience[1]}
+
+		local currentQValueTensor = Model{currentFeatureTensor}
+
+		local bootstrapValue = math.pow(discountFactor, currentNStep) * currentQValueTensor[1][currentActionIndex]	
+
+		local nStepTarget = returnValue + bootstrapValue
+
+		local lastValue = previousQValueTensor[1][previousActionIndex]
+
+		local temporalDifferenceError = nStepTarget - lastValue
+
+		temporalDifferenceError:differentiate{}
+
+		WeightContainer:gradientAscent()
+
+		return temporalDifferenceError
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue) table.clear(replayBufferArray) end
+
+	local resetFunction = function(terminalStateValue) table.clear(replayBufferArray) end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+
+end
+
 function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
@@ -965,6 +1157,140 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 	local episodeUpdateFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
+
+	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+
+end
+
+function ReinforcementLearningModels.DeepNStepExpectedStateActionRewardStateAction(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local Model = parameterDictionary.Model or parameterDictionary[1]
+
+	local WeightContainer = parameterDictionary.WeightContainer or parameterDictionary[2]
+	
+	local epsilon = parameterDictionary.epsilon or parameterDictionary[3] or defaultEpsilon
+	
+	local nStep = parameterDictionary.nStep or parameterDictionary[4] or defaultNStep
+
+	local discountFactor = parameterDictionary.discountFactor or parameterDictionary[5] or defaultDiscountFactor
+
+	local replayBufferArray = {}
+
+	if (not Model) then error("No model.") end
+
+	if (not WeightContainer) then error("No weight container.") end
+
+	local categoricalUpdateFunction = function(previousFeatureTensor, previousActionIndex, rewardValue, currentFeatureTensor, currentActionIndex, terminalStateValue)
+
+		table.insert(replayBufferArray, {previousFeatureTensor, previousActionIndex, rewardValue, terminalStateValue})
+
+		local currentNStep = #replayBufferArray
+
+		if (currentNStep < nStep) and (terminalStateValue == 0) then return 0 end
+
+		if (currentNStep > nStep) then 
+
+			table.remove(replayBufferArray, 1)
+
+			currentNStep = currentNStep - 1
+
+		end
+
+		if (currentNStep < nStep) and (terminalStateValue == 0) then return 0 end
+
+		if (currentNStep > nStep) then 
+
+			table.remove(replayBufferArray, 1)
+
+			currentNStep = currentNStep - 1
+
+		end
+		
+		local numberOfGreedyActions = 0
+
+		local expectedQValue = 0
+
+		local returnValue = 0
+
+		local experience
+
+		local rewardValueAtStepI
+
+		local terminalStateValueAtStepI
+
+		for i = currentNStep, 1, -1 do
+
+			experience = replayBufferArray[i]
+
+			rewardValueAtStepI = experience[3]
+
+			terminalStateValueAtStepI = experience[4]
+
+			returnValue = rewardValueAtStepI + (discountFactor * (1 - terminalStateValueAtStepI) * returnValue)
+
+		end
+
+		local firstExperience = replayBufferArray[1]
+
+		local previousQValueTensor = Model{firstExperience[1]}
+
+		local currentQValueTensor = Model{currentFeatureTensor}
+		
+		local maxQValue = currentQValueTensor:findMaximumValue()
+
+		local unwrappedTargetTensor = currentQValueTensor[1]
+
+		local numberOfClasses = #unwrappedTargetTensor
+
+		for i = 1, numberOfClasses, 1 do
+
+			if (unwrappedTargetTensor[i] == maxQValue) then
+
+				numberOfGreedyActions = numberOfGreedyActions + 1
+
+			end
+
+		end
+
+		local nonGreedyActionProbability = epsilon / numberOfClasses
+
+		local greedyActionProbability = ((1 - epsilon) / numberOfGreedyActions) + nonGreedyActionProbability
+
+		for _, qValue in ipairs(unwrappedTargetTensor) do
+
+			if (qValue == maxQValue) then
+
+				expectedQValue = expectedQValue + (qValue * greedyActionProbability)
+
+			else
+
+				expectedQValue = expectedQValue + (qValue * nonGreedyActionProbability)
+
+			end
+
+		end
+
+		local bootstrapValue = math.pow(discountFactor, currentNStep) * expectedQValue
+
+		local nStepTarget = returnValue + bootstrapValue
+
+		local lastValue = previousQValueTensor[1][previousActionIndex]
+
+		local temporalDifferenceError = nStepTarget - lastValue
+
+		temporalDifferenceError:differentiate{}
+
+		WeightContainer:gradientAscent()
+
+		return temporalDifferenceError
+
+	end
+
+	local episodeUpdateFunction = function(terminalStateValue) table.clear(replayBufferArray) end
+
+	local resetFunction = function(terminalStateValue) table.clear(replayBufferArray) end
 
 	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
 
