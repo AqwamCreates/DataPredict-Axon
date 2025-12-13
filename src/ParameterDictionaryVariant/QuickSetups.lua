@@ -89,8 +89,10 @@ function QuickSetup.CategoricalQuickSetup(parameterDictionary)
 		local isEpisodeEnd = (currentNumberOfReinforcements >= numberOfReinforcementsPerEpisode)
 
 		local terminalStateValue = (isEpisodeEnd and 1) or 0
+		
+		local pureCurrentFeatureTensor = AutomaticDifferentiationTensor:fetchValue{currentFeatureTensor}
 
-		local currentActionIndex
+		local currentActionIndex = AqwamTensorLibrary:sample(pureCurrentFeatureTensor)
 
 		local currentActionValue = currentActionTensor[1][currentActionIndex]
 
