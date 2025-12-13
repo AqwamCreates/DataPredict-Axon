@@ -621,7 +621,19 @@ local metaMethodOperationDictionary = {
 	__div = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:divide(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex) return AqwamTensorLibrary:multiply(inputTensorArray[((tensorIndex == 1) and 2) or 1], firstDerivativeTensor) end
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+			
+			local divisorTensor = inputTensorArray[2]
+			
+			if (tensorIndex == 1) then return AqwamTensorLibrary:multiply(firstDerivativeTensor, divisorTensor) end
+			
+			local numeratorTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, inputTensorArray[1])
+			
+			local squaredDivisorTensor = AqwamTensorLibrary:power(divisorTensor, 2)
+			
+			return AqwamTensorLibrary:divide(numeratorTensor, squaredDivisorTensor) 
+			
+		end
 
 	},
 	
