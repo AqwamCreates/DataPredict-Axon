@@ -83,10 +83,12 @@ function CostFunctions.FastEpsilonInsentitiveLoss(parameterDictionary)
 	local errorTensor = AqwamTensorLibrary:subtract(pureGeneratedLabelTensor, pureLabelTensor)
 
 	local epsilonErrorTensor = AqwamTensorLibrary:subtract(errorTensor, epsilon)
+	
+	local negativeEpsilonErrorTensor = AqwamTensorLibrary:unaryMinus(epsilonErrorTensor)
 
 	local positiveSlackVariableTensor = AqwamTensorLibrary:applyFunction(math.max, 0, epsilonErrorTensor)
 
-	local negativeSlackVariableTensor = AqwamTensorLibrary:applyFunction(math.max, 0, -epsilonErrorTensor)
+	local negativeSlackVariableTensor = AqwamTensorLibrary:applyFunction(math.max, 0, negativeEpsilonErrorTensor)
 
 	local slackVariableTensor = AqwamTensorLibrary:add(positiveSlackVariableTensor, negativeSlackVariableTensor)
 
