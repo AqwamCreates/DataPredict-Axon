@@ -72,7 +72,7 @@ function Optimizer.new(parameterDictionary)
 
 	setmetatable(NewOptimizer, Optimizer)
 	
-	NewOptimizer.CalculateFunction = parameterDictionary.CalculateFunction or parameterDictionary[1]
+	NewOptimizer.calculateFunction = parameterDictionary.calculateFunction or parameterDictionary[1]
 	
 	NewOptimizer.LearningRateValueScheduler = parameterDictionary.LearningRateValueScheduler or parameterDictionary[2]
 	
@@ -98,7 +98,7 @@ function Optimizer.AdaptiveDelta(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[5] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousRunningGradientSquaredTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -134,7 +134,7 @@ function Optimizer.AdaptiveDelta(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -156,7 +156,7 @@ function Optimizer.AdaptiveFactor(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[7] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
 
@@ -250,7 +250,7 @@ function Optimizer.AdaptiveFactor(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -264,7 +264,7 @@ function Optimizer.AdaptiveGradient(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[3] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousSumOfGradientSquaredTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -294,7 +294,7 @@ function Optimizer.AdaptiveGradient(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -314,7 +314,7 @@ function Optimizer.AdaptiveMomentEstimation(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[6] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousMomentumTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -370,7 +370,7 @@ function Optimizer.AdaptiveMomentEstimation(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -390,7 +390,7 @@ function Optimizer.AdaptiveMomentEstimationMaximum(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[6] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local momentTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -440,7 +440,7 @@ function Optimizer.AdaptiveMomentEstimationMaximum(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -458,7 +458,7 @@ function Optimizer.Gravity(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[5] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousVelocityTensor = optimizerInternalParameterArray[1]
 
@@ -516,7 +516,7 @@ function Optimizer.Gravity(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -532,7 +532,7 @@ function Optimizer.Momentum(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[4] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousVelocityTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -560,7 +560,7 @@ function Optimizer.Momentum(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -580,7 +580,7 @@ function Optimizer.NesterovAcceleratedAdaptiveMomentEstimation(parameterDictiona
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[6] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousMTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -646,7 +646,7 @@ function Optimizer.NesterovAcceleratedAdaptiveMomentEstimation(parameterDictiona
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -668,7 +668,7 @@ function Optimizer.RectifiedAdaptiveMomentEstimation(parameterDictionary)
 	
 	local pInfinity = ((2 / (1 - beta2)) - 1)
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousMomentumTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -738,7 +738,7 @@ function Optimizer.RectifiedAdaptiveMomentEstimation(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -760,7 +760,7 @@ function Optimizer.ResilientBackwardPropagation(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[7] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousGradientTensor = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -810,7 +810,7 @@ function Optimizer.ResilientBackwardPropagation(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -828,7 +828,7 @@ function Optimizer.RootMeanSquarePropagation(parameterDictionary)
 
 	local optimizerInternalParameterArray = parameterDictionary.optimizerInternalParameterArray or parameterDictionary[4] or {}
 
-	local CalculateFunction = function(learningRate, firstDerivativeTensor, tensor)
+	local calculateFunction = function(learningRate, firstDerivativeTensor, tensor)
 
 		local previousVelocity = optimizerInternalParameterArray[1] or AqwamTensorLibrary:createTensor(AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor), 0)
 
@@ -864,7 +864,7 @@ function Optimizer.RootMeanSquarePropagation(parameterDictionary)
 
 	end
 
-	return Optimizer.new({CalculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
+	return Optimizer.new({calculateFunction, LearningRateValueScheduler, optimizerInternalParameterArray})
 
 end
 
@@ -884,7 +884,7 @@ function Optimizer:calculate(parameterDictionary)
 	
 	if (LearningRateValueScheduler) then learningRate = LearningRateValueScheduler:calculate{learningRate} end
 	
-	return self.CalculateFunction(learningRate, firstDerivativeTensor, tensor)
+	return self.calculateFunction(learningRate, firstDerivativeTensor, tensor)
 	
 end
 
