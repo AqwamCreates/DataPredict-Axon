@@ -30,6 +30,8 @@ local AqwamTensorLibrary = require(script.Parent.AqwamTensorLibraryLinker.Value)
 
 local AutomaticDifferentiationTensor = require(script.Parent.AutomaticDifferentiationTensor)
 
+local ActivationLayers = require(script.Parent.ActivationLayers)
+
 local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
 
 local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
@@ -84,15 +86,19 @@ function QuickSetup.CategoricalQuickSetup(parameterDictionary)
 
 		currentNumberOfReinforcements = currentNumberOfReinforcements + 1
 
-		local currentActionTensor = Model{currentFeatureTensor}
+		local currentActionTensor = Model:predict{currentFeatureTensor}
 
 		local isEpisodeEnd = (currentNumberOfReinforcements >= numberOfReinforcementsPerEpisode)
 
 		local terminalStateValue = (isEpisodeEnd and 1) or 0
 		
-		local pureCurrentFeatureTensor = AutomaticDifferentiationTensor:fetchValue{currentFeatureTensor}
+		local softmaxTensor = ActivationLayers.StableSoftmax{currentFeatureTensor}
+		
+		local pureSoftmaxTensor = AutomaticDifferentiationTensor:fetchValue{softmaxTensor}
 
-		local currentActionIndex = AqwamTensorLibrary:sample(pureCurrentFeatureTensor)
+		local currentActionIndexTensor = AqwamTensorLibrary:sample(pureSoftmaxTensor, 2)
+		
+		local currentActionIndex = currentActionIndexTensor[1][1]
 
 		local currentActionValue = currentActionTensor[1][currentActionIndex]
 
@@ -112,9 +118,9 @@ function QuickSetup.CategoricalQuickSetup(parameterDictionary)
 
 			currentNumberOfEpisodes = currentNumberOfEpisodes + 1
 
-			Model:episodeUpdate(terminalStateValue)
+			Model:episodeUpdate{terminalStateValue}
 
-			if (episodeUpdateFunction) then episodeUpdateFunction(terminalStateValue) end
+			if (episodeUpdateFunction) then episodeUpdateFunction{terminalStateValue} end
 
 		end
 
@@ -180,13 +186,15 @@ function QuickSetup.DiagonalGaussian(parameterDictionary)
 
 	local previousFeatureTensor
 
-	local previousActionTensor
-
 	local reinforceFunction = function(currentFeatureTensor, rewardValue, returnOriginalOutput)
 
 		currentNumberOfReinforcements = currentNumberOfReinforcements + 1
 
-		local currentActionTensor = Model{currentFeatureTensor}
+		local currentActionMeanTensor = Model:predict{currentFeatureTensor}
+		
+		local actionTensorDimensionSizeArray = currentActionMeanTensor:getDimensionSizeArray()
+		
+		local actionNoiseTensor = AqwamTensorLibrary:createRandomNormalTensor(actionTensorDimensionSizeArray, 0, 1)
 
 		local isEpisodeEnd = (currentNumberOfReinforcements >= numberOfReinforcementsPerEpisode)
 
@@ -196,7 +204,7 @@ function QuickSetup.DiagonalGaussian(parameterDictionary)
 
 		if (previousFeatureTensor) then
 
-			temporalDifferenceError = Model:diagonalGaussianUpdate{previousFeatureTensor, previousActionTensor, rewardValue, currentFeatureTensor, currentActionTensor, terminalStateValue}
+			temporalDifferenceError = Model:diagonalGaussianUpdate{previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue}
 
 			if (updateFunction) then updateFunction(terminalStateValue) end
 
@@ -208,21 +216,21 @@ function QuickSetup.DiagonalGaussian(parameterDictionary)
 
 			currentNumberOfEpisodes = currentNumberOfEpisodes + 1
 
-			Model:episodeUpdate(terminalStateValue)
+			Model:episodeUpdate{terminalStateValue}
 
-			if (episodeUpdateFunction) then episodeUpdateFunction(terminalStateValue) end
+			if (episodeUpdateFunction) then episodeUpdateFunction{terminalStateValue} end
 
 		end
 
 		if (ExperienceReplay) and (previousFeatureTensor) then
 
-			ExperienceReplay:addExperience{previousFeatureTensor, previousActionTensor, rewardValue, currentFeatureTensor, currentActionTensor, terminalStateValue}
+			ExperienceReplay:addExperience{previousFeatureTensor, actionNoiseTensor, rewardValue, currentFeatureTensor, terminalStateValue}
 
 			ExperienceReplay:addTemporalDifferenceError{temporalDifferenceError}
 
-			ExperienceReplay:run{function(storedPreviousFeatureTensor, storedPreviousActionIndex, storedRewardValue, storedCurrentFeatureTensor, storedCurrentActionIndex, storedTerminalStateValue)
+			ExperienceReplay:run{function(storedPreviousFeatureTensor, storedActionNoiseTensor, storedRewardValue, storedCurrentFeatureTensor, storedTerminalStateValue)
 
-				return Model:diagonalGaussianUpdate{storedPreviousFeatureTensor, storedPreviousActionIndex, storedRewardValue, storedCurrentFeatureTensor, storedCurrentActionIndex, storedTerminalStateValue}
+				return Model:diagonalGaussianUpdate{storedPreviousFeatureTensor, storedActionNoiseTensor, storedRewardValue, storedCurrentFeatureTensor, storedTerminalStateValue}
 
 			end}
 
@@ -230,9 +238,7 @@ function QuickSetup.DiagonalGaussian(parameterDictionary)
 
 		previousFeatureTensor = currentFeatureTensor
 
-		previousActionTensor = currentActionTensor
-
-		return currentActionTensor
+		return currentActionMeanTensor
 
 	end
 	
@@ -243,8 +249,6 @@ function QuickSetup.DiagonalGaussian(parameterDictionary)
 		currentNumberOfEpisodes = 0
 
 		previousFeatureTensor = nil
-
-		previousActionTensor = nil
 		
 		Model:reset()
 
