@@ -50,13 +50,13 @@ function LinkLayer.FastLogit(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -74,7 +74,7 @@ function LinkLayer.FastLogit(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -90,13 +90,13 @@ function LinkLayer.FastInverseLogit(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 	
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 		
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 			
@@ -114,7 +114,7 @@ function LinkLayer.FastInverseLogit(parameterDictionary)
 	
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -132,13 +132,13 @@ function LinkLayer.FastLogLog(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, clampedTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -156,7 +156,7 @@ function LinkLayer.FastLogLog(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -172,13 +172,13 @@ function LinkLayer.FastInverseLogLog(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -196,7 +196,7 @@ function LinkLayer.FastInverseLogLog(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -214,13 +214,13 @@ function LinkLayer.FastComplementLogLog(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -238,7 +238,7 @@ function LinkLayer.FastComplementLogLog(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -254,13 +254,13 @@ function LinkLayer.FastInverseComplementLogLog(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -278,7 +278,7 @@ function LinkLayer.FastInverseComplementLogLog(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -296,13 +296,13 @@ function LinkLayer.FastLog(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, maximumTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -320,7 +320,7 @@ function LinkLayer.FastLog(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -336,13 +336,13 @@ function LinkLayer.FastInverseLog(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -358,7 +358,7 @@ function LinkLayer.FastInverseLog(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -372,13 +372,13 @@ function LinkLayer.FastInverse(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:divide(1, pureTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -396,7 +396,7 @@ function LinkLayer.FastInverse(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -410,13 +410,13 @@ function LinkLayer.SquareRoot(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:power(pureTensor, 0.5)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -434,7 +434,7 @@ function LinkLayer.SquareRoot(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
@@ -450,13 +450,13 @@ function LinkLayer.InverseSquare(parameterDictionary)
 
 	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
 
-	local PartialFirstDerivativeFunction
+	local partialFirstDerivativeFunction
 
 	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
 
 	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-		PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
 
 			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
 
@@ -474,7 +474,7 @@ function LinkLayer.InverseSquare(parameterDictionary)
 
 	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
 
-	return AutomaticDifferentiationTensor.new({resultTensor, PartialFirstDerivativeFunction, {tensor}})
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
 
 end
 
