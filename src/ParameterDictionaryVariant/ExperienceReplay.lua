@@ -143,13 +143,13 @@ function ExperienceReplay.new(parameterDictionary)
 
 	NewExperienceReplay.numberOfRuns = parameterDictionary.numberOfRuns or parameterDictionary[2] or 0
 	
-	NewExperienceReplay.RunFunction = parameterDictionary.RunFunction or parameterDictionary[3]
+	NewExperienceReplay.runFunction = parameterDictionary.runFunction or parameterDictionary[3]
 	
-	NewExperienceReplay.ResetFunction = parameterDictionary.ResetFunction or parameterDictionary[4]
+	NewExperienceReplay.resetFunction = parameterDictionary.resetFunction or parameterDictionary[4]
 	
-	NewExperienceReplay.AddExperienceFunction = parameterDictionary.AddExperienceFunction or parameterDictionary[5]
+	NewExperienceReplay.addExperienceFunction = parameterDictionary.addExperienceFunction or parameterDictionary[5]
 
-	NewExperienceReplay.AddTemporalDifferenceErrorFunction = parameterDictionary.AddTemporalDifferenceErrorFunction or parameterDictionary[6]
+	NewExperienceReplay.addTemporalDifferenceErrorFunction = parameterDictionary.addTemporalDifferenceErrorFunction or parameterDictionary[6]
 	
 	NewExperienceReplay.isAnObject = true
 	
@@ -171,7 +171,7 @@ function ExperienceReplay.UniformExperienceReplay(parameterDictionary)
 
 	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[5] or {}
 	
-	local RunFunction = function(UpdateFunction)
+	local runFunction = function(UpdateFunction)
 		
 		local replayBufferBatchArray = sampleRandomBuffer(replayBufferArray, batchSize)
 
@@ -179,9 +179,9 @@ function ExperienceReplay.UniformExperienceReplay(parameterDictionary)
 		
 	end
 	
-	local ResetFunction = function() table.clear(replayBufferArray) end
+	local resetFunction = function() table.clear(replayBufferArray) end
 	
-	local AddExperienceFunction = function(experience) 
+	local addExperienceFunction = function(experience) 
 		
 		table.insert(replayBufferArray, experience)
 		
@@ -189,7 +189,7 @@ function ExperienceReplay.UniformExperienceReplay(parameterDictionary)
 		
 	end
 	
-	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction})
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, runFunction, resetFunction, addExperienceFunction})
 	
 end
 
@@ -210,7 +210,7 @@ function ExperienceReplay.NStepExperienceReplay(parameterDictionary)
 
 	local replayBufferArray = parameterDictionary.replayBufferArray or parameterDictionary[6] or {}
 
-	local RunFunction = function(UpdateFunction)
+	local runFunction = function(UpdateFunction)
 
 		local replayBufferBatchArray = sampleBuffer(replayBufferArray, batchSize)
 
@@ -226,9 +226,9 @@ function ExperienceReplay.NStepExperienceReplay(parameterDictionary)
 
 	end
 	
-	local ResetFunction = function() table.clear(replayBufferArray) end
+	local resetFunction = function() table.clear(replayBufferArray) end
 	
-	local AddExperienceFunction = function(experience) 
+	local addExperienceFunction = function(experience) 
 
 		table.insert(replayBufferArray, experience)
 
@@ -236,7 +236,7 @@ function ExperienceReplay.NStepExperienceReplay(parameterDictionary)
 
 	end
 
-	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction})
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, runFunction, resetFunction, addExperienceFunction})
 
 end
 
@@ -270,7 +270,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 	
 	local aggregateFunctionToApply = aggregateFunctionList[aggregateFunction]
 	
-	local RunFunction = function(UpdateFunction)
+	local runFunction = function(UpdateFunction)
 
 		local batchArray = {}
 
@@ -340,7 +340,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	end
 	
-	local ResetFunction = function()
+	local resetFunction = function()
 		
 		table.clear(replayBufferArray) 
 
@@ -352,7 +352,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	end
 	
-	local AddExperienceFunction = function(experience)
+	local addExperienceFunction = function(experience)
 		
 		local maximumPriority = 1
 
@@ -382,7 +382,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 		
 	end
 
-	local AddTemporalDifferenceErrorFunction = function(temporalDifferenceErrorVectorOrValue)
+	local addTemporalDifferenceErrorFunction = function(temporalDifferenceErrorVectorOrValue)
 		
 		table.insert(temporalDifferenceErrorArray, temporalDifferenceErrorVectorOrValue) 
 		
@@ -390,7 +390,7 @@ function ExperienceReplay.PrioritizedExperienceReplay(parameterDictionary)
 
 	end
 	
-	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, RunFunction, ResetFunction, AddExperienceFunction, AddTemporalDifferenceErrorFunction})
+	return ExperienceReplay.new({numberOfRunsToUpdate, numberOfRuns, runFunction, resetFunction, addExperienceFunction, addTemporalDifferenceErrorFunction})
 
 end
 
@@ -400,9 +400,9 @@ function ExperienceReplay:reset()
 
 	self.numberOfRuns = 0
 
-	local ResetFunction = self.ResetFunction
+	local resetFunction = self.resetFunction
 
-	if ResetFunction then ResetFunction() end
+	if resetFunction then resetFunction() end
 
 end
 
@@ -420,7 +420,7 @@ function ExperienceReplay:run(parameterDictionary)
 	
 	local UpdateFunction = parameterDictionary.UpdateFunction or parameterDictionary[1]
 
-	self.RunFunction(UpdateFunction)
+	self.runFunction(UpdateFunction)
 
 end
 
@@ -428,9 +428,9 @@ function ExperienceReplay:addExperience(parameterDictionary)
 	
 	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
-	local AddExperienceFunction = self.AddExperienceFunction
+	local addExperienceFunction = self.addExperienceFunction
 
-	if (AddExperienceFunction) then AddExperienceFunction(parameterDictionary) end
+	if (addExperienceFunction) then addExperienceFunction(parameterDictionary) end
 
 end
 
@@ -440,9 +440,9 @@ function ExperienceReplay:addTemporalDifferenceError(parameterDictionary)
 	
 	local temporalDifferenceErrorVectorOrValue = parameterDictionary.temporalDifferenceErrorVectorOrValue or parameterDictionary[1]
 	
-	local AddTemporalDifferenceErrorFunction = self.AddTemporalDifferenceErrorFunction
+	local addTemporalDifferenceErrorFunction = self.addTemporalDifferenceErrorFunction
 
-	if (AddTemporalDifferenceErrorFunction) then AddTemporalDifferenceErrorFunction(temporalDifferenceErrorVectorOrValue) end
+	if (addTemporalDifferenceErrorFunction) then addTemporalDifferenceErrorFunction(temporalDifferenceErrorVectorOrValue) end
 
 end
 
