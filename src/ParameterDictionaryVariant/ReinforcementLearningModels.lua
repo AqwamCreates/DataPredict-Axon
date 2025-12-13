@@ -1744,7 +1744,7 @@ function ReinforcementLearningModel.VanillaPolicyGradient(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, ActorModel}
 
 end
 
@@ -1852,7 +1852,7 @@ function ReinforcementLearningModel.ActorCritic(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, ActorModel}
 
 end
 
@@ -1952,7 +1952,7 @@ function ReinforcementLearningModel.TemporalDifferenceActorCritic(parameterDicti
 
 	local resetFunction = function() if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, ActorModel}
 
 end
 
@@ -2078,7 +2078,7 @@ function ReinforcementLearningModel.AdvantageActorCritic(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, ActorModel}
 
 end
 
@@ -2246,7 +2246,7 @@ function ReinforcementLearningModel.ProximalPolicyOptimization(parameterDictiona
 
 	end
 
-	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, ActorModel}
 
 end
 
@@ -2426,7 +2426,7 @@ function ReinforcementLearningModel.ProximalPolicyOptimizationClip(parameterDict
 
 	end
 
-	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, ActorModel}
 
 end
 
@@ -2566,7 +2566,7 @@ function ReinforcementLearningModel.SoftActorCritic(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdate, nil, nil, Model}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdate, nil, nil, ActorModel}
 
 end
 
@@ -2646,7 +2646,7 @@ function ReinforcementLearningModel.DeepDeterministicPolicyGradient(parameterDic
 
 	end
 
-	return ReinforcementLearningModel.new{nil, diagonalGaussianUpdate, nil, nil, Model}
+	return ReinforcementLearningModel.new{nil, diagonalGaussianUpdate, nil, nil, ActorModel}
 
 end
 
@@ -2796,7 +2796,7 @@ function ReinforcementLearningModel.TwinDelayedDeepDeterministicPolicyGradient(p
 
 	end
 
-	return ReinforcementLearningModel.new{nil, diagonalGaussianUpdate, nil, nil, Model}
+	return ReinforcementLearningModel.new{nil, diagonalGaussianUpdate, nil, nil, ActorModel}
 
 end
 
@@ -2896,9 +2896,13 @@ function ReinforcementLearningModel:reset(parameterDictionary)
 
 end
 
-function ReinforcementLearningModel:predict(featureTensor)
+function ReinforcementLearningModel:predict(parameterDictionary)
 	
-	return self.Model:predict(featureTensor)
+	parameterDictionary = parameterDictionary or {}
+	
+	local featureTensor = parameterDictionary.featureTensor or parameterDictionary[1]
+	
+	return self.Model{featureTensor}
 	
 end
 
