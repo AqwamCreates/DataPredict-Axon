@@ -601,7 +601,13 @@ local metaMethodOperationDictionary = {
 	__sub = {
 
 		operatorFunction = function(inputTensorArray) return AqwamTensorLibrary:subtract(table.unpack(inputTensorArray)) end,
-		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex) return firstDerivativeTensor end
+		derivativeFunction = function(firstDerivativeTensor, inputTensorArray, resultTensor, tensorIndex)
+			
+			if (tensorIndex == 1) then return firstDerivativeTensor end
+			
+			return AqwamTensorLibrary:unaryMinus(firstDerivativeTensor)
+			
+		end
 
 	},
 	
