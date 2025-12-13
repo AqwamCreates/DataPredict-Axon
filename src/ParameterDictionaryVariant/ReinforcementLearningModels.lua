@@ -36,7 +36,7 @@ local DisplayErrorFunctions = require(script.Parent.DisplayErrorFunctions)
 
 local displayFunctionErrorDueToNonObjectCondition = DisplayErrorFunctions.displayFunctionErrorDueToNonObjectCondition
 
-local ReinforcementLearningModels = {}
+local ReinforcementLearningModel = {}
 
 local defaultNStep = 3
 
@@ -160,11 +160,11 @@ local targetPolicyFunctionList = {
 
 }
 
-function ReinforcementLearningModels.new(parameterDictionary)
+function ReinforcementLearningModel.new(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
-	local self = setmetatable({}, { __index = ReinforcementLearningModels })
+	local self = setmetatable({}, { __index = ReinforcementLearningModel })
 
 	self.categoricalUpdateFunction = parameterDictionary.categoricalUpdateFunction or parameterDictionary[1]
 
@@ -174,13 +174,15 @@ function ReinforcementLearningModels.new(parameterDictionary)
 	
 	self.resetFunction = parameterDictionary.resetFunction or parameterDictionary[4]
 	
+	self.Model = parameterDictionary.Model or parameterDictionary[5]
+	
 	self.isAnObject = true
 
 	return self
 
 end
 
-function ReinforcementLearningModels.MonteCarloControl(parameterDictionary)
+function ReinforcementLearningModel.MonteCarloControl(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -240,11 +242,11 @@ function ReinforcementLearningModels.MonteCarloControl(parameterDictionary)
 		
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.OffPolicyMonteCarloControl(parameterDictionary)
+function ReinforcementLearningModel.OffPolicyMonteCarloControl(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -328,11 +330,11 @@ function ReinforcementLearningModels.OffPolicyMonteCarloControl(parameterDiction
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
+function ReinforcementLearningModel.DeepQLearning(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -386,11 +388,11 @@ function ReinforcementLearningModels.DeepQLearning(parameterDictionary)
 	
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepNStepQLearning(parameterDictionary)
+function ReinforcementLearningModel.DeepNStepQLearning(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -482,11 +484,11 @@ function ReinforcementLearningModels.DeepNStepQLearning(parameterDictionary)
 
 	local resetFunction = function(terminalStateValue) table.clear(replayBufferArray) end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
+function ReinforcementLearningModel.DuelingDeepQLearning(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -544,11 +546,11 @@ function ReinforcementLearningModels.DuelingDeepQLearning(parameterDictionary)
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
+function ReinforcementLearningModel.DeepDoubleQLearningV1(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -624,11 +626,11 @@ function ReinforcementLearningModels.DeepDoubleQLearningV1(parameterDictionary)
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
+function ReinforcementLearningModel.DeepDoubleQLearningV2(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -692,11 +694,11 @@ function ReinforcementLearningModels.DeepDoubleQLearningV2(parameterDictionary)
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDictionary)
+function ReinforcementLearningModel.DeepClippedDoubleQLearning(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -774,11 +776,11 @@ function ReinforcementLearningModels.DeepClippedDoubleQLearning(parameterDiction
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterDictionary)
+function ReinforcementLearningModel.DeepStateActionRewardStateAction(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -828,11 +830,11 @@ function ReinforcementLearningModels.DeepStateActionRewardStateAction(parameterD
 
 	local resetFunction = function() if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepNStepStateActionRewardStateAction(parameterDictionary)
+function ReinforcementLearningModel.DeepNStepStateActionRewardStateAction(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -922,11 +924,11 @@ function ReinforcementLearningModels.DeepNStepStateActionRewardStateAction(param
 
 	local resetFunction = function(terminalStateValue) table.clear(replayBufferArray) end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(parameterDictionary)
+function ReinforcementLearningModel.DeepDoubleStateActionRewardStateActionV1(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -998,11 +1000,11 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV1(pa
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(parameterDictionary)
+function ReinforcementLearningModel.DeepDoubleStateActionRewardStateActionV2(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1062,11 +1064,11 @@ function ReinforcementLearningModels.DeepDoubleStateActionRewardStateActionV2(pa
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(parameterDictionary)
+function ReinforcementLearningModel.DeepExpectedStateActionRewardStateAction(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1158,11 +1160,11 @@ function ReinforcementLearningModels.DeepExpectedStateActionRewardStateAction(pa
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepNStepExpectedStateActionRewardStateAction(parameterDictionary)
+function ReinforcementLearningModel.DeepNStepExpectedStateActionRewardStateAction(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1292,11 +1294,11 @@ function ReinforcementLearningModels.DeepNStepExpectedStateActionRewardStateActi
 
 	local resetFunction = function(terminalStateValue) table.clear(replayBufferArray) end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateActionV1(parameterDictionary)
+function ReinforcementLearningModel.DeepDoubleExpectedStateActionRewardStateActionV1(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1410,11 +1412,11 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateActionV2(parameterDictionary)
+function ReinforcementLearningModel.DeepDoubleExpectedStateActionRewardStateActionV2(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1516,11 +1518,11 @@ function ReinforcementLearningModels.DeepDoubleExpectedStateActionRewardStateAct
 
 	local resetFunction = function(terminalStateValue) if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, nil, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.REINFORCE(parameterDictionary)
+function ReinforcementLearningModel.REINFORCE(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1594,11 +1596,11 @@ function ReinforcementLearningModels.REINFORCE(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
+function ReinforcementLearningModel.VanillaPolicyGradient(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1742,11 +1744,11 @@ function ReinforcementLearningModels.VanillaPolicyGradient(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.ActorCritic(parameterDictionary)
+function ReinforcementLearningModel.ActorCritic(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1850,11 +1852,11 @@ function ReinforcementLearningModels.ActorCritic(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.TemporalDifferenceActorCritic(parameterDictionary)
+function ReinforcementLearningModel.TemporalDifferenceActorCritic(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -1950,11 +1952,11 @@ function ReinforcementLearningModels.TemporalDifferenceActorCritic(parameterDict
 
 	local resetFunction = function() if (EligibilityTrace) then EligibilityTrace:reset() end end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
+function ReinforcementLearningModel.AdvantageActorCritic(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -2076,11 +2078,11 @@ function ReinforcementLearningModels.AdvantageActorCritic(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDictionary)
+function ReinforcementLearningModel.ProximalPolicyOptimization(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -2244,11 +2246,11 @@ function ReinforcementLearningModels.ProximalPolicyOptimization(parameterDiction
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDictionary)
+function ReinforcementLearningModel.ProximalPolicyOptimizationClip(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -2424,11 +2426,11 @@ function ReinforcementLearningModels.ProximalPolicyOptimizationClip(parameterDic
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdateFunction, episodeUpdateFunction, resetFunction, Model}
 
 end
 
-function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
+function ReinforcementLearningModel.SoftActorCritic(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -2564,11 +2566,11 @@ function ReinforcementLearningModels.SoftActorCritic(parameterDictionary)
 
 	end
 
-	return ReinforcementLearningModels.new{categoricalUpdateFunction, diagonalGaussianUpdate}
+	return ReinforcementLearningModel.new{categoricalUpdateFunction, diagonalGaussianUpdate, nil, nil, Model}
 
 end
 
-function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDictionary)
+function ReinforcementLearningModel.DeepDeterministicPolicyGradient(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -2644,11 +2646,11 @@ function ReinforcementLearningModels.DeepDeterministicPolicyGradient(parameterDi
 
 	end
 
-	return ReinforcementLearningModels.new{nil, diagonalGaussianUpdate}
+	return ReinforcementLearningModel.new{nil, diagonalGaussianUpdate, nil, nil, Model}
 
 end
 
-function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(parameterDictionary)
+function ReinforcementLearningModel.TwinDelayedDeepDeterministicPolicyGradient(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -2794,11 +2796,11 @@ function ReinforcementLearningModels.TwinDelayedDeepDeterministicPolicyGradient(
 
 	end
 
-	return ReinforcementLearningModels.new{nil, diagonalGaussianUpdate}
+	return ReinforcementLearningModel.new{nil, diagonalGaussianUpdate, nil, nil, Model}
 
 end
 
-function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
+function ReinforcementLearningModel:categoricalUpdate(parameterDictionary)
 	
 	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
@@ -2832,7 +2834,7 @@ function ReinforcementLearningModels:categoricalUpdate(parameterDictionary)
 
 end
 
-function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
+function ReinforcementLearningModel:diagonalGaussianUpdate(parameterDictionary)
 	
 	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
@@ -2866,7 +2868,7 @@ function ReinforcementLearningModels:diagonalGaussianUpdate(parameterDictionary)
 
 end
 
-function ReinforcementLearningModels:episodeUpdate(parameterDictionary)
+function ReinforcementLearningModel:episodeUpdate(parameterDictionary)
 	
 	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
@@ -2882,7 +2884,7 @@ function ReinforcementLearningModels:episodeUpdate(parameterDictionary)
 
 end
 
-function ReinforcementLearningModels:reset(parameterDictionary)
+function ReinforcementLearningModel:reset(parameterDictionary)
 	
 	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 
@@ -2894,4 +2896,10 @@ function ReinforcementLearningModels:reset(parameterDictionary)
 
 end
 
-return ReinforcementLearningModels
+function ReinforcementLearningModel:predict(featureTensor)
+	
+	return self.Model:predict(featureTensor)
+	
+end
+
+return ReinforcementLearningModel
