@@ -364,19 +364,19 @@ function ReinforcementLearningModel.DeepQLearning(parameterDictionary)
 		
 		local temporalDifferenceError = targetValue - lastValue
 		
-		local firstDerivativeValue
-		
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 			
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+			
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -522,19 +522,19 @@ function ReinforcementLearningModel.DuelingDeepQLearning(parameterDictionary)
 
 		local temporalDifferenceError = targetValue - lastValue
 
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
-			local numberOfActions = currentAdvantageValueTensor:getDimensionSizeArray()[2]
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 		
@@ -598,21 +598,21 @@ function ReinforcementLearningModel.DeepDoubleQLearningV1(parameterDictionary)
 
 		local temporalDifferenceError = targetValue - lastValue
 
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -664,19 +664,19 @@ function ReinforcementLearningModel.DeepDoubleQLearningV2(parameterDictionary)
 
 		local temporalDifferenceError = targetValue - lastValue
 		
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
-
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+			
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -756,15 +756,15 @@ function ReinforcementLearningModel.DeepClippedDoubleQLearning(parameterDictiona
 			
 			local temporalDifferenceError = minimumCurrentMaxQValue - previousQValue
 			
-			local firstDerivativeValue
-
 			if (EligibilityTrace) then
 
-				firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+				local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+				temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 			end
 
-			temporalDifferenceError:differentiate{firstDerivativeValue}
+			temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 			WeightContainer:gradientAscent()
 
@@ -806,19 +806,19 @@ function ReinforcementLearningModel.DeepStateActionRewardStateAction(parameterDi
 		
 		local temporalDifferenceError = targetQValue - previousQValueTensor[1][previousActionIndex]
 		
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -972,21 +972,21 @@ function ReinforcementLearningModel.DeepDoubleStateActionRewardStateActionV1(par
 
 		local temporalDifferenceError = targetQValue - previousQValueTensor[1][previousActionIndex]
 
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 		
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1034,19 +1034,19 @@ function ReinforcementLearningModel.DeepDoubleStateActionRewardStateActionV2(par
 
 		local temporalDifferenceError = targetQValue - previousQValueTensor[1][previousActionIndex]
 
-		local firstDerivativeValue
-		
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1136,19 +1136,19 @@ function ReinforcementLearningModel.DeepExpectedStateActionRewardStateAction(par
 
 		local temporalDifferenceError = targetValue - lastValue
 
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1384,21 +1384,21 @@ function ReinforcementLearningModel.DeepDoubleExpectedStateActionRewardStateActi
 		
 		local temporalDifferenceError = targetValue - lastValue
 
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1488,19 +1488,19 @@ function ReinforcementLearningModel.DeepDoubleExpectedStateActionRewardStateActi
 
 		local temporalDifferenceError = targetValue - lastValue
 
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
 			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1898,21 +1898,21 @@ function ReinforcementLearningModel.TemporalDifferenceActorCritic(parameterDicti
 		
 		local actorLoss = logActionProbability * temporalDifferenceError
 		
-		local firstDerivativeValue
-
 		if (EligibilityTrace) then
 
-			local numberOfActions = actionProbabilityTensor:getDimensionSizeArray()[2]
+			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
-			firstDerivativeValue = EligibilityTrace:calculate{temporalDifferenceError, previousActionIndex}
+			local eligibilityTraceValue = EligibilityTrace:getEligibilityTrace{previousActionIndex}
+
+			temporalDifferenceError = temporalDifferenceError * eligibilityTraceValue
 
 		end
 		
 		actorLoss:differentiate{}
 
-		temporalDifferenceError:differentiate{firstDerivativeValue}
+		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
 		
 		ActorWeightContainer:gradientAscent()
 
