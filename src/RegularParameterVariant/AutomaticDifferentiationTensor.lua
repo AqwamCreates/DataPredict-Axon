@@ -1995,12 +1995,12 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 		firstDerivativeTensor = createFirstDerivativeTensor(tensorDimensionSizeArray, tensorNumberOfDimensions)
 
 	end
-
-	local partialFirstDerivativeFunction = self.partialFirstDerivativeFunction
 	
 	if (isWaitEnabledOnFirstDerivativeCalculation) then task.wait() end
 
 	self.totalFirstDerivativeTensor = accumulateTotalFirstDerivativeTensor(self.totalFirstDerivativeTensor, firstDerivativeTensor)
+	
+	local partialFirstDerivativeFunction = self.partialFirstDerivativeFunction
 	
 	if (partialFirstDerivativeFunction) then partialFirstDerivativeFunction(firstDerivativeTensor) end
 
