@@ -1967,6 +1967,8 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{self}
 	
 	if (skipFirst) then firstDerivativeTensor = pureTensor end
+	
+	firstDerivativeTensor = initializeFirstDerivativeTensor(pureTensor, firstDerivativeTensor)
 
 	self.totalFirstDerivativeTensor = accumulateTotalFirstDerivativeTensor(self.totalFirstDerivativeTensor, firstDerivativeTensor)
 	
