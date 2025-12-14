@@ -162,7 +162,7 @@ local function createPartialDerivativeFunction(derivativeFunction, inputTensorAr
 
 	end
 
-	return function(firstDerivativeTensor)
+	return function(firstDerivativeTensor, skipCount)
 
 		local partialFirstDerivativeTensor
 
@@ -178,7 +178,7 @@ local function createPartialDerivativeFunction(derivativeFunction, inputTensorAr
 
 				partialFirstDerivativeTensor = collapseTensor(partialFirstDerivativeTensor, dimensionSizeArray)
 
-				tensor:differentiate{partialFirstDerivativeTensor}
+				tensor:differentiate{partialFirstDerivativeTensor, skipCount}
 
 			end
 
@@ -191,38 +191,16 @@ end
 local function wrapUnaryOperation(operatorFunction, derivativeFunction)
 
 	return function(parameterDictionary)
-
+		
 		local tensor = parameterDictionary.tensor or parameterDictionary[1]
-
+		
 		local inputTensorArray = {tensor}
 
 		local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
 
 		local resultTensor = operatorFunction(tensorValue)
 
-		local partialFirstDerivativeFunction
-
-		local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
-
-		if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
-
-			partialFirstDerivativeFunction = function(firstDerivativeTensor)
-
-				local tensor = inputTensorArray[1]
-
-				if (not checkIfCanDifferentiateTensor(tensor)) then return end
-
-				local tensorValue = AHAAutomaticDifferentiationTensor:fetchValue{tensor}
-
-				local partialDerivativeTensor = derivativeFunction(firstDerivativeTensor, tensorValue, resultTensor)
-
-				tensor:differentiate{partialDerivativeTensor}
-
-			end
-
-		end
-
-		if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+		local partialFirstDerivativeFunction = createPartialDerivativeFunction(derivativeFunction, inputTensorArray, {tensorValue}, resultTensor)
 
 		return AHAAutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, inputTensorArray})
 
@@ -290,11 +268,11 @@ local function wrapDimensionOperation(operationFunction, derivativeFunction)
 
 		if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 			
-			partialFirstDerivativeFunction = function(firstDerivativeTensor) 
+			partialFirstDerivativeFunction = function(firstDerivativeTensor, skipCount) 
 				
 				firstDerivativeTensor = derivativeFunction(firstDerivativeTensor, selfTensorValue, dimension)
 
-				inputTensorArray[1]:differentiate{firstDerivativeTensor}
+				inputTensorArray[1]:differentiate{firstDerivativeTensor, skipCount}
 				
 			end
 			
@@ -328,11 +306,11 @@ local function wrapDimensionArrayOperation(operationFunction, derivativeFunction
 
 		if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-			partialFirstDerivativeFunction = function(firstDerivativeTensor) 
+			partialFirstDerivativeFunction = function(firstDerivativeTensor, skipCount) 
 
 				firstDerivativeTensor = derivativeFunction(firstDerivativeTensor, selfTensorValue, dimensionArray)
 
-				inputTensorArray[1]:differentiate{firstDerivativeTensor}
+				inputTensorArray[1]:differentiate{firstDerivativeTensor, skipCount}
 
 			end
 
@@ -1896,21 +1874,53 @@ function AHAAutomaticDifferentiationTensor:isScalar()
 
 end
 
-function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
-
-	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
-
-	parameterDictionary = parameterDictionary or {}
-
-	local firstDerivativeTensor = parameterDictionary.firstDerivativeTensor or parameterDictionary[1]
-
-	local selfTensorValue = AHAAutomaticDifferentiationTensor:fetchValue{self}
-
-	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(selfTensorValue)
+local function initializeFirstDerivativeTensor(tensor, firstDerivativeTensor)
+	
+	local tensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(tensor)
 
 	local tensorNumberOfDimensions = #tensorDimensionSizeArray
+	
+	if (firstDerivativeTensor) then
 
-	if (not firstDerivativeTensor) then
+		-- if (#firstDerivativeTensor == 0) then firstDerivativeTensor = 0 end -- Our __index function could not return the pure scalar value due to being wrapped around the automatic differentiation tensor table. So this was added to prevent a bug where the first derivative tensor has 0 dimensions when the original tensor has 1 dimension.
+
+		local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
+
+		local firstDerivativeTensorNumberOfDimensions = #firstDerivativeTensorDimensionSizeArray
+
+		local isInputScalar = (tensorNumberOfDimensions == 0) 
+
+		local isFirstDerivativeScalar = (firstDerivativeTensorNumberOfDimensions == 0)
+
+		if (not isInputScalar) and (isFirstDerivativeScalar) then
+
+			error("Unable to differentiate. The scalar derivative cannot be applied to the original tensor.")
+
+		end
+
+		if (not isInputScalar) and (firstDerivativeTensorNumberOfDimensions ~= tensorNumberOfDimensions) then
+
+			error("Unable to differentiate. The derivative tensor has " .. firstDerivativeTensorNumberOfDimensions .. " dimensions, but the original tensor has " .. tensorNumberOfDimensions .. ".")
+
+		end
+
+		if (not isInputScalar) then
+
+			for dimension, firstDerivativeTensorDimensionSize in ipairs(firstDerivativeTensorDimensionSizeArray) do
+
+				local tensorDimensionSize = tensorDimensionSizeArray[dimension]
+
+				if (firstDerivativeTensorDimensionSize ~= tensorDimensionSize) then
+
+					error("Unable to differentiate. The derivative tensor has a dimension size of " .. firstDerivativeTensorDimensionSize .. " at dimension " .. dimension .. ", but the original tensor has " .. tensorDimensionSize .. ".")
+
+				end
+
+			end
+
+		end
+
+	else
 
 		if (tensorNumberOfDimensions >= 1) then
 
@@ -1922,67 +1932,55 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 
 		end
 
-	else
-
-		-- if (#firstDerivativeTensor == 0) then firstDerivativeTensor = 0 end -- Our __index function could not return the pure scalar value due to being wrapped around the automatic differentiation tensor table. So this was added to prevent a bug where the first derivative tensor has 0 dimensions when the original tensor has 1 dimension.
-
-		local firstDerivativeTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(firstDerivativeTensor)
-
-		local firstDerivativeTensorNumberOfDimensions = #firstDerivativeTensorDimensionSizeArray
-		
-		local isInputScalar = (tensorNumberOfDimensions == 0) 
-		
-		local isFirstDerivativeScalar = (firstDerivativeTensorNumberOfDimensions == 0)
-		
-		if (not isInputScalar) and (isFirstDerivativeScalar) then
-			
-			error("Unable to differentiate. The scalar derivative cannot be applied to the original tensor.")
-			
-		end
-		
-		if (not isInputScalar) and (firstDerivativeTensorNumberOfDimensions ~= tensorNumberOfDimensions) then
-			
-			error("Unable to differentiate. The derivative tensor has " .. firstDerivativeTensorNumberOfDimensions .. " dimensions, but the original tensor has " .. tensorNumberOfDimensions .. ".")
-			
-		end
-
-		if (not isInputScalar) then
-			
-			for dimension, firstDerivativeTensorDimensionSize in ipairs(firstDerivativeTensorDimensionSizeArray) do
-
-				local tensorDimensionSize = tensorDimensionSizeArray[dimension]
-
-				if (firstDerivativeTensorDimensionSize ~= tensorDimensionSize) then
-					
-					error("Unable to differentiate. The derivative tensor has a dimension size of " .. firstDerivativeTensorDimensionSize .. " at dimension " .. dimension .. ", but the original tensor has " .. tensorDimensionSize .. ".")
-					
-				end
-
-			end
-			
-		end
-
 	end
-
-	local partialFirstDerivativeFunction = self.partialFirstDerivativeFunction
 	
-	if (isWaitEnabledOnFirstDerivativeCalculation) then task.wait() end
+	return firstDerivativeTensor
+	
+end
 
-	if (partialFirstDerivativeFunction) then partialFirstDerivativeFunction(firstDerivativeTensor) end
-
-	local totalFirstDerivativeTensor = self.totalFirstDerivativeTensor
-
-	if (not totalFirstDerivativeTensor) then
-
-		totalFirstDerivativeTensor = firstDerivativeTensor
-
-	else
+local function accumulateTotalFirstDerivativeTensor(totalFirstDerivativeTensor, firstDerivativeTensor)
+	
+	if (totalFirstDerivativeTensor) then
 
 		totalFirstDerivativeTensor = AqwamTensorLibrary:add(totalFirstDerivativeTensor, firstDerivativeTensor)
 
-	end
+	else
 
-	self.totalFirstDerivativeTensor = totalFirstDerivativeTensor
+		totalFirstDerivativeTensor = firstDerivativeTensor
+
+	end
+	
+	return totalFirstDerivativeTensor
+	
+end
+
+function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
+
+	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local firstDerivativeTensor = parameterDictionary.firstDerivativeTensor or parameterDictionary[1]
+	
+	local skipCount = parameterDictionary.skipCount or parameterDictionary[2] or 0
+
+	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{self}
+	
+	if (skipCount >= 1) then
+		
+		if (skipCount == 1) then firstDerivativeTensor = pureTensor end
+		
+	end
+	
+	firstDerivativeTensor = initializeFirstDerivativeTensor(pureTensor, firstDerivativeTensor)
+
+	self.totalFirstDerivativeTensor = accumulateTotalFirstDerivativeTensor(self.totalFirstDerivativeTensor, firstDerivativeTensor)
+	
+	if (isWaitEnabledOnFirstDerivativeCalculation) then task.wait() end
+	
+	local partialFirstDerivativeFunction = self.partialFirstDerivativeFunction
+	
+	if (partialFirstDerivativeFunction) then partialFirstDerivativeFunction(firstDerivativeTensor, skipCount - 1) end
 
 end
 
