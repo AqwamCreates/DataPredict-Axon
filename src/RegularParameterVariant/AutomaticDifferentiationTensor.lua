@@ -2000,9 +2000,9 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 	
 	if (isWaitEnabledOnFirstDerivativeCalculation) then task.wait() end
 
-	if (partialFirstDerivativeFunction) then partialFirstDerivativeFunction(firstDerivativeTensor) end
-
 	self.totalFirstDerivativeTensor = accumulateTotalFirstDerivativeTensor(self.totalFirstDerivativeTensor, firstDerivativeTensor)
+	
+	if (partialFirstDerivativeFunction) then partialFirstDerivativeFunction(firstDerivativeTensor) end
 
 end
 
