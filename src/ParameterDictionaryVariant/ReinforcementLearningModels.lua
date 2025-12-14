@@ -376,7 +376,7 @@ function ReinforcementLearningModel.DeepQLearning(parameterDictionary)
 
 		end
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -524,7 +524,7 @@ function ReinforcementLearningModel.DuelingDeepQLearning(parameterDictionary)
 
 		if (EligibilityTrace) then
 
-			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
+			local numberOfActions = previousAdvantageValueTensor:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
@@ -534,7 +534,7 @@ function ReinforcementLearningModel.DuelingDeepQLearning(parameterDictionary)
 
 		end
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 		
@@ -612,7 +612,7 @@ function ReinforcementLearningModel.DeepDoubleQLearningV1(parameterDictionary)
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -676,7 +676,7 @@ function ReinforcementLearningModel.DeepDoubleQLearningV2(parameterDictionary)
 
 		end
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -764,7 +764,7 @@ function ReinforcementLearningModel.DeepClippedDoubleQLearning(parameterDictiona
 
 			end
 
-			temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+			temporalDifferenceError:differentiate{nil, true}
 
 			WeightContainer:gradientAscent()
 
@@ -818,7 +818,7 @@ function ReinforcementLearningModel.DeepStateActionRewardStateAction(parameterDi
 
 		end
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -986,7 +986,7 @@ function ReinforcementLearningModel.DeepDoubleStateActionRewardStateActionV1(par
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 		
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1046,7 +1046,7 @@ function ReinforcementLearningModel.DeepDoubleStateActionRewardStateActionV2(par
 
 		end
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1148,7 +1148,7 @@ function ReinforcementLearningModel.DeepExpectedStateActionRewardStateAction(par
 
 		end
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1398,7 +1398,7 @@ function ReinforcementLearningModel.DeepDoubleExpectedStateActionRewardStateActi
 
 		WeightContainer:setWeightTensorArray{WeightTensorArrayArray[selectedWeightTensorArrayNumberForUpdate]}
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1500,7 +1500,7 @@ function ReinforcementLearningModel.DeepDoubleExpectedStateActionRewardStateActi
 
 		end
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 
 		WeightContainer:gradientAscent()
 
@@ -1900,7 +1900,7 @@ function ReinforcementLearningModel.TemporalDifferenceActorCritic(parameterDicti
 		
 		if (EligibilityTrace) then
 
-			local numberOfActions = currentQValueTensor:getDimensionSizeArray()[2]
+			local numberOfActions = actorLoss:getDimensionSizeArray()[2]
 
 			EligibilityTrace:increment{previousActionIndex, discountFactor, numberOfActions}
 
@@ -1912,7 +1912,7 @@ function ReinforcementLearningModel.TemporalDifferenceActorCritic(parameterDicti
 		
 		actorLoss:differentiate{}
 
-		temporalDifferenceError:differentiate{eligibilityTraceValue, true}
+		temporalDifferenceError:differentiate{nil, true}
 		
 		ActorWeightContainer:gradientAscent()
 
