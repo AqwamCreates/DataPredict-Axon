@@ -136,25 +136,21 @@ function EligibilityTrace:increment(parameterDictionary)
 
 end
 
-function EligibilityTrace:calculate(parameterDictionary)
+function EligibilityTrace:getEligibilityTrace(parameterDictionary)
 	
 	displayFunctionErrorDueToNonObjectCondition(not self.isAnObject)
 	
-	local temporalDifferenceError = parameterDictionary.temporalDifferenceError or parameterDictionary[1]
-	
-	local actionIndex = parameterDictionary.actionIndex or parameterDictionary[2]
+	local actionIndex = parameterDictionary.actionIndex or parameterDictionary[1]
 	
 	local eligibilityTraceTensor = self.eligibilityTraceTensor
 	
-	temporalDifferenceError = AutomaticDifferentiationTensor:fetchValue{temporalDifferenceError}
-	
 	if (actionIndex) then
 		
-		return (temporalDifferenceError * eligibilityTraceTensor[actionIndex])
+		return eligibilityTraceTensor[actionIndex]
 
 	else
 
-		return AqwamTensorLibrary:multiply(temporalDifferenceError, eligibilityTraceTensor)
+		return eligibilityTraceTensor
 
 	end
 	
