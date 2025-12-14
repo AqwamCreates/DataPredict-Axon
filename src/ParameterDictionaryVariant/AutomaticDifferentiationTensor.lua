@@ -162,7 +162,7 @@ local function createPartialDerivativeFunction(derivativeFunction, inputTensorAr
 
 	end
 
-	return function(firstDerivativeTensor, skipCount, currentSkipCount)
+	return function(firstDerivativeTensor, skipFirst)
 
 		local partialFirstDerivativeTensor
 
@@ -178,7 +178,7 @@ local function createPartialDerivativeFunction(derivativeFunction, inputTensorAr
 
 				partialFirstDerivativeTensor = collapseTensor(partialFirstDerivativeTensor, dimensionSizeArray)
 
-				tensor:differentiate{partialFirstDerivativeTensor, skipCount, currentSkipCount}
+				tensor:differentiate{partialFirstDerivativeTensor, skipFirst}
 
 			end
 
@@ -268,11 +268,11 @@ local function wrapDimensionOperation(operationFunction, derivativeFunction)
 
 		if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 			
-			partialFirstDerivativeFunction = function(firstDerivativeTensor, skipCount, currentSkipCount) 
+			partialFirstDerivativeFunction = function(firstDerivativeTensor, skipFirst) 
 				
 				firstDerivativeTensor = derivativeFunction(firstDerivativeTensor, selfTensorValue, dimension)
 
-				inputTensorArray[1]:differentiate{firstDerivativeTensor, skipCount, currentSkipCount}
+				inputTensorArray[1]:differentiate{firstDerivativeTensor, skipFirst}
 				
 			end
 			
@@ -306,11 +306,11 @@ local function wrapDimensionArrayOperation(operationFunction, derivativeFunction
 
 		if (AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not AHAAutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
 
-			partialFirstDerivativeFunction = function(firstDerivativeTensor, skipCount, currentSkipCount) 
+			partialFirstDerivativeFunction = function(firstDerivativeTensor, skipFirst) 
 
 				firstDerivativeTensor = derivativeFunction(firstDerivativeTensor, selfTensorValue, dimensionArray)
 
-				inputTensorArray[1]:differentiate{firstDerivativeTensor, skipCount, currentSkipCount}
+				inputTensorArray[1]:differentiate{firstDerivativeTensor, skipFirst}
 
 			end
 
@@ -1962,17 +1962,11 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 
 	local firstDerivativeTensor = parameterDictionary.firstDerivativeTensor or parameterDictionary[1]
 	
-	local skipCount = parameterDictionary.skipCount or parameterDictionary[2] or 0
-	
-	local currentSkipCount = parameterDictionary.currentSkipCount or parameterDictionary[3] or 1
+	local skipFirst = parameterDictionary.skipCount or parameterDictionary[2]
 
 	local pureTensor = AHAAutomaticDifferentiationTensor:fetchValue{self}
 	
-	if (currentSkipCount <= skipCount) then
-		
-		if (currentSkipCount == 1) then firstDerivativeTensor = pureTensor end
-		
-	end
+	if (skipFirst) then firstDerivativeTensor = pureTensor end
 
 	self.totalFirstDerivativeTensor = accumulateTotalFirstDerivativeTensor(self.totalFirstDerivativeTensor, firstDerivativeTensor)
 	
@@ -1980,7 +1974,7 @@ function AHAAutomaticDifferentiationTensor:differentiate(parameterDictionary)
 	
 	local partialFirstDerivativeFunction = self.partialFirstDerivativeFunction
 	
-	if (partialFirstDerivativeFunction) then partialFirstDerivativeFunction(firstDerivativeTensor, skipCount, currentSkipCount + 1) end
+	if (partialFirstDerivativeFunction) then partialFirstDerivativeFunction(firstDerivativeTensor, false) end
 
 end
 
