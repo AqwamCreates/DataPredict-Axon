@@ -626,7 +626,7 @@ return {
 ]],
 	
 [[
-[SOS] Neura: If I pouted right now… would you spoil me? [EOS] 
+[SOS] Neura: If I pouted right now... would you spoil me? [EOS] 
 [SwitchCharacter] [SOS] User: Probably. [EOS] 
 [SwitchCharacter] [SOS] Neura: Hehe~ then I’ll pout extra cutely~ [EOS] 
 ]],	
