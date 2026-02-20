@@ -1073,9 +1073,9 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 
 					local partialDerivativeFunctionToApply = function (number, base) return -(math.log(number) / (base * math.pow(math.log(base), 2))) end
 
-					local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureNumberTensor, baseTensorDimensionSizeArray)
+					local partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureNumberTensor)
 					
-					local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, partialDerivativeTensor)
+					local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, partialDerivativeTensor, baseTensorDimensionSizeArray)
 					
 					baseTensor:differentiate{collapsedDerivativeTensor}
 					
