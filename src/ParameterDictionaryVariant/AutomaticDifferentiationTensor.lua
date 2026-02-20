@@ -1037,8 +1037,6 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 
 					local numberTensorDimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureNumberTensor)
 
-					local collapsedDerivativeTensor = collapseTensor(firstDerivativeTensor, numberTensorDimensionSizeArray)
-
 					local partialDerivativeTensor
 
 					if (baseTensor) then
@@ -1054,8 +1052,12 @@ function AHAAutomaticDifferentiationTensor.logarithm(parameterDictionary)
 						partialDerivativeTensor = AqwamTensorLibrary:applyFunction(partialDerivativeFunctionToApply, pureNumberTensor)
 
 					end
+					
+					local chainedDerivativeTensor = AqwamTensorLibrary:multiply(partialDerivativeTensor, firstDerivativeTensor)
+					
+					local collapsedDerivativeTensor = collapseTensor(chainedDerivativeTensor, numberTensorDimensionSizeArray)
 
-					numberTensor:differentiate{AqwamTensorLibrary:multiply(partialDerivativeTensor, collapsedDerivativeTensor)}
+					numberTensor:differentiate{collapsedDerivativeTensor}
 					
 				end
 				
