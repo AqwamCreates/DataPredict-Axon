@@ -145,10 +145,8 @@ function ActivationLayer.FastSigmoid(parameterDictionary)
 			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
 
 			local functionToApply = function (a) return (a * (1 - a)) end
-			
-			local pureResultTensor = AutomaticDifferentiationTensor:fetchValue{resultTensor}
 
-			local gradientTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureResultTensor)
+			local gradientTensor = AqwamTensorLibrary:applyFunction(functionToApply, resultTensor)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(gradientTensor, firstDerivativeTensor)}
 
