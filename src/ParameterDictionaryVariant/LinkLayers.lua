@@ -84,7 +84,7 @@ function LinkLayer.FastInverseLogit(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local functionToApply = function(z) return 1/(1 + math.exp(-z)) end
+	local functionToApply = function(z) return (1 / (1 + math.exp(-z))) end
 	
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
@@ -104,7 +104,7 @@ function LinkLayer.FastInverseLogit(parameterDictionary)
 
 			local functionToApply = function (a) return (a * (1 - a)) end
 
-			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, resultTensor)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
 
@@ -330,11 +330,9 @@ function LinkLayer.FastInverseLog(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local functionToApply = function(z) return math.exp(z) end
-
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
-	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+	local resultTensor = AqwamTensorLibrary:applyFunction(math.exp, pureTensor)
 
 	local partialFirstDerivativeFunction
 
@@ -400,7 +398,7 @@ function LinkLayer.FastInverse(parameterDictionary)
 
 end
 
-function LinkLayer.SquareRoot(parameterDictionary)
+function LinkLayer.FastSquareRoot(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
@@ -438,13 +436,51 @@ function LinkLayer.SquareRoot(parameterDictionary)
 
 end
 
-function LinkLayer.InverseSquare(parameterDictionary)
+function LinkLayer.FastInverseSquareRoot(parameterDictionary)
 
 	parameterDictionary = parameterDictionary or {}
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	local functionToApply = function(z) return math.exp(z) end
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local resultTensor = AqwamTensorLibrary:power(pureTensor, -0.5)
+
+	local partialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			local functionToApply = function (z) return (-0.5 * math.pow(z, -1.5)) end
+
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
+
+		end
+
+	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
+
+end
+
+function LinkLayer.FastInverseSquare(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local functionToApply = function(z) return (1 / math.pow(z, 2)) end
 
 	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
 
@@ -465,6 +501,44 @@ function LinkLayer.InverseSquare(parameterDictionary)
 			local functionToApply = function (z) return (-2 / math.pow(z, 3)) end
 
 			local partialFirstDerivativeTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+
+			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
+
+		end
+
+	end
+
+	if (isFirstDerivativeFunctionNotCreatedForTheNextTensor) then AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor = false end
+
+	return AutomaticDifferentiationTensor.new({resultTensor, partialFirstDerivativeFunction, {tensor}})
+
+end
+
+function LinkLayer.FastInverseInverseSquare(parameterDictionary)
+
+	parameterDictionary = parameterDictionary or {}
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	local functionToApply = function(z) return math.pow(z, 2) end
+
+	local pureTensor = AutomaticDifferentiationTensor:fetchValue{tensor}
+
+	local resultTensor = AqwamTensorLibrary:applyFunction(functionToApply, pureTensor)
+
+	local partialFirstDerivativeFunction
+
+	local isFirstDerivativeFunctionNotCreatedForTheNextTensor = AutomaticDifferentiationTensor.isFirstDerivativeFunctionNotCreatedForTheNextTensor
+
+	if (AutomaticDifferentiationTensor.isFirstDerivativeFunctionCreatedGlobally) and (not isFirstDerivativeFunctionNotCreatedForTheNextTensor) then
+
+		partialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+			if (not AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{tensor}) then return end
+
+			if (not tensor:getIsFirstDerivativeTensorRequired()) then return end
+
+			local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(pureTensor, 2)
 
 			tensor:differentiate{AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)}
 
@@ -572,15 +646,31 @@ function LinkLayer.SquareRoot(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	return tensor:power(2)
+	return tensor:power(0.5)
 
+end
+
+function LinkLayer.InverseSquareRoot(parameterDictionary)
+	
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	return tensor:power(-0.5)
+	
 end
 
 function LinkLayer.InverseSquare(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	return 1 / (tensor^2)
+	return (1 / tensor:power(2))
+
+end
+
+function LinkLayer.InverseInverseSquare(parameterDictionary)
+
+	local tensor = parameterDictionary.tensor or parameterDictionary[1]
+
+	return tensor:power(2)
 
 end
 
