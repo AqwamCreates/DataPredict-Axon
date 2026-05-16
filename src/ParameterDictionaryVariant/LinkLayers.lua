@@ -662,7 +662,7 @@ function LinkLayer.InverseSquare(parameterDictionary)
 
 	local tensor = parameterDictionary.tensor or parameterDictionary[1]
 
-	return 1 / tensor:power(2)
+	return (1 / tensor:power(2))
 
 end
 
