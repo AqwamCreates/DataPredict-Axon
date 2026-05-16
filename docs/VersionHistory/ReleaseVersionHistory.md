@@ -2,7 +2,7 @@
 
 | Version                 | Number Of Models | Number Of Recurrent Models | Number Of Optimizers | Number Of Value Schedulers | Number Of Gradient Clippers | Number Of Cost Functions | Backward Incompatible Changes |
 |-------------------------|------------------|----------------------------|----------------------|----------------------------|-----------------------------|--------------------------|-------------------------------|
-| [1.10](Release/1-10.md) | 24               | 7                          | 14                   | 12                         | 2                           | 7                        | No                            |
+| [1.11](Release/1-11.md) | 24               | 7                          | 14                   | 12                         | 2                           | 7                        | No                            |
 | [1.10](Release/1-10.md) | 24               | 7                          | 14                   | 12                         | 2                           | 7                        | No                            |
 | [1.9](Release/1-9.md)   | 24               | 7                          | 14                   | 12                         | 2                           | 7                        | No                            |
 | [1.8](Release/1-8.md)   | 21               | 7                          | 14                   | 12                         | 2                           | 5                        | No                            |
