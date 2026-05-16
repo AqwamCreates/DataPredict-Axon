@@ -20,8 +20,8 @@
 
 | Version | Current Version Number |
 |---------|------------------------|
-| Release | 1.8                    |
-| Beta    | 1.7.0                  |
+| Release | 1.10                   |
+| Beta    | 1.9.0                  |
 
 DataPredict™ Axon is an advanced deep learning library for Roblox and Pure Lua.
 
