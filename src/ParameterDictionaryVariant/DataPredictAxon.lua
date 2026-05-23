@@ -26,46 +26,48 @@
 
 --]]
 
-local DataPredictAxon = {}
+local AqwamDeepLearningLibrary = {}
 
-DataPredictAxon.AutomaticDifferentiationTensor = require(script.AutomaticDifferentiationTensor)
+AqwamDeepLearningLibrary.AutomaticDifferentiationTensor = require(script.AutomaticDifferentiationTensor)
 
-DataPredictAxon.ActivationLayers = require(script.ActivationLayers)
+AqwamDeepLearningLibrary.ActivationLayers = require(script.ActivationLayers)
 
-DataPredictAxon.LinkLayers = require(script.LinkLayers)
+AqwamDeepLearningLibrary.LinkLayers = require(script.LinkLayers)
 
-DataPredictAxon.CostFunctions = require(script.CostFunctions)
+AqwamDeepLearningLibrary.CostFunctions = require(script.CostFunctions)
 
-DataPredictAxon.RegularizationFunctions = require(script.RegularizationFunctions)
+AqwamDeepLearningLibrary.FusedCostFunctions = require(script.FusedCostFunctions)
 
-DataPredictAxon.ConvolutionLayers = require(script.ConvolutionLayers)
+AqwamDeepLearningLibrary.RegularizationFunctions = require(script.RegularizationFunctions)
 
-DataPredictAxon.PoolingLayers = require(script.PoolingLayers)
+AqwamDeepLearningLibrary.ConvolutionLayers = require(script.ConvolutionLayers)
 
-DataPredictAxon.PaddingLayers = require(script.PaddingLayers)
+AqwamDeepLearningLibrary.PoolingLayers = require(script.PoolingLayers)
 
-DataPredictAxon.DropoutLayers = require(script.DropoutLayers)
+AqwamDeepLearningLibrary.PaddingLayers = require(script.PaddingLayers)
 
-DataPredictAxon.EncodingLayers = require(script.EncodingLayers)
+AqwamDeepLearningLibrary.DropoutLayers = require(script.DropoutLayers)
 
-DataPredictAxon.WeightContainer = require(script.WeightContainer)
+AqwamDeepLearningLibrary.EncodingLayers = require(script.EncodingLayers)
 
-DataPredictAxon.Optimizers = require(script.Optimizers)
+AqwamDeepLearningLibrary.WeightContainer = require(script.WeightContainer)
 
-DataPredictAxon.ValueSchedulers = require(script.ValueSchedulers)
+AqwamDeepLearningLibrary.Optimizers = require(script.Optimizers)
 
-DataPredictAxon.GradientClippers = require(script.GradientClippers)
+AqwamDeepLearningLibrary.ValueSchedulers = require(script.ValueSchedulers)
 
-DataPredictAxon.Regularizers = require(script.Regularizers)
+AqwamDeepLearningLibrary.GradientClippers = require(script.GradientClippers)
 
-DataPredictAxon.ReinforcementLearningModels = require(script.ReinforcementLearningModels)
+AqwamDeepLearningLibrary.Regularizers = require(script.Regularizers)
 
-DataPredictAxon.EligibilityTraces = require(script.EligibilityTraces)
+AqwamDeepLearningLibrary.ReinforcementLearningModels = require(script.ReinforcementLearningModels)
 
-DataPredictAxon.ExperienceReplays = require(script.ExperienceReplays)
+AqwamDeepLearningLibrary.EligibilityTraces = require(script.EligibilityTraces)
 
-DataPredictAxon.RecurrentModels = require(script.RecurrentModels)
+AqwamDeepLearningLibrary.ExperienceReplays = require(script.ExperienceReplays)
 
-DataPredictAxon.QuickSetups = require(script.QuickSetups)
+AqwamDeepLearningLibrary.RecurrentModels = require(script.RecurrentModels)
 
-return DataPredictAxon
+AqwamDeepLearningLibrary.QuickSetups = require(script.QuickSetups)
+
+return AqwamDeepLearningLibrary
