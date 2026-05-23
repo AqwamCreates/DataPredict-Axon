@@ -196,7 +196,7 @@ function CostFunctions.FastSquaredHingeLoss(parameterDictionary)
 
 		local indicatorTensor = AqwamTensorLibrary:applyFunction(indicatorFunction, hingeLossTensorPart2)
 
-		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(2 * cValue, indicatorTensor)
+		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply((2 * cValue), indicatorTensor)
 
 		partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(indicatorTensor, -numberOfData)
 
