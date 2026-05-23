@@ -154,6 +154,94 @@ function CostFunctions.FastEpsilonInsentitiveLoss(parameterDictionary)
 
 end
 
+function CostFunctions.FastSquaredHingeLoss(parameterDictionary)
+
+	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
+
+	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
+
+	local cValue = parameterDictionary.cValue or parameterDictionary[3] or 1
+
+	local inputTensorArray = {generatedLabelTensor, labelTensor}
+
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+	local hingeLossTensorPart1 = AqwamTensorLibrary:multiply(pureLabelTensor, pureGeneratedLabelTensor)
+
+	local hingeLossTensorPart2 = AqwamTensorLibrary:subtract(1, hingeLossTensorPart1)
+
+	local hingeLossTensor = AqwamTensorLibrary:applyFunction(math.max, 0, hingeLossTensorPart2)
+	
+	local squaredHingeLossTensor = AqwamTensorLibrary:power(hingeLossTensor, 2)
+
+	local sumSquaredHingeLossTensorValue = AqwamTensorLibrary:sum(squaredHingeLossTensor)
+
+	local numberOfData = getNumberOfData(labelTensor)
+
+	local resultValue = (cValue * sumSquaredHingeLossTensorValue) / numberOfData
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		local generatedLabelTensor = inputTensorArray[1]
+
+		local labelTensor = inputTensorArray[2]
+
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+		local indicatorFunction = function(x) return ((x > 0) and 1) or 0 end
+
+		local indicatorTensor = AqwamTensorLibrary:applyFunction(indicatorFunction, hingeLossTensorPart2)
+
+		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:multiply(2 * cValue, indicatorTensor)
+
+		partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(indicatorTensor, -numberOfData)
+
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensorPart1, pureLabelTensor) 
+
+				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)
+
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
+
+				generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
+
+			end
+
+		end
+
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensorPart1, pureGeneratedLabelTensor) 
+
+				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)
+
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+
+				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
+
+				labelTensor:differentiate{collapsedFirstDerivativeTensor}
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
 function CostFunctions.FastHingeLoss(parameterDictionary)
 
 	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
@@ -829,6 +917,30 @@ function CostFunctions.EpsilonInsentitiveLoss(parameterDictionary)
 	local numberOfData = getNumberOfData(labelTensor)
 
 	local resultValue = (cValue * sumSlackVariableValue) / numberOfData
+
+	return resultValue
+
+end
+
+function CostFunctions.SquaredHingeLoss(parameterDictionary)
+
+	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
+
+	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
+
+	local cValue = parameterDictionary.cValue or parameterDictionary[3] or 1
+
+	local hingeLossTensorPart1 = 1 - (generatedLabelTensor * labelTensor)
+
+	local hingeLossTensor = AutomaticDifferentiationTensor.maximum{0, hingeLossTensorPart1}
+	
+	local squaredHingeLossTensor = AutomaticDifferentiationTensor.power{hingeLossTensor, 2}
+
+	local sumSquaredHingeLossTensorTensorValue = squaredHingeLossTensor:sum()
+
+	local numberOfData = getNumberOfData(labelTensor)
+
+	local resultValue = (cValue * sumSquaredHingeLossTensorTensorValue) / numberOfData
 
 	return resultValue
 
