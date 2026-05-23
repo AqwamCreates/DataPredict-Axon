@@ -36,6 +36,8 @@ AqwamDeepLearningLibrary.LinkLayers = require(script.LinkLayers)
 
 AqwamDeepLearningLibrary.CostFunctions = require(script.CostFunctions)
 
+AqwamDeepLearningLibrary.DevianceFunctions = require(script.DevianceFunctions)
+
 AqwamDeepLearningLibrary.FusedCostFunctions = require(script.FusedCostFunctions)
 
 AqwamDeepLearningLibrary.RegularizationFunctions = require(script.RegularizationFunctions)
