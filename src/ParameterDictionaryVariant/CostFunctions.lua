@@ -240,6 +240,88 @@ function CostFunctions.FastHingeLoss(parameterDictionary)
 
 end
 
+function CostFunctions.FastPerceptronLoss(parameterDictionary)
+
+	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
+
+	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
+
+	local inputTensorArray = {generatedLabelTensor, labelTensor}
+
+	local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+	local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+	local perceptronLossTensorPart1 = AqwamTensorLibrary:multiply(pureLabelTensor, pureGeneratedLabelTensor)
+
+	local perceptronLossTensorPart2 = AqwamTensorLibrary:unaryMinus(perceptronLossTensorPart1)
+
+	local hingeLossTensor = AqwamTensorLibrary:applyFunction(math.max, 0, perceptronLossTensorPart2)
+
+	local sumPerceptronLossTensorValue = AqwamTensorLibrary:sum(hingeLossTensor)
+
+	local numberOfData = getNumberOfData(labelTensor)
+
+	local resultValue = sumPerceptronLossTensorValue / numberOfData
+
+	local PartialFirstDerivativeFunction = function(firstDerivativeTensor)
+
+		local generatedLabelTensor = inputTensorArray[1]
+
+		local labelTensor = inputTensorArray[2]
+
+		local pureGeneratedLabelTensor = AutomaticDifferentiationTensor:fetchValue{generatedLabelTensor}
+
+		local pureLabelTensor = AutomaticDifferentiationTensor:fetchValue{labelTensor}
+
+		local indicatorFunction = function(x) return ((x > 0) and 1) or 0 end
+
+		local indicatorTensor = AqwamTensorLibrary:applyFunction(indicatorFunction, perceptronLossTensorPart2)
+
+		local partialFirstDerivativeTensorPart1 = AqwamTensorLibrary:divide(indicatorTensor, -numberOfData)
+
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{generatedLabelTensor}) then
+
+			if (generatedLabelTensor:getIsFirstDerivativeTensorRequired()) then
+
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensorPart1, pureLabelTensor) 
+
+				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)
+
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureGeneratedLabelTensor)
+
+				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
+
+				generatedLabelTensor:differentiate{collapsedFirstDerivativeTensor}
+
+			end
+
+		end
+
+		if (AutomaticDifferentiationTensor:checkIfIsAutomaticDifferentiationTensor{labelTensor}) then
+
+			if (labelTensor:getIsFirstDerivativeTensorRequired()) then
+
+				local partialFirstDerivativeTensor = AqwamTensorLibrary:multiply(partialFirstDerivativeTensorPart1, pureGeneratedLabelTensor) 
+
+				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)
+
+				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
+
+				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
+
+				labelTensor:differentiate{collapsedFirstDerivativeTensor}
+
+			end
+
+		end
+
+	end
+
+	return AutomaticDifferentiationTensor.new({resultValue, PartialFirstDerivativeFunction, inputTensorArray})
+
+end
+
 function CostFunctions.FastBinaryCrossEntropy(parameterDictionary)
 	
 	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
@@ -764,11 +846,31 @@ function CostFunctions.HingeLoss(parameterDictionary)
 
 	local hingeLossTensor = AutomaticDifferentiationTensor.maximum{0, hingeLossTensorPart1}
 
-	local sumHingeLossTensorTensor = hingeLossTensor:sum()
+	local sumHingeLossTensorTensorValue = hingeLossTensor:sum()
 
 	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = (cValue * sumHingeLossTensorTensor) / numberOfData
+	local resultValue = (cValue * sumHingeLossTensorTensorValue) / numberOfData
+
+	return resultValue
+
+end
+
+function CostFunctions.PerceptronLoss(parameterDictionary)
+
+	local generatedLabelTensor = parameterDictionary.generatedLabelTensor or parameterDictionary[1]
+
+	local labelTensor = parameterDictionary.labelTensor or parameterDictionary[2]
+
+	local perceptronLossTensorPart1 = -(generatedLabelTensor * labelTensor)
+
+	local perceptronLossTensor = AutomaticDifferentiationTensor.maximum{0, perceptronLossTensorPart1}
+
+	local sumPerceptronLossTensorTensorValue = perceptronLossTensor:sum()
+
+	local numberOfData = getNumberOfData(labelTensor)
+
+	local resultValue = sumPerceptronLossTensorTensorValue / numberOfData
 
 	return resultValue
 
@@ -800,11 +902,11 @@ function CostFunctions.CategoricalCrossEntropy(parameterDictionary)
 	
 	local categoricalCrossEntropyTensor = labelTensor * AutomaticDifferentiationTensor.logarithm{generatedLabelTensor}
 
-	local sumCategoricalCrossEntropy = categoricalCrossEntropyTensor:sum()
+	local sumCategoricalCrossEntropyValue = categoricalCrossEntropyTensor:sum()
 	
 	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = -sumCategoricalCrossEntropy / numberOfData
+	local resultValue = -sumCategoricalCrossEntropyValue / numberOfData
 	
 	return resultValue
 
@@ -842,11 +944,11 @@ function CostFunctions.MeanAbsoluteError(parameterDictionary)
 	
 	local absoluteErrorTensor = (generatedLabelTensor - labelTensor):absolute()
 
-	local sumAbsoluteError = absoluteErrorTensor:sum()
+	local sumAbsoluteErrorValue = absoluteErrorTensor:sum()
 	
 	local numberOfData = getNumberOfData(labelTensor)
 
-	local resultValue = sumAbsoluteError / numberOfData
+	local resultValue = sumAbsoluteErrorValue / numberOfData
 
 	return resultValue
 
