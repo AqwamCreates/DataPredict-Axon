@@ -60,7 +60,7 @@ local function collapseTensor(tensor, targetDimensionSizeArray)
 
 end
 
-function CostFunctions.SigmoidBinaryCrossEntropy(parameterDictionary)
+function FusedCostFunctions.SigmoidBinaryCrossEntropy(parameterDictionary)
 	
 	local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 	
@@ -146,7 +146,7 @@ function CostFunctions.SigmoidBinaryCrossEntropy(parameterDictionary)
 	
 end
 
-function CostFunctions.SoftmaxCategoricalCrossEntropy(parameterDictionary)
+function FusedCostFunctions.SoftmaxCategoricalCrossEntropy(parameterDictionary)
 
 	local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 
@@ -238,7 +238,7 @@ function CostFunctions.SoftmaxCategoricalCrossEntropy(parameterDictionary)
 	
 end
 
-function CostFunctions.StableSoftmaxCategoricalCrossEntropy(parameterDictionary)
+function FusedCostFunctions.StableSoftmaxCategoricalCrossEntropy(parameterDictionary)
 
 	local inputTensor = parameterDictionary.inputTensor or parameterDictionary[1]
 
