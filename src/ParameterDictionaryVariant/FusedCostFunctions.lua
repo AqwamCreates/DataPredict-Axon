@@ -92,6 +92,8 @@ local function calculateSoftmaxSparseCategoricalCrossEntropyFirstDerivativeTenso
 
 	if (currentDimension == (dimension - 1)) then -- This is where dimension size array of {1, ...} for the label tensor.
 		
+		local subLabelTensor = labelTensor[1]
+		
 		local subDimensionSizeArray = {}
 		
 		for i = 2, numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end 
@@ -100,7 +102,7 @@ local function calculateSoftmaxSparseCategoricalCrossEntropyFirstDerivativeTenso
 		
 		for i = 1, currentDimensionSize, 1 do
 
-			subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i], labelTensor[1], dimension, subDimensionSizeArray, subNumberOfDimensions, 1, i)
+			subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i], subLabelTensor, dimension, subDimensionSizeArray, subNumberOfDimensions, 1, i)
 
 		end
 		
