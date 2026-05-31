@@ -60,19 +60,13 @@ local function collapseTensor(tensor, targetDimensionSizeArray)
 
 end
 
-local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor, labelTensor, dimension, dimensionSizeArray, numberOfDimensions, currentDimension, topPositionIndex)
+local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor, labelTensor, dimensionSizeArray, numberOfDimensions, currentDimension, topPositionIndex)
 	
-	if (currentDimension == 0) then
+	if (numberOfDimensions == 1) then 
 		
-		if (topPositionIndex == labelTensor) then
-			
-			return partialFirstDerivativeTensor - 1
-			
-		else
-			
-			return partialFirstDerivativeTensor
-			
-		end
+		if (topPositionIndex == labelTensor) then return (partialFirstDerivativeTensor - 1) end
+		
+		return partialFirstDerivativeTensor
 		
 	end
 	
@@ -84,16 +78,24 @@ local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivati
 		
 		for i = 1, currentDimensionSize, 1 do
 
-			partialFirstDerivativeTensor[i] = subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i], labelTensor[i], dimension, dimensionSizeArray, numberOfDimensions, nextDimension, topPositionIndex)
+			partialFirstDerivativeTensor[i] = subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i], labelTensor[i], dimensionSizeArray, numberOfDimensions, nextDimension, topPositionIndex)
 
 		end
 		
 	else
 		
-		for i = 1, currentDimensionSize, 1 do
+		if (currentDimensionSize) then
+			
+			for i = 1, currentDimensionSize, 1 do
 
-			if (topPositionIndex == labelTensor[i]) then partialFirstDerivativeTensor[i] = partialFirstDerivativeTensor[i] - 1 end
+				if (topPositionIndex == labelTensor[i]) then partialFirstDerivativeTensor[i] = partialFirstDerivativeTensor[i] - 1 end
 
+			end
+			
+		else
+			
+			if (topPositionIndex == labelTensor) then partialFirstDerivativeTensor = partialFirstDerivativeTensor - 1 end
+			
 		end
 		
 	end
@@ -106,25 +108,19 @@ local function calculateSoftmaxSparseCategoricalCrossEntropyFirstDerivativeTenso
 	
 	local currentDimensionSize = dimensionSizeArray[currentDimension]
 
-	if (currentDimension == (dimension - 1)) then
+	if (currentDimension == dimension) then
 		
-		local nextDimensionSize = dimensionSizeArray[currentDimension + 1]
+		local subLabelTensor = labelTensor[1]
 		
 		local subDimensionSizeArray = {}
 		
-		for i = 3, numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end 
+		for i = 2, numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end 
 		
 		local subNumberOfDimensions = #subDimensionSizeArray
 		
-		local newCurrentDimension = currentDimension - 1
-		
 		for i = 1, currentDimensionSize, 1 do
 			
-			for j = 1, nextDimensionSize, 1 do
-				
-				partialFirstDerivativeTensor[i][j] = subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i][j], labelTensor[i][1], dimension, subDimensionSizeArray, subNumberOfDimensions, newCurrentDimension, j)
-				
-			end
+			partialFirstDerivativeTensor[i] = subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i], subLabelTensor, subDimensionSizeArray, subNumberOfDimensions, 1, i)
 
 		end
 		
