@@ -62,7 +62,7 @@ end
 
 local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor, labelTensor, dimensionSizeArray, numberOfDimensions, currentDimension, topPositionIndex)
 	
-	if (numberOfDimensions == 1) then 
+	if (numberOfDimensions == 0) then 
 		
 		if (topPositionIndex == labelTensor) then return (partialFirstDerivativeTensor - 1) end
 		
@@ -114,7 +114,7 @@ local function calculateSoftmaxSparseCategoricalCrossEntropyFirstDerivativeTenso
 		
 		local subDimensionSizeArray = {}
 		
-		for i = 2, numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end 
+		for i = (currentDimension + 1), numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end
 		
 		local subNumberOfDimensions = #subDimensionSizeArray
 		
