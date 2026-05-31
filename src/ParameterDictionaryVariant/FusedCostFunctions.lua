@@ -106,7 +106,7 @@ local function calculateSoftmaxSparseCategoricalCrossEntropyFirstDerivativeTenso
 	
 	local currentDimensionSize = dimensionSizeArray[currentDimension]
 
-	if (currentDimension == (dimension - 1)) then --This will be {..., 1, ...}
+	if (currentDimension == (dimension - 1)) then
 		
 		local nextDimensionSize = dimensionSizeArray[currentDimension + 1]
 		
