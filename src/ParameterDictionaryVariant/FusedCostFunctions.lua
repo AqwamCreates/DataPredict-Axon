@@ -64,7 +64,7 @@ local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivati
 	
 	if (numberOfDimensions == 0) then 
 		
-		if (topPositionIndex == labelTensor) then return (partialFirstDerivativeTensor - 1) end
+		if (labelTensor == topPositionIndex) then return (partialFirstDerivativeTensor - 1) end
 		
 		return partialFirstDerivativeTensor
 		
@@ -86,7 +86,7 @@ local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivati
 		
 		for i = 1, currentDimensionSize, 1 do
 
-			if (topPositionIndex == labelTensor[i]) then partialFirstDerivativeTensor[i] = partialFirstDerivativeTensor[i] - 1 end
+			if (labelTensor[i] == topPositionIndex) then partialFirstDerivativeTensor[i] = partialFirstDerivativeTensor[i] - 1 end
 
 		end
 		
