@@ -84,7 +84,7 @@ local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivati
 		
 		for i = 1, currentDimensionSize, 1 do
 
-			subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i], labelTensor[i], dimension, dimensionSizeArray, numberOfDimensions, nextDimension, topPositionIndex)
+			partialFirstDerivativeTensor[i] = subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i], labelTensor[i], dimension, dimensionSizeArray, numberOfDimensions, nextDimension, topPositionIndex)
 
 		end
 		
