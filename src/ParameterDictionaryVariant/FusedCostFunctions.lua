@@ -62,6 +62,20 @@ end
 
 local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor, labelTensor, dimension, dimensionSizeArray, numberOfDimensions, currentDimension, topPositionIndex)
 	
+	if (currentDimension == 0) then
+		
+		if (topPositionIndex == labelTensor) then
+			
+			return partialFirstDerivativeTensor - 1
+			
+		else
+			
+			return partialFirstDerivativeTensor
+			
+		end
+		
+	end
+	
 	local currentDimensionSize = dimensionSizeArray[currentDimension]
 	
 	if (currentDimension < numberOfDimensions) then
@@ -77,12 +91,14 @@ local function subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivati
 	else
 		
 		for i = 1, currentDimensionSize, 1 do
-			
-			if (labelTensor[i] == topPositionIndex) then partialFirstDerivativeTensor[i] = partialFirstDerivativeTensor[i] - 1 end
+
+			if (topPositionIndex == labelTensor[i]) then partialFirstDerivativeTensor[i] = partialFirstDerivativeTensor[i] - 1 end
 
 		end
 		
 	end
+	
+	return partialFirstDerivativeTensor
 	
 end
 
@@ -90,19 +106,25 @@ local function calculateSoftmaxSparseCategoricalCrossEntropyFirstDerivativeTenso
 	
 	local currentDimensionSize = dimensionSizeArray[currentDimension]
 
-	if (currentDimension == (dimension - 1)) then -- This is where dimension size array of {1, ...} for the label tensor.
+	if (currentDimension == (dimension - 1)) then --This will be {..., 1, ...}
 		
-		local subLabelTensor = labelTensor[1]
+		local nextDimensionSize = dimensionSizeArray[currentDimension + 1]
 		
 		local subDimensionSizeArray = {}
 		
-		for i = 2, numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end 
+		for i = 3, numberOfDimensions, 1 do table.insert(subDimensionSizeArray, dimensionSizeArray[i]) end 
 		
 		local subNumberOfDimensions = #subDimensionSizeArray
 		
+		local newCurrentDimension = currentDimension - 1
+		
 		for i = 1, currentDimensionSize, 1 do
-
-			subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i], subLabelTensor, dimension, subDimensionSizeArray, subNumberOfDimensions, 1, i)
+			
+			for j = 1, nextDimensionSize, 1 do
+				
+				partialFirstDerivativeTensor[i][j] = subtractMinusOneAtTopPositionIndexFromTensor(partialFirstDerivativeTensor[i][j], labelTensor[i][1], dimension, subDimensionSizeArray, subNumberOfDimensions, newCurrentDimension, j)
+				
+			end
 
 		end
 		
@@ -577,7 +599,7 @@ function FusedCostFunctions.StableSoftmaxSparseCategoricalCrossEntropy(parameter
 				local firstDerivativeTensor = AqwamTensorLibrary:multiply(firstDerivativeTensor, partialFirstDerivativeTensor)
 
 				firstDerivativeTensor = AqwamTensorLibrary:divide(firstDerivativeTensor, -numberOfData)
-
+				
 				local dimensionSizeArray = AqwamTensorLibrary:getDimensionSizeArray(pureLabelTensor)
 
 				local collapsedFirstDerivativeTensor = collapseTensor(firstDerivativeTensor, dimensionSizeArray)
