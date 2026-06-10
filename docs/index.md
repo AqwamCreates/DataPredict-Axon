@@ -14,7 +14,7 @@
  
   * Standard and White-Label tiers available for commercial projects.
 
-* For information regarding potential license violations and eligibility for a bounty reward, please refer to the [Terms And Conditions Violation Bounty Reward Information](TermsAndConditionsViolationBountyRewardInformation.md).
+* For information regarding potential license violations and eligibility for a bounty reward, please refer to the [Terms And Conditions Violation Bounty Reward Information](TermsAndConditionsViolationBountyRewardInformation.md) and [Terms And Conditions Enforcement Information](TermsAndConditionsEnforcementInformation.md).
 
 ![DataPredictAxonIconSmall](https://github.com/user-attachments/assets/06f4816e-28c0-4202-a2cf-84420ddb3387)
 
