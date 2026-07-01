@@ -98,9 +98,9 @@ These terms and conditions (“Agreement”) is a legal agreement between Aqwam 
 
 * If all of the conditions under this section are met, then the Agreement will be terminated immediately upon the Original Creator's revival.
 
-### Shell Identity Conditions
+### Secondary Identity Conditions
 
-* For the Original Creator to satisfy having an "Identity Copy", it must satisfy all of these conditions:
+* For the Original Creator to satisfy having an "Secondary Identity", it must satisfy all of these conditions:
 
   * Satisfies "Valid Identity" Conditions, or must match 100% genetically.
  
@@ -114,6 +114,6 @@ These terms and conditions (“Agreement”) is a legal agreement between Aqwam 
 
 ### Handling Of Specific Scenarios
 
-* Should the first replication of the Original Creator results having an "Original Identity" status, the subsequent replications of the Original Creator results in having an "Shell Identity" status.
+* Should the first replication of the Original Creator results having an "Original Identity" status, the subsequent replications of the Original Creator results in having an "Secondary Identity" status.
 
 * Each replication of Original Creator is assumed to have an "Original Identity" status unless it fails one of the conditions, provided that there are no other replicates of Original Creator exists in the entire world during the time of replication.
